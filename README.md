@@ -92,7 +92,7 @@ Class A with a dependency on class B:
     {
         public function __construct(B $b)
         {
-            $this->otherObject = $b;
+            $this->b = $b;
         }
     }
 
