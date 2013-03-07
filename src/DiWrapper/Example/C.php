@@ -14,6 +14,7 @@ class C
      */
     public function __construct(Config $config, array $params = array())
     {
+        $this->config = $config;
         $this->param = $params;
     }
 }
