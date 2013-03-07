@@ -69,6 +69,6 @@ class Module
     {
         $config = $mvcEvent->getApplication()->getServiceManager()->get('config');
         $this->diWrapper->setConfig(new Config(array('di' => $config['di'])));
-        $this->diWrapper->init();
+        $this->diWrapper->init($mvcEvent);
     }
 }

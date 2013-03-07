@@ -20,6 +20,7 @@ use Zend\Di\InstanceManager;
 use Zend\Code\Scanner\DirectoryScanner;
 use Zend\Config\Config;
 use Zend\Di\Config as DiConfig;
+use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use DiWrapper\Exception\RuntimeException;
@@ -132,8 +133,10 @@ class DiWrapper implements AbstractFactoryInterface
     /**
      * Set up DI definitions and create instances.
      */
-    public function init()
+    public function init(MvcEvent $mvcEvent)
     {
+        $this->setStandardSharedInstances($mvcEvent);
+
         $this->isInitialized = true;
 
         $fileName = realpath(__DIR__ . sprintf('/../../data/%s.php', self::GENERATED_SERVICE_LOCATOR));
@@ -187,6 +190,32 @@ class DiWrapper implements AbstractFactoryInterface
     {
         return array_key_exists($className, $this->typePreferences) ?
             $this->typePreferences[$className] : $className;
+    }
+
+    /**
+     * @param MvcEvent $mvcEvent
+     * @return array
+     */
+    protected function getStandardSharedInstances(MvcEvent $mvcEvent)
+    {
+        $sm = $mvcEvent->getApplication()->getServiceManager();
+        return array(
+            'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
+            'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
+        );
+    }
+
+    /**
+     * @param MvcEvent $mvcEvent
+     * @return array
+     */
+    protected function setStandardSharedInstances(MvcEvent $mvcEvent)
+    {
+        foreach ($this->getStandardSharedInstances($mvcEvent) as $class => $instance) {
+            if (! array_key_exists($class, $this->sharedInstances)) {
+                $this->sharedInstances[$class] = $instance;
+            }
+        }
     }
 
     /**
