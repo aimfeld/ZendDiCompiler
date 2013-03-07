@@ -33,3 +33,14 @@ Make sure that the data directory is writable, e.g.
 
     chmod 775 vendor/aimfeld/di-wrapper/data
     
+Finally, add `DiWrapper` to the modules array in your `application.config.php`.
+
+# Usage
+
+DiWrapper uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
+(which is not well documented yet). To make things easier, see `vendor/aimfeld/di-wrapper/config/module.config.php` for 
+examples of how to specify:
+
+- Directories for the code scanner
+- Instance configuration
+- Type preferences
