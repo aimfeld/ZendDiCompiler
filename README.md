@@ -59,7 +59,8 @@ examples of how to specify:
 Let's say we want to use the DiWrapper to create a controller class and inject some 
 dependencies (of course without writing factory methods for Zend\ServiceManager). 
 We also want to inject the DiWrapper itself into the controller, so we can use it to get 
-dependencies from within the controller. We have the following classes:
+dependencies from within the controller. We have the following classes 
+(see [example source](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example)):
 
 ExampleController:
 
@@ -77,6 +78,9 @@ ExampleController:
             $this->diWrapper = $diWrapper;
             $this->config = $config;
             $this->a = $a;
+            
+            // Of course we could also contructor-inject B, this is just for illustration
+            $b = $diWrapper->get('DiWrapper\Example\B');
         }
     }
 
@@ -88,7 +92,7 @@ Class A with a dependency on class B:
     {
         public function __construct(B $b)
         {
-            $this->otherObject = $b;
+            $this->b = $b;
         }
     }
 
@@ -103,18 +107,51 @@ Class B with a constructor parameter of unspecified type:
     }
     
 We add the source directory as a scan directory for DiWrapper. Since B has a parameter of unspecified type, we
-have to specify a value to inject. The config looks like this
+have to specify a value to inject. If class B had required the config in its constructor and retrieved the
+parameter from there, we wouldn't need to specify anything. The config looks like this
 (also see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
 
     'di' => array(
         'scan_directories' => array(
             __DIR__ . '/../src/DiWrapper/Example',
         ),
-        'DiWrapper\Example\B' => array(
-            'parameters' => array(
+        'instance' => array(
+            'DiWrapper\Example\B' => array(
+                'parameters' => array(
                     'someParam' => 'Hello',
+                ),
             ),
-        ),        
+        ),            
     ),
 
+You could then use the controller in your Application module, e.g. like this:
+
+    namespace Application;
+
+    class Module
+    {    
+        protected $diWrapper;
+        
+        public function getControllerConfig()
+        {
+            return array(
+                'factories' => array(
+                    'Application\Controller\Example' => function() {
+                        return $this->diWrapper->get('DiWrapper\Example\ExampleController');
+                    },                
+                ),
+            );
+        }    
+
+        public function onBootstrap(MvcEvent $mvcEvent)
+        {
+            $sm = $mvcEvent->getApplication()->getServiceManager();
+
+            // Add shared instances to DiWrapper
+            $this->diWrapper = $sm->get('di-wrapper');
+            $this->diWrapper->addSharedInstances(array(
+                'Zend\Config\Config' => new Config($sm->get('config'));
+            ));
+        }
+    }
 
