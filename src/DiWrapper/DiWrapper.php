@@ -71,7 +71,6 @@ class DiWrapper implements AbstractFactoryInterface
      */
     protected $generatedServiceLocator;
 
-
     /**
      * Set up DI definitions and create instances.
      *
@@ -236,7 +235,9 @@ class DiWrapper implements AbstractFactoryInterface
             $object instanceof GeneratedServiceLocator ||
             $object instanceof TempServiceLocator);
 
-        $sharedInstances = $this->sharedInstanceGetter->getSharedInstances($this);
+        $sharedInstances = $this->sharedInstanceGetter->getSharedInstances();
+        $sharedInstances[get_class($this)] = $this;
+
         if ($object instanceof InstanceManager) {
             foreach ($sharedInstances as $classOrAlias => $instance) {
                 $object->addSharedInstance($instance, $classOrAlias);

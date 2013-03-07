@@ -37,10 +37,22 @@ class Module
     }
 
     /**
-     * @param MvcEvent $event
+     * @return array
      */
-    public function onBootstrap(MvcEvent $event)
+    public function getServiceConfig()
     {
+        // Instance must be created here already but is set up later.
+        $diWrapper = new DiWrapper;
 
+        return array(
+            // Set diWrapper as fallback. Now Zend\ServiceManager uses DiWrapper to retrieve instances.
+            'abstract_factories' => array(
+                $diWrapper,
+            ),
+            // Provide di-wrapper as a Zend\ServiceManager service.
+            'services' => array(
+                'di-wrapper' => $diWrapper,
+            )
+        );
     }
 }
