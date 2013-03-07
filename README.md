@@ -56,49 +56,65 @@ examples of how to specify:
 
 # Example
 
-Let's say we want to use the DiWrapper in our Application module to create the IndexController class and inject some 
-dependencies. We also want to inject the DiWrapper itself into the controller, so we can use it to get 
+Let's say we want to use the DiWrapper to create a controller class and inject some 
+dependencies (of course without writing factory methods for Zend\ServiceManager). 
+We also want to inject the DiWrapper itself into the controller, so we can use it to get 
 dependencies from within the controller. We have the following classes:
 
-IndexController;
+ExampleController:
 
-    namespace Application\Controller;
+    namespace DiWrapper\Example;
 
     use Zend\Mvc\Controller\AbstractActionController;
     use DiWrapper\DiWrapper;
     use Zend\Config\Config;
-    use Application\SomeClass;
 
-    class IndexController extends AbstractActionController
+    class ExampleController extends AbstractActionController
     {
-        /**
-         * @param DiWrapper $diWrapper
-         */
-        public function __construct(DiWrapper $diWrapper, Config $config, SomeClass $someObject)
+
+        public function __construct(DiWrapper $diWrapper, Config $config, A $a)
         {
             $this->diWrapper = $diWrapper;
             $this->config = $config;
-            $this->someObject = $someObject;
+            $this->a = $a;
         }
     }
 
-SomeClass:
+Class A with a dependency on class B:
 
-    namespace Application;
+    namespace DiWrapper\Example;
 
-    class SomeClass
+    class A
     {
-        public function __construct(OtherClass $otherObject)
+        public function __construct(B $b)
         {
-            $this->otherObject = $otherObject;
+            $this->otherObject = $b;
         }
     }
 
-OtherClass
+Class B with a constructor parameter of unspecified type:
 
-    namespace Application;
-
-    class OtherClass
+    class B
     {
-
+        public function __construct($someParam)
+        {
+            $this->someParam = $someParam;
+        }
     }
+    
+We add the source directory as a scan directory for DiWrapper. Since B has a parameter of unspecified type, we
+have to specify a value to inject. The config looks like this
+(also see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
+
+    'di' => array(
+        'scan_directories' => array(
+            __DIR__ . '/../src/DiWrapper/Example',
+        ),
+        'DiWrapper\Example\B' => array(
+            'parameters' => array(
+                    'someParam' => 'Hello',
+            ),
+        ),        
+    ),
+
+
