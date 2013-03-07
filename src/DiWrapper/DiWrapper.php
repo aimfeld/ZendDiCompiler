@@ -77,38 +77,8 @@ class DiWrapper implements AbstractFactoryInterface
                 'Shared instances must be added before the onBootstrap() method of the DiWrapper module is executed.
                 Make sure your module is added *before* the DiWrapper module.');
         }
+
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
-    }
-
-    /**
-     * @param Config $config
-     */
-    public function setConfig(Config $config)
-    {
-        $this->config = $config;
-
-        // Provide easy access to type preferences
-        /** @var Config $typePreferences */
-        $typePreferences = $this->config->di->instance->preference;
-        $this->typePreferences = $typePreferences->toArray();
-    }
-
-    /**
-     * Set up DI definitions and create instances.
-     */
-    public function init()
-    {
-        $this->isInitialized = true;
-
-        $fileName = realpath(__DIR__ . sprintf('/../../data/%s.php', self::GENERATED_SERVICE_LOCATOR));
-        if (file_exists($fileName)) {
-            require_once $fileName;
-            $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
-            $this->generatedServiceLocator = new $serviceLocatorClass;
-            $this->setSharedInstances($this->generatedServiceLocator);
-        } else {
-            $this->generatedServiceLocator = $this->reset(false);
-        }
     }
 
     /**
@@ -143,6 +113,37 @@ class DiWrapper implements AbstractFactoryInterface
         }
 
         return $instance;
+    }
+
+    /**
+     * @param Config $config
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+
+        // Provide easy access to type preferences
+        /** @var Config $typePreferences */
+        $typePreferences = $this->config->di->instance->preference;
+        $this->typePreferences = $typePreferences->toArray();
+    }
+
+    /**
+     * Set up DI definitions and create instances.
+     */
+    public function init()
+    {
+        $this->isInitialized = true;
+
+        $fileName = realpath(__DIR__ . sprintf('/../../data/%s.php', self::GENERATED_SERVICE_LOCATOR));
+        if (file_exists($fileName)) {
+            require_once $fileName;
+            $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
+            $this->generatedServiceLocator = new $serviceLocatorClass;
+            $this->setSharedInstances($this->generatedServiceLocator);
+        } else {
+            $this->generatedServiceLocator = $this->reset(false);
+        }
     }
 
     /**
@@ -296,7 +297,6 @@ class DiWrapper implements AbstractFactoryInterface
 
         return array($fileName, __NAMESPACE__ . '\\' . $className);
     }
-
 
     /**
      * @param bool $recoverFromOutdatedDefinitions
