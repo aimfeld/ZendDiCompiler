@@ -11,6 +11,8 @@
 
 namespace DiWrapper;
 
+use Zend\Mvc\MvcEvent;
+
 /**
  * @package    DiWrapper
  */
@@ -32,5 +34,13 @@ class Module
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    /**
+     * @param MvcEvent $event
+     */
+    public function onBootstrap(MvcEvent $event)
+    {
+
     }
 }
