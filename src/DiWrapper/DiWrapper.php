@@ -67,10 +67,16 @@ class DiWrapper implements AbstractFactoryInterface
     protected $generatedServiceLocator;
 
     /**
-     * @param array $sharedInstances
+     * @param array $sharedInstances  ('MyModule\MyClass' => $instance)
+     * @throws RuntimeException
      */
     public function addSharedInstances(array $sharedInstances)
     {
+        if ($this->isInitialized) {
+            throw new RuntimeException(
+                'Shared instances must be added before the onBootstrap() method of the DiWrapper module is executed.
+                Make sure your module is added *before* the DiWrapper module.');
+        }
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
     }
 
