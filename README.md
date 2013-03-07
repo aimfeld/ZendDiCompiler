@@ -7,7 +7,8 @@ It saves you a lot of work, since there's no need anymore for writing Zend\Servi
 and keeping them up-to-date manually.
 
 DiWrapper scans your code (using Zend\Di) and creates factory methods automatically. If the factory methods are outdated, DiWrapper
-updates them in the background. Therefore, you develop faster and performance in production is great, too!
+updates them in the background. Therefore, you _develop faster_, _avoid bugs_ due to outdated factory methods, and 
+experience _great performance_ in production!
 
 ## Features
 
