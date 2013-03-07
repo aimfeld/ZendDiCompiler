@@ -108,6 +108,17 @@ Class B with a constructor parameter of unspecified type:
         }
     }
     
+Class C with a runtime-parameter array passed to DiWrapper::get()
+    
+    class C
+    {
+        public function __construct(Config $config, array $params = array())
+        {
+            $this->config = $config;
+            $this->param = $params;
+        }
+    }
+    
 We add the source directory as a scan directory for DiWrapper. Since B has a parameter of unspecified type, we
 have to specify a value to inject. If class B had required the config in its constructor and retrieved the
 parameter from there, we wouldn't need to specify anything. The config looks like this
