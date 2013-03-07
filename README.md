@@ -115,11 +115,13 @@ parameter from there, we wouldn't need to specify anything. The config looks lik
         'scan_directories' => array(
             __DIR__ . '/../src/DiWrapper/Example',
         ),
-        'DiWrapper\Example\B' => array(
-            'parameters' => array(
-                'someParam' => 'Hello',
+        'instance' => array(
+            'DiWrapper\Example\B' => array(
+                'parameters' => array(
+                        'someParam' => 'Hello',
+                ),
             ),
-        ),        
+        ),            
     ),
 
 
