@@ -8,6 +8,7 @@ DiWrapper scans your code (using Zend\Di) and creates factory methods automatica
 updates them in the background. Therefore, you develop faster and performance in production is great, too!
 
 ## Features
+
 - DI definition scanning and factory code generation
 - Can deal with shared instances and type preferences
 - Can be used as a fallback abstract factory for Zend\ServiceManager, just like Zend\Di\Di
@@ -15,8 +16,20 @@ updates them in the background. Therefore, you develop faster and performance in
 - Can create new instances or reuse instances created before
 
 ## Current limitations
+
 - Only constructor-injection supported (but e.g. not setter-injection)
 
 # Installation
 
-todo
+This module is available on [Packagist](https://packagist.org/packages/aimfeld/di-wrapper).
+In your project's `composer.json` use:
+
+    {   
+        "require": {
+            "aimfeld/di-wrapper": "0.1.*"
+    }
+    
+Make sure that the data directory is writable, e.g.
+
+    chmod 775 vendor/aimfeld/di-wrapper/data
+    
