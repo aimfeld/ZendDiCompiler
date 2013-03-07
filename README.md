@@ -1,3 +1,5 @@
+_!!!Warning: this module is still in alpha stage, use at your own risk!!!_
+
 # DiWrapper
 
 DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
