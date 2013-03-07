@@ -169,7 +169,7 @@ DiWrapper and create a controller _without writing Zend\ServiceManager factory m
         }
     }
 
-DiWrapper has automatically generated a ServiceLocator in the [data directory](https://github.com/aimfeld/di-wrapper/tree/master/data):
+DiWrapper has automatically generated a ServiceLocator in the data directory.
 Services can be created or retrieved using the get() method. 
 
 This is all behind the scenes. You can just constructor inject stuff in you Application module and you don't need
