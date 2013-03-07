@@ -11,6 +11,7 @@
 
 namespace DiWrapper;
 
+use Zend\Di\Di;
 use Zend\Di\Definition\ArrayDefinition;
 use Zend\Di\Definition\CompilerDefinition;
 use Zend\Di\Definition\IntrospectionStrategy;
