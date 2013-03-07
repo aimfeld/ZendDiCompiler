@@ -12,6 +12,7 @@ return array(
         // Directories that will be code-scanned
         'scan_directories' => array(
             // e. g. 'vendor/provider/module/src',
+            __DIR__ . '/../src/DiWrapper/Example',
         ),
         // Definitions
         'definition' => array(
@@ -26,12 +27,11 @@ return array(
             // A good approach is to pass a Zend\Config\Config object to your classes instead of single
             // parameters. This makes things more flexible and avoids the need of configuring instance parameters.
             // Of course, third party modules may not follow this approach, so intances need to be configured here, e.g.
-            /*
-            'MyModule/HelloWorldClass' => array('parameters' => array(
-                'helloParam' => 'Hello',
-                'worldParam' => 'World',
-            )),
-            */
+            'DiWrapper\Example\B' => array(
+                'parameters' => array(
+                    'someParam' => 'Hello',
+                ),
+            ),
         ),
     ),
 );
