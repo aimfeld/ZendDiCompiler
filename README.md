@@ -35,7 +35,14 @@ Make sure that the data directory is writable, e.g.
 
     chmod 775 vendor/aimfeld/di-wrapper/data
     
-Finally, add `DiWrapper` to the modules array in your `application.config.php`.
+Finally, add `DiWrapper` to the modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
+modules where it is used:
+
+    'modules' => array(		
+		'SomeModule',
+		'Application',
+		'DiWrapper',
+	),
 
 # Usage
 
