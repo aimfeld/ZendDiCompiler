@@ -138,8 +138,8 @@ parameter from there, we wouldn't need to specify anything. The config looks lik
         ),            
     ),
 
-In your Application module we provide the config a shared instance to DiWrapper and create a controller without
-writing Zend\ServiceManager factory methods for the controller, A, or B:
+This is how you can use DiWrapper in your Application module. Here we provide the config as a shared instance to 
+DiWrapper and create a controller _without writing Zend\ServiceManager factory methods for the controller, A, B, or C_:
 
     namespace Application;
 
