@@ -18,6 +18,9 @@
     "autoload": {
         "psr-0": {
             "DiWrapper": "src/"
-        }
+        },
+        "classmap": [
+            "./Module.php"
+        ]
     }
 }
