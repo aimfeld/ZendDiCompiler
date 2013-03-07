@@ -23,9 +23,9 @@ class ExampleController extends AbstractActionController
         $this->a = $a;
 
         // Of course we could also contructor-inject B, this is just for illustration
-        $b = $diWrapper->get('DiWrapper\Example\B');
+        $this->b = $diWrapper->get('DiWrapper\Example\B');
 
-        // And here we generate a runtime object, automatically injecting the config
-        $c = $diWrapper->get('DiWrapper\Example\C', array('hello' => 'world'));
+        // And here we use the DiWrapper as a runtime-object factory, automatically injecting the config
+        $this->c = $diWrapper->get('DiWrapper\Example\C', array('hello' => 'world'), true);
     }
 }
