@@ -118,10 +118,40 @@ parameter from there, we wouldn't need to specify anything. The config looks lik
         'instance' => array(
             'DiWrapper\Example\B' => array(
                 'parameters' => array(
-                        'someParam' => 'Hello',
+                    'someParam' => 'Hello',
                 ),
             ),
         ),            
     ),
 
+You could then use the controller in your Application module, e.g. like this:
+
+    namespace Application;
+
+    class Module
+    {    
+        protected $diWrapper;
+        
+        public function getControllerConfig()
+        {
+            return array(
+                'factories' => array(
+                    'Application\Controller\Example' => function() {
+                        return $this->diWrapper->get('DiWrapper\Example\ExampleController');
+                    },                
+                ),
+            );
+        }    
+
+        public function onBootstrap(MvcEvent $mvcEvent)
+        {
+            $sm = $mvcEvent->getApplication()->getServiceManager();
+
+            // Add shared instances to DiWrapper
+            $this->diWrapper = $sm->get('di-wrapper');
+            $this->diWrapper->addSharedInstances(array(
+                'Zend\Config\Config' => new Config($sm->get('config'));
+            ));
+        }
+    }
 
