@@ -257,17 +257,19 @@ class DiWrapper implements AbstractFactoryInterface
     {
         $generator = new Generator(clone($this->di));
 
-        list($filename, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
+        list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
 
         if ($recoverFromOutdatedDefinitions) {
             // Within a php request, a class can only be loaded once. Therefore, we need a
             // temporary service locator class with updated definitions. The class
             // is used to create the service locator and then immediately deleted afterwards.
             // The next request uses the updated service locator class.
-            list($filename, $generatedClass) = $this->writeServiceLocator($generator, self::TEMP_SERVICE_LOCATOR);
+            list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::TEMP_SERVICE_LOCATOR);
+            require_once $fileName;
             $serviceLocator = new $generatedClass;
-            unlink($filename);
+            unlink($fileName);
         } else {
+            require_once $fileName;
             $serviceLocator = new $generatedClass;
         }
 
@@ -284,11 +286,11 @@ class DiWrapper implements AbstractFactoryInterface
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
         $file = $generator->getCodeGenerator();
-        $filename = __DIR__ . "/../../data/$className.php";
-        $file->setFilename($filename);
+        $fileName = __DIR__ . "/../../data/$className.php";
+        $file->setFilename($fileName);
         $file->write();
 
-        return array($filename, __NAMESPACE__ . '\\' . $className);
+        return array($fileName, __NAMESPACE__ . '\\' . $className);
     }
 
 
