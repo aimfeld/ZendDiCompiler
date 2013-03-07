@@ -12,12 +12,18 @@
 namespace DiWrapper;
 
 use Zend\Mvc\MvcEvent;
+use Zend\Config\Config;
 
 /**
  * @package    DiWrapper
  */
 class Module
 {
+    /**
+     * @var DiWrapper
+     */
+    protected $diWrapper;
+
     /**
      * @return array
      */
@@ -42,17 +48,27 @@ class Module
     public function getServiceConfig()
     {
         // Instance must be created here already but is set up later.
-        $diWrapper = new DiWrapper;
+        $this->diWrapper = new DiWrapper;
 
         return array(
             // Set diWrapper as fallback. Now Zend\ServiceManager uses DiWrapper to retrieve instances.
             'abstract_factories' => array(
-                $diWrapper,
+                $this->diWrapper,
             ),
             // Provide di-wrapper as a Zend\ServiceManager service.
             'services' => array(
-                'di-wrapper' => $diWrapper,
+                'di-wrapper' => $this->diWrapper,
             )
         );
+    }
+
+    /**
+     * @param MvcEvent $mvcEvent
+     */
+    public function onBootstrap(MvcEvent $mvcEvent)
+    {
+        $config = $mvcEvent->getApplication()->getServiceManager()->get('config');
+        $this->diWrapper->setConfig(new Config(array('di' => $config['di'])));
+        $this->diWrapper->init();
     }
 }

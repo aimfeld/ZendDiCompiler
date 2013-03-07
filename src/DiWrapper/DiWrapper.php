@@ -47,19 +47,14 @@ class DiWrapper implements AbstractFactoryInterface
     protected $config;
 
     /**
-     * @var SharedInstanceProviderInterface
+     * @var object[]
      */
-    protected $sharedInstanceGetter;
+    protected $sharedInstances = array();
 
     /**
      * @var string[]
      */
     protected $typePreferences = array();
-
-    /**
-     * @var Di
-     */
-    protected $di;
 
     /**
      * @var bool
@@ -72,20 +67,31 @@ class DiWrapper implements AbstractFactoryInterface
     protected $generatedServiceLocator;
 
     /**
-     * Set up DI definitions and create instances.
-     *
-     * @param Config $config  Must contain a valid ZF2 DI configuration
-     * @param SharedInstanceProviderInterface $sharedInstanceGetter
+     * @param array $sharedInstances
      */
-    public function init(Config $config, SharedInstanceProviderInterface $sharedInstanceGetter)
+    public function addSharedInstances(array $sharedInstances)
+    {
+        $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
+    }
+
+    /**
+     * @param Config $config
+     */
+    public function setConfig(Config $config)
     {
         $this->config = $config;
-        $this->sharedInstanceGetter = $sharedInstanceGetter;
 
-        $this->di = new Di;
+        // Provide easy access to type preferences
+        /** @var Config $typePreferences */
+        $typePreferences = $this->config->di->instance->preference;
+        $this->typePreferences = $typePreferences->toArray();
+    }
 
-        $this->applyConfig();
-
+    /**
+     * Set up DI definitions and create instances.
+     */
+    public function init()
+    {
         $this->isInitialized = true;
 
         $fileName = realpath(__DIR__ . sprintf('/../../data/%s.php', self::GENERATED_SERVICE_LOCATOR));
@@ -176,22 +182,6 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
-     * Apply DI config
-     */
-    protected function applyConfig()
-    {
-        // Setup definition and instance configuration, see
-        // http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html
-        $diConfig = new DiConfig($this->config->di);
-        $this->di->configure($diConfig);
-
-        // Provide easy access to type preferences
-        /** @var Config $typePreferences */
-        $typePreferences = $this->config->di->instance->preference;
-        $this->typePreferences = $typePreferences->toArray();
-    }
-
-    /**
      * @return DefinitionList
      */
     protected function getDefinitionList()
@@ -235,15 +225,15 @@ class DiWrapper implements AbstractFactoryInterface
             $object instanceof GeneratedServiceLocator ||
             $object instanceof TempServiceLocator);
 
-        $sharedInstances = $this->sharedInstanceGetter->getSharedInstances();
-        $sharedInstances[get_class($this)] = $this;
+
+        $this->sharedInstances[get_class($this)] = $this;
 
         if ($object instanceof InstanceManager) {
-            foreach ($sharedInstances as $classOrAlias => $instance) {
+            foreach ($this->sharedInstances as $classOrAlias => $instance) {
                 $object->addSharedInstance($instance, $classOrAlias);
             }
         } else {
-            foreach ($sharedInstances as $classOrAlias => $instance) {
+            foreach ($this->sharedInstances as $classOrAlias => $instance) {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $object->set($classOrAlias, $instance);
             }
@@ -256,7 +246,14 @@ class DiWrapper implements AbstractFactoryInterface
      */
     protected function generateServiceLocator($recoverFromOutdatedDefinitions)
     {
-        $generator = new Generator(clone($this->di));
+        // Setup Di
+        $di = new Di;
+        $diConfig = new DiConfig($this->config->di);
+        $di->configure($diConfig);
+        $di->setDefinitionList($this->getDefinitionList());
+        $this->setSharedInstances($di->instanceManager());
+
+        $generator = new Generator($di);
 
         list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
 
@@ -301,8 +298,6 @@ class DiWrapper implements AbstractFactoryInterface
      */
     protected function reset($recoverFromOutdatedDefinitions)
     {
-        $this->di->setDefinitionList($this->getDefinitionList());
-        $this->setSharedInstances($this->di->instanceManager());
         $generatedServiceLocator = $this->generateServiceLocator($recoverFromOutdatedDefinitions);
         $this->setSharedInstances($generatedServiceLocator);
 
