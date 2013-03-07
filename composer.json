@@ -1,0 +1,23 @@
+{
+    "name": "aimfeld/di-wrapper",
+    "description": "A Zend Framework 2 module that uses auto-generated factory code for dependency-injection.",
+    "keywords": ["dependency-injection", "zend-framework", "service manager"],
+    "homepage": "https://github.com/aimfeld/di-wrapper",
+    "type": "library",
+    "license": "New BSD License",
+    "authors": [
+        {
+            "name": "Adrian Imfeld",
+            "email": "adrian.imfeld@cloud-solutions.net",
+            "homepage": "http://www.cloud-solutions.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "autoload": {
+        "psr-0": {
+            "DiWrapper": "src/"
+        }
+    }
+}
