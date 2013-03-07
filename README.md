@@ -13,9 +13,10 @@ updates them in the background. Therefore, you develop faster and performance in
 
 - DI definition scanning and factory code generation
 - Can deal with shared instances and type preferences
-- Can be used as a fallback abstract factory for Zend\ServiceManager, just like Zend\Di\Di
+- Is used as a fallback abstract factory for Zend\ServiceManager
 - Detection of outdated generated code and automatic rescanning (great for development)
 - Can create new instances or reuse instances created before
+- Generates objects with runtime params using automatic service injection
 
 ## Current limitations
 
