@@ -53,3 +53,52 @@ examples of how to specify:
 - Directories for the code scanner
 - Instance configuration
 - Type preferences
+
+# Example
+
+Let's say we want to use the DiWrapper in our Application module to create the IndexController class and inject some 
+dependencies. We also want to inject the DiWrapper itself into the controller, so we can use it to get 
+dependencies from within the controller. We have the following classes:
+
+IndexController;
+
+    namespace Application\Controller;
+
+    use Zend\Mvc\Controller\AbstractActionController;
+    use DiWrapper\DiWrapper;
+    use Zend\Config\Config;
+    use Application\SomeClass;
+
+    class IndexController extends AbstractActionController
+    {
+        /**
+         * @param DiWrapper $diWrapper
+         */
+        public function __construct(DiWrapper $diWrapper, Config $config, SomeClass $someObject)
+        {
+            $this->diWrapper = $diWrapper;
+            $this->config = $config;
+            $this->someObject = $someObject;
+        }
+    }
+
+SomeClass:
+
+    namespace Application;
+
+    class SomeClass
+    {
+        public function __construct(OtherClass $otherObject)
+        {
+            $this->otherObject = $otherObject;
+        }
+    }
+
+OtherClass
+
+    namespace Application;
+
+    class OtherClass
+    {
+
+    }
