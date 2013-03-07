@@ -59,7 +59,8 @@ examples of how to specify:
 Let's say we want to use the DiWrapper to create a controller class and inject some 
 dependencies (of course without writing factory methods for Zend\ServiceManager). 
 We also want to inject the DiWrapper itself into the controller, so we can use it to get 
-dependencies from within the controller. We have the following classes:
+dependencies from within the controller. We have the following classes 
+(see [example source](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example)):
 
 ExampleController:
 
@@ -103,7 +104,8 @@ Class B with a constructor parameter of unspecified type:
     }
     
 We add the source directory as a scan directory for DiWrapper. Since B has a parameter of unspecified type, we
-have to specify a value to inject. The config looks like this
+have to specify a value to inject. If class B had required the config in its constructor and retrieved the
+parameter from there, we wouldn't need to specify anything. The config looks like this
 (also see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
 
     'di' => array(
@@ -112,7 +114,7 @@ have to specify a value to inject. The config looks like this
         ),
         'DiWrapper\Example\B' => array(
             'parameters' => array(
-                    'someParam' => 'Hello',
+                'someParam' => 'Hello',
             ),
         ),        
     ),
