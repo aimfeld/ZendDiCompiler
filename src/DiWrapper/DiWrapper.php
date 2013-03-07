@@ -139,7 +139,8 @@ class DiWrapper implements AbstractFactoryInterface
 
         $this->isInitialized = true;
 
-        $fileName = realpath(__DIR__ . sprintf('/../../data/%s.php', self::GENERATED_SERVICE_LOCATOR));
+        $fileName = realpath(sprintf('%s/%s.php',
+            $this->config->di->write_path, self::GENERATED_SERVICE_LOCATOR));
         if (file_exists($fileName)) {
             require_once $fileName;
             $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
@@ -321,7 +322,8 @@ class DiWrapper implements AbstractFactoryInterface
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
         $file = $generator->getCodeGenerator();
-        $fileName = __DIR__ . "/../../data/$className.php";
+        $path = $this->config->di->write_path;
+        $fileName = $path . "/$className.php";
         $file->setFilename($fileName);
         $file->write();
 

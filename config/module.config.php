@@ -9,15 +9,21 @@
 return array(
     // Definition and instance configuration
     'di' => array(
+        // Path for writing the generated service locator class. Must be writable!
+        'write_path' => './data',
+
         // Directories that will be code-scanned
         'scan_directories' => array(
             // e. g. 'vendor/provider/module/src',
             __DIR__ . '/../src/DiWrapper/Example',
         ),
+
         // Definitions
         'definition' => array(
             // Add definitions which are not covered by the code scanning process. Usually, this can be omitted.
         ),
+
+        // Instance configuration
         'instance' => array(
             // Type preferences for abstract classes and interfaces.
             'preference' => array(

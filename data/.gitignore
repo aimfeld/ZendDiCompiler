@@ -1,4 +1,0 @@
-# Helps adding empty dir to git repo.
-!.gitignore
-GeneratedServiceLocator.php
-TempServiceLocator.php
