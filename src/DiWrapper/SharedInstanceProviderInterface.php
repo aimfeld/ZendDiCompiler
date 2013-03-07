@@ -14,7 +14,7 @@ namespace DiWrapper;
 /**
  * @package    DiWrapper
  */
-interface GetSharedInstancesInterface
+interface SharedInstanceProviderInterface
 {
     /**
      * Returns shared instances as an array ($className => $object)

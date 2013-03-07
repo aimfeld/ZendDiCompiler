@@ -47,7 +47,7 @@ class DiWrapper implements AbstractFactoryInterface
     protected $config;
 
     /**
-     * @var GetSharedInstancesInterface
+     * @var SharedInstanceProviderInterface
      */
     protected $sharedInstanceGetter;
 
@@ -75,9 +75,9 @@ class DiWrapper implements AbstractFactoryInterface
      * Set up DI definitions and create instances.
      *
      * @param Config $config  Must contain a valid ZF2 DI configuration
-     * @param GetSharedInstancesInterface $sharedInstanceGetter
+     * @param SharedInstanceProviderInterface $sharedInstanceGetter
      */
-    public function init(Config $config, GetSharedInstancesInterface $sharedInstanceGetter)
+    public function init(Config $config, SharedInstanceProviderInterface $sharedInstanceGetter)
     {
         $this->config = $config;
         $this->sharedInstanceGetter = $sharedInstanceGetter;
