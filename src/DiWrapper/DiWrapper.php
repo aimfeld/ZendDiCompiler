@@ -89,12 +89,14 @@ class DiWrapper implements AbstractFactoryInterface
 
         $this->isInitialized = true;
 
-        $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
-        if (! @class_exists($serviceLocatorClass)) {
-            $this->generatedServiceLocator = $this->reset(false);
-        } else {
+        $fileName = realpath(__DIR__ . sprintf('/../../data/%s.php', self::GENERATED_SERVICE_LOCATOR));
+        if (file_exists($fileName)) {
+            require_once $fileName;
+            $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
             $this->generatedServiceLocator = new $serviceLocatorClass;
             $this->setSharedInstances($this->generatedServiceLocator);
+        } else {
+            $this->generatedServiceLocator = $this->reset(false);
         }
     }
 
@@ -114,6 +116,7 @@ class DiWrapper implements AbstractFactoryInterface
 
         $instance = null;
         try {
+            /** @noinspection PhpUndefinedMethodInspection */
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
         } catch (\Exception $e) {
             // Ignore exceptions, recovery in code below
@@ -124,6 +127,7 @@ class DiWrapper implements AbstractFactoryInterface
             $this->generatedServiceLocator = $this->reset(true);
 
             // If an exception occurs here or null is returned, the problem was not caused by outdated DI definitions.
+            /** @noinspection PhpUndefinedMethodInspection */
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
         }
 
@@ -239,6 +243,7 @@ class DiWrapper implements AbstractFactoryInterface
             }
         } else {
             foreach ($sharedInstances as $classOrAlias => $instance) {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $object->set($classOrAlias, $instance);
             }
         }
@@ -279,7 +284,7 @@ class DiWrapper implements AbstractFactoryInterface
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
         $file = $generator->getCodeGenerator();
-        $filename = __DIR__ . "/$className.php";
+        $filename = __DIR__ . "/../../data/$className.php";
         $file->setFilename($filename);
         $file->write();
 
