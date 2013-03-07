@@ -33,7 +33,7 @@ In your project's `composer.json` use:
             "aimfeld/di-wrapper": "0.1.*"
     }
     
-Make sure have a _writable_ data folder in your application root directory, see 
+Make sure you have a _writable_ data folder in your application root directory, see 
 [ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Add `DiWrapper` to the 
 modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
 modules where it is used:
