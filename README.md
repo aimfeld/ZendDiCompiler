@@ -40,7 +40,7 @@ Finally, add `DiWrapper` to the modules array in your `application.config.php`.
 # Usage
 
 DiWrapper uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
-(which is not well documented yet). To make things easier, see `vendor/aimfeld/di-wrapper/config/module.config.php` for 
+(which is not well documented yet). To make things easier, see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php) for 
 examples of how to specify:
 
 - Directories for the code scanner
