@@ -98,11 +98,15 @@ class DiWrapper implements AbstractFactoryInterface
         $name = $this->getTypePreference($name);
 
         $instance = null;
+
         try {
-            /** @noinspection PhpUndefinedMethodInspection */
+            // Convert PHP errors to exception to catch errors due to changed constructors, etc.
+            set_error_handler(array($this, 'exceptionErrorHandler'));
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+            restore_error_handler();
         } catch (\Exception $e) {
-            // Ignore exceptions, recovery in code below
+            // Ignore exception, recovery in code below
+            restore_error_handler();
         }
 
         if (! $instance) {
@@ -110,7 +114,6 @@ class DiWrapper implements AbstractFactoryInterface
             $this->generatedServiceLocator = $this->reset(true);
 
             // If an exception occurs here or null is returned, the problem was not caused by outdated DI definitions.
-            /** @noinspection PhpUndefinedMethodInspection */
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
         }
 
@@ -350,6 +353,30 @@ class DiWrapper implements AbstractFactoryInterface
         if (!$this->isInitialized) {
             throw new RuntimeException(sprintf(
                 '%s:init() must be called before instances can be retrieved.', get_class($this)));
+        }
+    }
+
+    /**
+     * Convert PHP errors to exceptions.
+     *
+     * It respects error-reporting level, so that you can still use error-suppression.
+     *
+     * @see http://php.net/manual/en/class.errorexception.php
+     *
+     * @param $errno
+     * @param $errstr
+     * @param $errfile
+     * @param $errline
+     * @return bool
+     * @throws \ErrorException
+     */
+    public function exceptionErrorHandler($errno, $errstr, $errfile, $errline)
+    {
+        $errorReporting = error_reporting();
+        if ($errorReporting == 0 || $errno == E_USER_NOTICE) {
+            return;
+        } elseif ($errorReporting & $errno) {
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
         }
     }
 }
