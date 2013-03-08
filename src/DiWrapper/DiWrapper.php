@@ -66,9 +66,19 @@ class DiWrapper implements AbstractFactoryInterface
     /**
      * @var GeneratedServiceLocator|TempServiceLocator
      */
-    protected $generatedServiceLocator;
+    protected $generatedServiceLocator = null;
 
     /**
+     * @var IntrospectionStrategy
+     */
+    protected $introspectionStrategy = null;
+
+    /**
+     * Add shared instances to be used by DiWrapper.
+     *
+     * Typical things you want to add are e.g. a db adapter, the config, a session. These instances are
+     * then constructor-injected by DiWrapper. Call this the onBootstrap() method of your module class.
+     *
      * @param array $sharedInstances  ('MyModule\MyClass' => $instance)
      * @throws RuntimeException
      */
@@ -84,8 +94,18 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
-     * Allows for class substitution.
+     * Use this to replace the standard introspection strategy of DiWrapper
      *
+     * Call this the onBootstrap() method of your module class.
+     *
+     * @param IntrospectionStrategy $introspectionStrategy
+     */
+    public function setIntrospectionStrategy(IntrospectionStrategy $introspectionStrategy)
+    {
+        $this->introspectionStrategy = $introspectionStrategy;
+    }
+
+    /**
      * @param $name
      * @param array $params
      * @param bool $newInstance
@@ -121,6 +141,8 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
+     * Is called by the DiWrapper module itself.
+     *
      * @param Config $config
      */
     public function setConfig(Config $config)
@@ -135,6 +157,8 @@ class DiWrapper implements AbstractFactoryInterface
 
     /**
      * Set up DI definitions and create instances.
+     *
+     * Is called by the DiWrapper module itself.
      */
     public function init(MvcEvent $mvcEvent)
     {
@@ -236,12 +260,8 @@ class DiWrapper implements AbstractFactoryInterface
             $directoryScanner->addDirectory($directory);
         }
 
-        // Set up introspection strategy (use only constructor injection)
-        $introspectionStrategy = new IntrospectionStrategy();
-        $introspectionStrategy->setInterfaceInjectionInclusionPatterns(array());
-        $introspectionStrategy->setMethodNameInclusionPatterns(array());
-
         // Compile definitions and convert them to an array.
+        $introspectionStrategy = $this->getIntrospectionStrategy();
         $compilerDefinition = new CompilerDefinition($introspectionStrategy);
         $compilerDefinition->setAllowReflectionExceptions(true);
         $compilerDefinition->addDirectoryScanner($directoryScanner);
@@ -254,6 +274,22 @@ class DiWrapper implements AbstractFactoryInterface
         $definitionList->addDefinition($compiledDefinition);
 
         return $definitionList;
+    }
+
+    /**
+     * Get introspection strategy (use only constructor injection by default)
+     *
+     * @return IntrospectionStrategy
+     */
+    protected function getIntrospectionStrategy()
+    {
+        if (! $this->introspectionStrategy) {
+            $this->introspectionStrategy = new IntrospectionStrategy();
+            $this->introspectionStrategy->setInterfaceInjectionInclusionPatterns(array());
+            $this->introspectionStrategy->setMethodNameInclusionPatterns(array());
+        }
+
+        return $this->introspectionStrategy;
     }
 
     /**
