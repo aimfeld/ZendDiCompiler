@@ -22,7 +22,7 @@ experience _great performance_ in production!
 ## Current limitations
 
 - Only constructor-injection supported (but e.g. not setter-injection)
-- If you want to pass runtime-params to DiWrapper::get(), the retrieved class must use an array named $params in the constructor (see class C below)
+- If you want to pass runtime-params to DiWrapper::get(), the retrieved class must use an array named $params in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
 
 # Installation
 
