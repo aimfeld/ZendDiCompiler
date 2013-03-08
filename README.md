@@ -62,7 +62,7 @@ an exception. However, if you e.g. change parameters in the [di instance configu
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
-# Using shared instances
+## Using shared instances
 
 You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
