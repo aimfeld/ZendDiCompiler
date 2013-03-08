@@ -64,8 +64,8 @@ deployment/update process, make sure that `data/GeneratedServiceLocator.php` is 
 
 # Using shared instances
 
-You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)
-in the following cases:
+You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
+your Applicatino module's onBootstrap() method in the following cases (also see example below):
 
 - The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)
 - The object to be injected requires some special bootstrapping (e.g. a session object).
