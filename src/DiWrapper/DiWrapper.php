@@ -231,7 +231,7 @@ class DiWrapper implements AbstractFactoryInterface
             'Zend\Config\Config' => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
-            $this->sharedInstances[get_class($this)] = $this, // Provide DiWrapper itself
+            get_class($this) => $this, // Provide DiWrapper itself
         );
     }
 
