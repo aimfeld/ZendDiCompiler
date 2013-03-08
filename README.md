@@ -2,6 +2,9 @@ _!!!Warning: this module is still in alpha stage, use at your own risk!!!_
 
 # DiWrapper
 
+Are you tired of writing tons of factory code (closures) for the ServiceManager in your Zend Framework 2 application? 
+Are outdated factory methods causing bugs? This can all be avoided by using the DiWrapper module!
+
 DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
 It saves you a lot of work, since there's no need anymore for writing 
 [Zend\ServiceManager](http://framework.zend.com/manual/2.1/en/modules/zend.service-manager.intro.html) 
