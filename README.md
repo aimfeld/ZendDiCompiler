@@ -55,6 +55,15 @@ examples of how to specify:
 - Instance configuration
 - Type preferences
 
+Note that DiWrapper by default provides some commonly used shared instances in ZF2 
+(see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
+These default shared instances can be constructor-injected without explicitly adding shared instances:
+
+- DiWrapper\DiWrapper
+- Zend\Config\Config
+- Zend\Mvc\Router\Http\TreeRouteStack
+- Zend\View\Renderer\PhpRenderer
+
 # Example
 
 Let's say we want to use the DiWrapper to create a controller class and inject some 
