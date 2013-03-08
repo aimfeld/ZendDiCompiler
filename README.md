@@ -55,10 +55,10 @@ examples of how to specify:
 - Instance configuration
 - Type preferences
 
-DiWrapper creates a GeneratedServiceLocator class and automatically refreshes it when changed constructors cause
+DiWrapper creates a `GeneratedServiceLocator` class and automatically refreshes it when changed constructors cause
 an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php),
-you have to manually delete data/GeneratedServiceLocator.php to force a refresh. In your staging and production
-deployment/update process, make sure that the GeneratedServiceLocator is deleted!
+you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
+deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
 # Default shared instances
 
