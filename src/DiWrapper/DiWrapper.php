@@ -228,8 +228,10 @@ class DiWrapper implements AbstractFactoryInterface
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
         return array(
+            'Zend\Config\Config' => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
+            $this->sharedInstances[get_class($this)] = $this, // Provide DiWrapper itself
         );
     }
 
@@ -301,9 +303,6 @@ class DiWrapper implements AbstractFactoryInterface
         assert($object instanceof InstanceManager ||
             $object instanceof GeneratedServiceLocator ||
             $object instanceof TempServiceLocator);
-
-
-        $this->sharedInstances[get_class($this)] = $this;
 
         if ($object instanceof InstanceManager) {
             foreach ($this->sharedInstances as $classOrAlias => $instance) {
