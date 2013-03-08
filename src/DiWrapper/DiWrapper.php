@@ -106,7 +106,7 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
-     * @param $name              The full class name (including namespace)
+     * @param string $name       The full class name (including namespace)
      * @param array $params      A parameter array passed to the class constructor, if it has a array $params argument
      * @param bool $newInstance  If true, create a new instance every time (use as factory)
      * @return null|object
@@ -231,6 +231,7 @@ class DiWrapper implements AbstractFactoryInterface
             'Zend\Config\Config' => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
+            'DiWrapper\DiFactory' => new DiFactory($this), // Provide DiFactory
             get_class($this) => $this, // Provide DiWrapper itself
         );
     }

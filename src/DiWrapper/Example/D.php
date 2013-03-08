@@ -12,17 +12,25 @@
 
 namespace DiWrapper\Example;
 
+use Zend\Config\Config;
+
 /**
  * @package    DiWrapper
  * @subpackage Example
  */
-class A
+class D
 {
     /**
-     * @param B $b
+     * @param Config $config
+     * @param A $a
+     * @param $param1
+     * @param $param2
      */
-    public function __construct(B $b)
+    public function __construct(Config $config, A $a, $param1, $param2)
     {
-        $this->b = $b;
+        $this->config = $config;
+        $this->a = $a;
+        $this->param1 = $param1;
+        $this->param2 = $param2;
     }
 }
