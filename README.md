@@ -109,7 +109,7 @@ Class B with a constructor parameter of unspecified type:
         }
     }
     
-Class C with a runtime-parameter array passed to DiWrapper::get()
+Class C with a dependency on the config and a runtime-parameter array (which can be passed to DiWrapper::get())
     
     class C
     {
