@@ -62,7 +62,13 @@ an exception. However, if you e.g. change parameters in the [di instance configu
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
-# Default shared instances
+# Using shared instances
+
+You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)
+in the following cases:
+
+- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)
+- The object to be injected requires some special bootstrapping (e.g. a session object).
 
 Note that DiWrapper by default provides some commonly used shared instances in ZF2 
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
