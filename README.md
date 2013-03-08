@@ -38,8 +38,8 @@ In your project's `composer.json` use:
 }
 ```
     
-Make sure you have a _writable_ data folder in your application root directory, see 
-[ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Put a .gitignore in it with 
+Make sure you have a _writable_ `data` folder in your application root directory, see 
+[ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Put a `.gitignore` file in it with 
 the following content (you may want to replace `*` with `GeneratedServiceLocator.php`):
 
 ```
