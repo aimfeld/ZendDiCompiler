@@ -224,7 +224,7 @@ class DiWrapper implements AbstractFactoryInterface
      * @param MvcEvent $mvcEvent
      * @return array
      */
-    protected function getStandardSharedInstances(MvcEvent $mvcEvent)
+    protected function getDefaultSharedInstances(MvcEvent $mvcEvent)
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
         return array(
@@ -241,7 +241,7 @@ class DiWrapper implements AbstractFactoryInterface
      */
     protected function setStandardSharedInstances(MvcEvent $mvcEvent)
     {
-        foreach ($this->getStandardSharedInstances($mvcEvent) as $class => $instance) {
+        foreach ($this->getDefaultSharedInstances($mvcEvent) as $class => $instance) {
             if (! array_key_exists($class, $this->sharedInstances)) {
                 $this->sharedInstances[$class] = $instance;
             }
