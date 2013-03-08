@@ -3,8 +3,9 @@ _!!!Warning: this module is still in alpha stage, use at your own risk!!!_
 # DiWrapper
 
 DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
-It saves you a lot of work, since there's no need anymore for writing Zend\ServiceManager factory closures 
-and keeping them up-to-date manually.
+It saves you a lot of work, since there's no need anymore for writing 
+[Zend\ServiceManager](http://framework.zend.com/manual/2.1/en/modules/zend.service-manager.intro.html) 
+factory closures and keeping them up-to-date manually.
 
 DiWrapper scans your code (using Zend\Di) and creates factory methods automatically. If the factory methods are outdated, DiWrapper
 updates them in the background. Therefore, you _develop faster_, _avoid bugs_ due to outdated factory methods, and 
@@ -14,15 +15,16 @@ experience _great performance_ in production!
 
 - DI definition scanning and factory code generation
 - Can deal with shared instances and type preferences
-- Is used as a fallback abstract factory for Zend\ServiceManager
+- Allows for custom code introspection strategies (by default, only constructors are scanned)
+- Is automatically used as a fallback abstract factory for Zend\ServiceManager
+- Can also be used as a full replacement for Zend\ServiceManager
 - Detection of outdated generated code and automatic rescanning (great for development)
 - Can create new instances or reuse instances created before
-- Generates objects with runtime params using automatic service injection
+- Can be used as a factory for runtime objects combining DI and passing of runtime parameters. 
 
 ## Current limitations
 
-- Only constructor-injection supported (but e.g. not setter-injection)
-- If you want to pass runtime-params to DiWrapper::get(), the retrieved class must use an array named $params in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
+- If you want to pass runtime parameters to [DiWrapper::get()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php), the retrieved class must use an array named $params in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
 
 # Installation
 
@@ -35,7 +37,7 @@ In your project's `composer.json` use:
     }
     
 Make sure you have a _writable_ data folder in your application root directory, see 
-[ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Add `DiWrapper` to the 
+[ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Add 'DiWrapper' to the 
 modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
 modules where it is used:
 
@@ -54,6 +56,13 @@ examples of how to specify:
 - Directories for the code scanner
 - Instance configuration
 - Type preferences
+
+DiWrapper creates a `GeneratedServiceLocator` class and automatically refreshes it when changed constructors cause
+an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php),
+you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
+deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
+
+# Default shared instances
 
 Note that DiWrapper by default provides some commonly used shared instances in ZF2 
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
@@ -180,11 +189,11 @@ DiWrapper and create a controller _without writing Zend\ServiceManager factory m
     }
 
 DiWrapper has automatically generated a ServiceLocator in the data directory.
-Services can be created or retrieved using the get() method. 
+Services can be created or retrieved using `DiWrapper::get()`. You can just constructor inject in the retrieved class and
+you don't need to worry about instantiation. 
 
-This is all behind the scenes. You can just constructor inject stuff in you Application module and you don't need
-to worry about instantiation. Some services may need to be provided as shared instances (like the config in this 
-example). Just for illustration, this is the generated service locator used by DiWrapper::get(). 
+This is how it looks behind the scenes. Some services may need to be provided as shared instances (like the config in this 
+example). Just for illustration, this is the generated service locator used by `DiWrapper::get()`. 
 
     namespace DiWrapper;
 
