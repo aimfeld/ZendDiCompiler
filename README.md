@@ -187,11 +187,11 @@ DiWrapper and create a controller _without writing Zend\ServiceManager factory m
     }
 
 DiWrapper has automatically generated a ServiceLocator in the data directory.
-Services can be created or retrieved using the get() method. 
+Services can be created or retrieved using `DiWrapper::get()`. You can just constructor inject in the retrieved class and
+you don't need to worry about instantiation. 
 
-This is all behind the scenes. You can just constructor inject stuff in you Application module and you don't need
-to worry about instantiation. Some services may need to be provided as shared instances (like the config in this 
-example). Just for illustration, this is the generated service locator used by DiWrapper::get(). 
+This is how it looks behind the scenes. Some services may need to be provided as shared instances (like the config in this 
+example). Just for illustration, this is the generated service locator used by `DiWrapper::get()`. 
 
     namespace DiWrapper;
 
