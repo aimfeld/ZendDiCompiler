@@ -14,8 +14,8 @@ return array(
 
         // Directories that will be code-scanned
         'scan_directories' => array(
-            // e. g. 'vendor/provider/module/src',
-            __DIR__ . '/../src/DiWrapper/Example',
+            // 'vendor/provider/module/src',
+            // __DIR__ . '/../src/DiWrapper/Example',
         ),
 
         // Definitions
