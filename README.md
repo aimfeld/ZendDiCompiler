@@ -3,8 +3,9 @@ _!!!Warning: this module is still in alpha stage, use at your own risk!!!_
 # DiWrapper
 
 DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
-It saves you a lot of work, since there's no need anymore for writing Zend\ServiceManager factory closures 
-and keeping them up-to-date manually.
+It saves you a lot of work, since there's no need anymore for writing 
+[Zend\ServiceManager](http://framework.zend.com/manual/2.1/en/modules/zend.service-manager.intro.html) 
+factory closures and keeping them up-to-date manually.
 
 DiWrapper scans your code (using Zend\Di) and creates factory methods automatically. If the factory methods are outdated, DiWrapper
 updates them in the background. Therefore, you _develop faster_, _avoid bugs_ due to outdated factory methods, and 
@@ -14,14 +15,15 @@ experience _great performance_ in production!
 
 - DI definition scanning and factory code generation
 - Can deal with shared instances and type preferences
-- Is used as a fallback abstract factory for Zend\ServiceManager
+- Allows for custom code introspection strategies (by default, only constructors are scanned)
+- Is automatically used as a fallback abstract factory for Zend\ServiceManager
+- Can also be used as a full replacement for Zend\ServiceManager
 - Detection of outdated generated code and automatic rescanning (great for development)
 - Can create new instances or reuse instances created before
-- Generates objects with runtime params using automatic service injection
+- Can be used as a factory for runtime objects combining DI and passing of runtime parameters. 
 
 ## Current limitations
 
-- Only constructor-injection supported (but e.g. not setter-injection)
 - If you want to pass runtime-params to DiWrapper::get(), the retrieved class must use an array named $params in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
 
 # Installation
