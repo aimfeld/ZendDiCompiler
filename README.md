@@ -24,7 +24,7 @@ experience _great performance_ in production!
 
 ## Current limitations
 
-- If you want to pass runtime parameters to [DiWrapper::get()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php), the retrieved class must use an array named $params in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
+- If you want to pass _runtime_ parameters (as opposed to [DI instance parameters](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php) to [DiWrapper::get()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php), the retrieved class must use an array named $params in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
 
 # Installation
 
