@@ -33,7 +33,7 @@ In your project's `composer.json` use:
 ```
 {   
     "require": {
-        "aimfeld/di-wrapper": "0.1.*"
+        "aimfeld/di-wrapper": "0.2.*"
 }
 ```
     
