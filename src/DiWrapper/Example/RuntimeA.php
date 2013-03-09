@@ -22,11 +22,14 @@ class RuntimeA
 {
     /**
      * @param Config $config
+     * @param ServiceA $serviceA
      * @param array $params
      */
-    public function __construct(Config $config, array $params = array())
+    public function __construct(Config $config, ServiceA $serviceA,
+                                array $params = array())
     {
         $this->config = $config;
-        $this->param = $params;
+        $this->serviceA = $serviceA;
+        $this->params = $params;
     }
 }

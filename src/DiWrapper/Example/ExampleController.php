@@ -36,11 +36,4 @@ class ExampleController extends AbstractActionController
         $this->serviceC = $serviceC;
         $this->config = $config;
     }
-
-    public function indexAction()
-    {
-        // Of course we could also constructor-inject ServiceD
-        $serviceD = $this->diWrapper->get('DiWrapper\Example\ServiceD');
-        $serviceD->serviceMethod();
-    }
 }

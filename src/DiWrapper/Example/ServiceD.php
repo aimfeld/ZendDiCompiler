@@ -12,6 +12,8 @@
 
 namespace DiWrapper\Example;
 
+use DiWrapper\DiFactory;
+
 /**
  * @package    DiWrapper
  * @subpackage Example
@@ -19,9 +21,9 @@ namespace DiWrapper\Example;
 class ServiceD
 {
     /**
-     * @param ExampleDiFactory $diFactory
+     * @param DiFactory $diFactory
      */
-    public function __construct(ExampleDiFactory $diFactory)
+    public function __construct(DiFactory $diFactory)
     {
         $this->diFactory = $diFactory;
     }
@@ -32,11 +34,7 @@ class ServiceD
      */
     public function serviceMethod()
     {
-        $classA = 'DiWrapper\Example\RuntimeA';
-        $runtimeA1 = $this->diFactory->create($classA, array('hello', 'world'));
-        $runtimeA2 = $this->diFactory->create($classA, array('goodbye', 'world'));
-
-        $runtimeB1 = $this->diFactory->createRuntimeB('one', 1);
-        $runtimeB2 = $this->diFactory->createRuntimeB('two', 2);
+        $runtimeA1 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('hello', 'world'));
+        $runtimeA2 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('goodbye', 'world'));
     }
 }

@@ -22,7 +22,7 @@ use Zend\Config\Config;
 class ExampleDiFactory extends DiFactory
 {
     /**
-     * Custom factory method with runtime params.
+     * Custom factory method with runtime parameters.
      *
      * Only runtime parameters are passed, RuntimeB's other dependencies are
      * retrieved using DiWrapper.
