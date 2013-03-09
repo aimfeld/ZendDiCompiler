@@ -3,14 +3,14 @@ _!!!Warning: this module is still in alpha stage, use at your own risk!!!_
 # DiWrapper
 
 Are you tired of writing tons of factory code (closures) for the ServiceManager in your Zend Framework 2 application? 
-Are outdated factory methods causing bugs? This can all be avoided by using the DiWrapper module!
+Are outdated factory methods causing bugs? This can all be avoided by using DiWrapper!
 
 DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
 It saves you a lot of work, since there's no need anymore for writing 
 [Zend\ServiceManager](http://framework.zend.com/manual/2.1/en/modules/zend.service-manager.intro.html) 
 factory closures and keeping them up-to-date manually.
 
-DiWrapper scans your code (using Zend\Di) and creates factory methods automatically. If the factory methods are outdated, DiWrapper
+DiWrapper scans your code using `Zend\Di` and creates factory methods automatically. If the factory methods are outdated, DiWrapper
 updates them in the background. Therefore, you _develop faster_, _avoid bugs_ due to outdated factory methods, and 
 experience _great performance_ in production!
 
@@ -24,10 +24,6 @@ experience _great performance_ in production!
 - Detection of outdated generated code and automatic rescanning (great for development)
 - Can create new instances or reuse instances created before
 - Can be used as a factory for runtime objects combining DI and passing of runtime parameters. 
-
-## Current limitations
-
-- If you want to pass _runtime_ parameters (as opposed to [DI instance parameters](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)) to [DiWrapper::get()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php), the retrieved class must use an array named `$params` in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
 
 # Installation
 
@@ -71,12 +67,12 @@ examples of how to specify:
 - Instance configuration
 - Type preferences
 
-DiWrapper creates a `GeneratedServiceLocator` class n the data directory and automatically refreshes it when changed constructors cause
+DiWrapper creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when changed constructors cause
 an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php),
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
-## Using shared instances
+## Shared instances
 
 You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
@@ -86,9 +82,10 @@ your application module's onBootstrap() method in the following cases (also see 
 
 Note that DiWrapper by default provides some commonly used shared instances in ZF2 
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
-These default shared instances can be constructor-injected without explicitly adding shared instances:
+Thee following default shared instances can be constructor-injected without explicitly adding them:
 
 - DiWrapper\DiWrapper
+- DiWrapper\DiFactory
 - Zend\Config\Config
 - Zend\Mvc\Router\Http\TreeRouteStack
 - Zend\View\Renderer\PhpRenderer
