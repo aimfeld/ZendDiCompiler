@@ -15,8 +15,6 @@ _This module is in beta stage. Please create github issues for bugs or feature r
     * [Using type preferences](#using-type-preferences)
 * [The generated factory code behind the scenes](#the-generated-factory-code-behind-the-scenes) 
        
-
-
 # Introduction
 
 Are you tired of writing tons of factory code (closures) for the `Zend\ServiceManager` in your Zend Framework 2 application? 
@@ -77,7 +75,7 @@ modules where it is used:
 # Usage
 
 DiWrapper uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
-(which is not well documented yet). To make things easier, see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php) for 
+(which is not well documented yet). To make things easier, see [example.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php) for 
 examples of how to specify:
 
 - Directories for the code scanner
@@ -85,7 +83,7 @@ examples of how to specify:
 - Type preferences
 
 DiWrapper creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when changed constructors cause
-an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php),
+an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php),
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
@@ -94,7 +92,7 @@ deployment/update process, make sure that `data/GeneratedServiceLocator.php` is 
 You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
 
-- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php).
+- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php).
 - The object to be injected requires some special bootstrapping (e.g. a session object).
 
 Note that DiWrapper provides some _default shared instances_ automatically
@@ -179,9 +177,9 @@ class ServiceC
     
 We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
 have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor 
-and retrieve the parameter from there, so we wouldn't need to specify a di instance configuration. The configuration for our example
-looks like this
-(also see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
+and retrieve the parameter from there, so we wouldn't need to specify a di instance configuration. The 
+[configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php) for our example
+looks like this:
 
 ```
 'di' => array(
@@ -243,7 +241,7 @@ class Module
 It is useful to distinguish two types of objects: _services_ and _runtime objects_. For _services_, all parameters should
 be specified in the configuration (e.g. a config array wrapped in a `Zend\Config\Config` object). If class constructors
 e.g. in third party code require some custom parameters, they can be specified in the 
-[DI instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
+[DI instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php)).
 
 _Runtime objects_, on the other hand, require at least one parameter which is determined at runtime only.
 DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ and inject their dependencies. 
