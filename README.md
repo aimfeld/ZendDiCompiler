@@ -6,7 +6,9 @@ _This module is in beta stage. Please create github issues for bugs or feature r
 * [Features](#features)
 * [Installation](#installation) 
 * [Usage](#usage) 
-** [Shared instances](#shared_instances) 
+    * [Shared instances](#shared-instances) 
+* [Examples](#examples) 
+    * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller) 
 
 
 # Introduction
