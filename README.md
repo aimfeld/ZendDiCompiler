@@ -245,8 +245,8 @@ class RuntimeA
 }
 ```
 
-DiWrapper automatically injects `DiWrapper\DiFactory` as a default shared instance into `ServiceD`. So
-we can just use it to create `RuntimeA` objects. `RuntimeA`'s dependencies (the `Config` default shared instance 
+DiWrapper automatically injects `DiWrapper\DiFactory` as a default shared instance. So
+we can just use it to create `RuntimeA` objects in `ServiceD`. `RuntimeA`'s dependencies (the `Config` default shared instance 
 and `ServiceA`) are injected automatically, so you only need to provide the runtime parameters: 
 
 ```
@@ -267,7 +267,60 @@ class ServiceD
 }
 ```
 
+If you can't or don't want to follow the convention of passing all runtime parameters in a single `$params` array,
+DiWrapper still is very useful. In that case, you can just extend a custom factory from `DiWrapper\DiFactory` and 
+add your specific creation methods. `RuntimeB` requires two separate run time parameters:
 
+```
+class RuntimeB
+{
+    public function __construct(Config $config, ServiceA $serviceA,
+                                $runtimeParam1, $runtimeParam2)
+    {
+        $this->config = $config;
+        $this->serviceA = $serviceA;
+        $this->runtimeParam1 = $runtimeParam1;
+        $this->runtimeParam2 = $runtimeParam2;
+    }
+}
+```
+
+So we extend `ExampleDiFactory` from `DiWrapper\DiFactory` and write a creation method `createRuntimeB`:
+
+```
+class ExampleDiFactory extends DiFactory
+{
+    /**
+     * @param string $runtimeParam1
+     * @param int $runtimeParam2
+     * @return RuntimeB
+     */
+    public function createRuntimeB($runtimeParam1, $runtimeParam2)
+    {
+        $config = $this->diWrapper->get('Zend\Config\Config');
+        $serviceA = $this->diWrapper->get('DiWrapper\Example\ServiceA');
+        return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
+    }
+}
+```
+
+Now we can create `RuntimeB` objects as follows:
+
+```
+class ServiceE
+{
+    public function __construct(ExampleDiFactory $diFactory)
+    {
+        $this->diFactory = $diFactory;
+    }
+
+    public function serviceMethod()
+    {
+        $runtimeB1 = $this->diFactory->createRuntimeB('one', 1);
+        $runtimeB2 = $this->diFactory->createRuntimeB('two', 2);
+    }
+}
+```
 
 ## Using type preferences
 
