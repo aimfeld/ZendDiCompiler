@@ -228,8 +228,8 @@ be specified in the configuration (e.g. a config array wrapped in a `Zend\Config
 e.g. in third party code require some custom parameters, they can be specified in the 
 [DI instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
 
-_Runtime objects_ require at least one parameter which is determined at runtime only.
-DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_. 
+_Runtime objects_, on the other hand, require at least one parameter which is determined at runtime only.
+DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ and inject their dependencies. 
 
 ### Passing all runtime parameters in a $params array
 
