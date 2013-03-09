@@ -1,8 +1,5 @@
 _!!!Warning: this module is still in alpha stage, use at your own risk!!!_
 
-* auto-gen TOC:
-{:toc}
-
 # DiWrapper
 
 Are you tired of writing tons of factory code (closures) for the ServiceManager in your Zend Framework 2 application? 
