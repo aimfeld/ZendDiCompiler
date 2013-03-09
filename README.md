@@ -10,7 +10,11 @@ _This module is in beta stage. Please create github issues for bugs or feature r
 * [Examples](#examples) 
     * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
     * [Using the DiFactory to create runtime objects with dependencies](#using-diwrapper-to-create-runtime-objects-with-dependencies)
-        * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-$params-array)
+        * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-params-array)
+        * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
+    * [Using type preferences](#using-type-preferences)
+* [The generated factory code behind the scenes](#the-generated-factory-code-behind-the-scenes) 
+       
 
 
 # Introduction
