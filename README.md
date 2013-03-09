@@ -90,82 +90,71 @@ Thee following default shared instances can be constructor-injected without expl
 - Zend\Mvc\Router\Http\TreeRouteStack
 - Zend\View\Renderer\PhpRenderer
 
-# Example
+# Examples
 
-Let's say we want to use the DiWrapper to create a controller class and inject some 
-dependencies (of course without writing factory methods for Zend\ServiceManager). 
-We also want to inject the DiWrapper itself into the controller, so we can use it to get 
-dependencies from within the controller. We have the following classes 
-(see [example source](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example)):
+All examples sources listed here are included as [source code](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example).
 
-ExampleController:
+## Using DiWrapper to create a controller
+
+Let's say we want to use DiWrapper to create a controller class and inject some 
+dependencies. We also want to inject the DiWrapper itself into the controller, so we can use it to get 
+dependencies from within the controller (it is a moot topic whether this is a good idea or not). 
+We have the following classes:
+
+ExampleController
 
 ```
-namespace DiWrapper\Example;
-
 use Zend\Mvc\Controller\AbstractActionController;
 use DiWrapper\DiWrapper;
 use Zend\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
-    public function __construct(DiWrapper $diWrapper, Config $config, A $a)
+    public function __construct(DiWrapper $diWrapper, Config $config, ServiceA $serviceA)
     {
         $this->diWrapper = $diWrapper;
         $this->config = $config;
-        $this->a = $a;
-        
-        // Of course we could also contructor-inject B, this is just for illustration
-        $this->b = $diWrapper->get('DiWrapper\Example\B');
-        
-        // And here we use the DiWrapper as a runtime-object factory, automatically injecting the config
-        $this->c = $diWrapper->get('DiWrapper\Example\C', array('hello' => 'world'), true);
+        $this->serviceA = $serviceA;
+    }
+
+    public function indexAction()
+    {
+        // Of course we could also constructor-inject ServiceC
+        $serviceC = $this->diWrapper->get('DiWrapper\Example\ServiceC');
+        $serviceC->serviceMethod();
+    }
+}
+
+```
+
+ServiceA with a dependency on ServiceB
+
+```
+class ServiceA
+{
+    public function __construct(ServiceB $serviceB)
+    {
+        $this->serviceB = $serviceB;
     }
 }
 ```
 
-Class A with a dependency on class B:
+ServiceB with a constructor parameter of unspecified type:
 
 ```
-namespace DiWrapper\Example;
-
-class A
+class ServiceB
 {
-    public function __construct(B $b)
+    public function __construct($diParam)
     {
-        $this->b = $b;
-    }
-}
-```
-
-Class B with a constructor parameter of unspecified type:
-
-```
-class B
-{
-    public function __construct($someParam)
-    {
-        $this->someParam = $someParam;
+        $this->diParam = $diParam;
     }
 }
 ```
     
-Class C with a dependency on the config and a runtime-parameter array (which can be passed to DiWrapper::get())
-
-```
-class C
-{
-    public function __construct(Config $config, array $params = array())
-    {
-        $this->config = $config;
-        $this->param = $params;
-    }
-}
-```
-    
-We add the source directory as a scan directory for DiWrapper. Since B has a parameter of unspecified type, we
-have to specify a value to inject. If class B had required the config in its constructor and retrieved the
-parameter from there, we wouldn't need to specify anything. The config looks like this
+We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
+have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor 
+and retrieve the parameter from there, so we wouldn't need to specify a di instance configuration. The configuration for our example
+looks like this
 (also see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
 
 ```
@@ -174,9 +163,9 @@ parameter from there, we wouldn't need to specify anything. The config looks lik
         __DIR__ . '/../src/DiWrapper/Example',
     ),
     'instance' => array(
-        'DiWrapper\Example\B' => array(
+        'DiWrapper\Example\ServiceB' => array(
             'parameters' => array(
-                'someParam' => 'Hello',
+                'diParam' => 'Hello',
             ),
         ),
     ),            
