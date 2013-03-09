@@ -196,8 +196,8 @@ looks like this:
 ),
 ```
 
-Now we can create the `ExampleController` in our application's module class. Since the `ServiceC`
-dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
+Now we can create the `ExampleController` in our application's [module class](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/Module.php). 
+Since the `ServiceC` dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
 DiWrapper.
 
 ```
