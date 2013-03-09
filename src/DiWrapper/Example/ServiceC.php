@@ -12,6 +12,8 @@
 
 namespace DiWrapper\Example;
 
+use Zend\Mvc\MvcEvent;
+
 /**
  * @package    DiWrapper
  * @subpackage Example
@@ -19,24 +21,12 @@ namespace DiWrapper\Example;
 class ServiceC
 {
     /**
-     * @param ExampleDiFactory $diFactory
+     * @param MvcEvent $mvcEvent
      */
-    public function __construct(ExampleDiFactory $diFactory)
+    public function init(MvcEvent $mvcEvent)
     {
-        $this->diFactory = $diFactory;
-    }
-
-    /**
-     * Create runtim objects objects using a DiFactory which injects
-     * RuntimeB's dependencies.
-     */
-    public function serviceMethod()
-    {
-        $classA = 'DiWrapper\Example\RuntimeA';
-        $runtimeA1 = $this->diFactory->create($classA, array('hello', 'world'));
-        $runtimeA2 = $this->diFactory->create($classA, array('goodbye', 'world'));
-
-        $runtimeB1 = $this->diFactory->createRuntimeB('one', 1);
-        $runtimeB2 = $this->diFactory->createRuntimeB('two', 2);
+        $sm = $mvcEvent->getApplication()->getServiceManager();
+        $router = $mvcEvent->getRouter();
+        // Some complicated bootstrapping using e.g. the service manager and the router
     }
 }

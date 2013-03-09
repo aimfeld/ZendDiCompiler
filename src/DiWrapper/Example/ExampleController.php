@@ -24,23 +24,23 @@ class ExampleController extends AbstractActionController
 {
     /**
      * @param DiWrapper $diWrapper
-     * @param Config $config
-     * @param SharedInstance $sharedInstance
      * @param ServiceA $serviceA
+     * @param ServiceC $serviceC
+     * @param Config $config
      */
     public function __construct(DiWrapper $diWrapper, ServiceA $serviceA,
-                                Config $config, SharedInstance $sharedInstance)
+                                ServiceC $serviceC, Config $config)
     {
         $this->diWrapper = $diWrapper;
         $this->serviceA = $serviceA;
+        $this->serviceC = $serviceC;
         $this->config = $config;
-        $this->sharedInstance = $sharedInstance;
     }
 
     public function indexAction()
     {
-        // Of course we could also constructor-inject ServiceC
-        $serviceC = $this->diWrapper->get('DiWrapper\Example\ServiceC');
-        $serviceC->serviceMethod();
+        // Of course we could also constructor-inject ServiceD
+        $serviceD = $this->diWrapper->get('DiWrapper\Example\ServiceD');
+        $serviceD->serviceMethod();
     }
 }
