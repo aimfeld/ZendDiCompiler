@@ -111,19 +111,19 @@ use Zend\Config\Config;
 class ExampleController extends AbstractActionController
 {
     public function __construct(DiWrapper $diWrapper, ServiceA $serviceA,
-                                Config $config, SharedInstance $sharedInstance)
+                                ServiceC $serviceC, Config $config)
     {
         $this->diWrapper = $diWrapper;
         $this->serviceA = $serviceA;
+        $this->serviceC = $serviceC;
         $this->config = $config;
-        $this->sharedInstance = $sharedInstance;
     }
 
     public function indexAction()
     {
-        // Of course we could also constructor-inject ServiceC
-        $serviceC = $this->diWrapper->get('DiWrapper\Example\ServiceC');
-        $serviceC->serviceMethod();
+        // Of course we could also constructor-inject ServiceD
+        $serviceD = $this->diWrapper->get('DiWrapper\Example\ServiceD');
+        $serviceD->serviceMethod();
     }
 }
 
@@ -153,10 +153,10 @@ class ServiceB
 }
 ```
 
-SharedInstance class which requires complicated initialization.
+ServiceC class which requires complicated initialization.
 
 ```
-class SharedInstance
+class ServiceC
 {
     public function init(array $options = array())
     {
@@ -186,7 +186,7 @@ looks like this
 ),
 ```
 
-Now we can create the `ExampleController` in our application's module class. Since the `SharedInstance`
+Now we can create the `ExampleController` in our application's module class. Since the `ServiceC`
 dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
 DiWrapper.
 
@@ -216,12 +216,12 @@ class Module
         $this->diWrapper = $sm->get('di-wrapper');
         
         // Set up shared instance
-        $sharedInstance = new SharedInstance;
-        $sharedInstance->init(array('some', 'crazy', 'options'));
+        $serviceC = new ServiceC;
+        $serviceC->init(array('some', 'crazy', 'options'));
         
         // Provide shared instance
         $this->diWrapper->addSharedInstances(array(
-            'DiWrapper\Example\SharedInstance' => $sharedInstance,
+            'DiWrapper\Example\ServiceC' => $serviceC,
         ));
     }
 }
