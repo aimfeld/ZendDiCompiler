@@ -258,78 +258,30 @@ class GeneratedServiceLocator extends ServiceLocator
         }
 
         switch ($name) {
-            case 'DiWrapper\Example\A':
-                return $this->getDiWrapperExampleA($params, $newInstance);
-
-            case 'DiWrapper\Example\B':
-                return $this->getDiWrapperExampleB($params, $newInstance);
-                
-            case 'DiWrapper\Example\C':
-                return $this->getDiWrapperExampleC($params, $newInstance);
-
             case 'DiWrapper\Example\ExampleController':
                 return $this->getDiWrapperExampleExampleController($params, $newInstance);
+
+            case 'DiWrapper\Example\ExampleDiFactory':
+                return $this->getDiWrapperExampleExampleDiFactory($params, $newInstance);
+
+            case 'DiWrapper\Example\RuntimeA':
+                return $this->getDiWrapperExampleRuntimeA($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceA':
+                return $this->getDiWrapperExampleServiceA($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceB':
+                return $this->getDiWrapperExampleServiceB($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceC':
+                return $this->getDiWrapperExampleServiceC($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceD':
+                return $this->getDiWrapperExampleServiceD($params, $newInstance);
 
             default:
                 return parent::get($name, $params);
         }
-    }
-
-    /**
-     * @param array $params
-     * @param bool $newInstance
-     * @return \DiWrapper\Example\A
-     */
-    public function getDiWrapperExampleA(array $params = array(), $newInstance = false)
-    {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\A'])) {
-            return $this->services['DiWrapper\Example\A'];
-        }
-
-        $object = new \DiWrapper\Example\A($this->getDiWrapperExampleB());
-        if (!$newInstance) {
-            $this->services['DiWrapper\Example\A'] = $object;
-        }
-
-        return $object;
-    }
-
-    /**
-     * @param array $params
-     * @param bool $newInstance
-     * @return \DiWrapper\Example\B
-     */
-    public function getDiWrapperExampleB(array $params = array(), $newInstance = false)
-    {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\B'])) {
-            return $this->services['DiWrapper\Example\B'];
-        }
-
-        $object = new \DiWrapper\Example\B('Hello');
-        if (!$newInstance) {
-            $this->services['DiWrapper\Example\B'] = $object;
-        }
-
-        return $object;
-    }
-    
-    /**
-     * @param array $params
-     * @param bool $newInstance
-     * @return \DiWrapper\Example\C
-     */
-    public function getDiWrapperExampleC(array $params = array(), $newInstance = false)
-    {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\C'])) {
-            return $this->services['DiWrapper\Example\C'];
-        }
-
-        $object = new \DiWrapper\Example\C($this->get('Zend\Config\Config'), $params);
-        if (!$newInstance) {
-            $this->services['DiWrapper\Example\C'] = $object;
-        }
-
-        return $object;
     }
 
     /**
@@ -343,12 +295,126 @@ class GeneratedServiceLocator extends ServiceLocator
             return $this->services['DiWrapper\Example\ExampleController'];
         }
 
-        $object = new \DiWrapper\Example\ExampleController($this->get('DiWrapper\DiWrapper'), $this->get('Zend\Config\Config'), $this->getDiWrapperExampleA());
+        $object = new \DiWrapper\Example\ExampleController($this->get('DiWrapper\DiWrapper'), $this->getDiWrapperExampleServiceA(), $this->getDiWrapperExampleServiceC(), $this->get('Zend\Config\Config'));
         if (!$newInstance) {
             $this->services['DiWrapper\Example\ExampleController'] = $object;
         }
 
-        return $object;    
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ExampleDiFactory
+     */
+    public function getDiWrapperExampleExampleDiFactory(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ExampleDiFactory'])) {
+            return $this->services['DiWrapper\Example\ExampleDiFactory'];
+        }
+
+        $object = new \DiWrapper\Example\ExampleDiFactory($this->get('DiWrapper\DiWrapper'));
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ExampleDiFactory'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\RuntimeA
+     */
+    public function getDiWrapperExampleRuntimeA(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\RuntimeA'])) {
+            return $this->services['DiWrapper\Example\RuntimeA'];
+        }
+
+        $object = new \DiWrapper\Example\RuntimeA($this->get('Zend\Config\Config'), $params);
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\RuntimeA'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceA
+     */
+    public function getDiWrapperExampleServiceA(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceA'])) {
+            return $this->services['DiWrapper\Example\ServiceA'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceA($this->getDiWrapperExampleServiceB());
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceA'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceB
+     */
+    public function getDiWrapperExampleServiceB(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceB'])) {
+            return $this->services['DiWrapper\Example\ServiceB'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceB('Hello');
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceB'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceC
+     */
+    public function getDiWrapperExampleServiceC(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceC'])) {
+            return $this->services['DiWrapper\Example\ServiceC'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceC();
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceC'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceD
+     */
+    public function getDiWrapperExampleServiceD(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceD'])) {
+            return $this->services['DiWrapper\Example\ServiceD'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceD($this->getDiWrapperExampleExampleDiFactory());
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceD'] = $object;
+        }
+
+        return $object;
     }
 }
 ```
