@@ -23,7 +23,8 @@ experience _great performance_ in production!
 - Can also be used as a full replacement for Zend\ServiceManager
 - Detection of outdated generated code and automatic rescanning (great for development)
 - Can create new instances or reuse instances created before
-- Can be used as a factory for runtime objects combining DI and passing of runtime parameters. 
+- Can be used as a factory for runtime objects combining DI and passing of runtime parameters.
+- Greater perfomance and less memory consumption, as compared to using `Zend\Di\Di` with cached definitions.
 
 # Installation
 
