@@ -118,13 +118,6 @@ class ExampleController extends AbstractActionController
         $this->serviceC = $serviceC;
         $this->config = $config;
     }
-
-    public function indexAction()
-    {
-        // Of course we could also constructor-inject ServiceD
-        $serviceD = $this->diWrapper->get('DiWrapper\Example\ServiceD');
-        $serviceD->serviceMethod();
-    }
 }
 
 ```
@@ -228,11 +221,117 @@ class Module
 }
 ```
 
+## Using the DiFactory to create runtime objects with dependencies
+
+It is useful to distinguish two types of objects: _services_ and _runtime objects_. For _services_, all parameters should
+be specified in the configuration (e.g. a config array wrapped in a `Zend\Config\Config` object). If class constructors
+e.g. in third party code require some custom parameters, they can be specified in the 
+[DI instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
+
+_Runtime objects_ require at least one parameter which is determined at runtime only.
+DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_. If you follow the convention
+of passing runtime parameters in a single array named `$params` as in `RuntimeA`, things are very easy:
+
+```
+class RuntimeA
+{    
+    public function __construct(Config $config, ServiceA $serviceA,
+                                array $params = array())
+    {
+        $this->config = $config;
+        $this->serviceA = $serviceA;
+        $this->params = $params;
+    }
+}
+```
+
+DiWrapper automatically injects `DiWrapper\DiFactory` as a default shared instance. So
+we can just use it to create `RuntimeA` objects in `ServiceD`. `RuntimeA`'s dependencies (the `Config` default shared instance 
+and `ServiceA`) are injected automatically, so you only need to provide the runtime parameters: 
+
+```
+use DiWrapper\DiFactory;
+
+class ServiceD
+{    
+    public function __construct(DiFactory $diFactory)
+    {
+        $this->diFactory = $diFactory;
+    }
+    
+    public function serviceMethod()
+    {
+        $runtimeA1 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('hello', 'world'));
+        $runtimeA2 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('goodbye', 'world'));
+    }
+}
+```
+
+If you can't or don't want to follow the convention of passing all runtime parameters in a single `$params` array,
+DiWrapper still is very useful. In that case, you can just extend a custom factory from `DiWrapper\DiFactory` and 
+add your specific creation methods. `RuntimeB` requires two separate run time parameters:
+
+```
+class RuntimeB
+{
+    public function __construct(Config $config, ServiceA $serviceA,
+                                $runtimeParam1, $runtimeParam2)
+    {
+        $this->config = $config;
+        $this->serviceA = $serviceA;
+        $this->runtimeParam1 = $runtimeParam1;
+        $this->runtimeParam2 = $runtimeParam2;
+    }
+}
+```
+
+So we extend `ExampleDiFactory` from `DiWrapper\DiFactory` and write a creation method `createRuntimeB`:
+
+```
+class ExampleDiFactory extends DiFactory
+{
+    /**
+     * @param string $runtimeParam1
+     * @param int $runtimeParam2
+     * @return RuntimeB
+     */
+    public function createRuntimeB($runtimeParam1, $runtimeParam2)
+    {
+        $config = $this->diWrapper->get('Zend\Config\Config');
+        $serviceA = $this->diWrapper->get('DiWrapper\Example\ServiceA');
+        return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
+    }
+}
+```
+
+Now we can create `RuntimeB` objects as follows:
+
+```
+class ServiceE
+{
+    public function __construct(ExampleDiFactory $diFactory)
+    {
+        $this->diFactory = $diFactory;
+    }
+
+    public function serviceMethod()
+    {
+        $runtimeB1 = $this->diFactory->createRuntimeB('one', 1);
+        $runtimeB2 = $this->diFactory->createRuntimeB('two', 2);
+    }
+}
+```
+
+## Using type preferences
+
+todo
+
+
+# The generated factory code behind the scenes
+
 DiWrapper will automatically generate a service locator in the `data` directory and update it if constructors are changed
 during development. Services can be created/retrieved using `DiWrapper::get()`. If you need a new dependency in one of your
 classes, you can just put it in the constructor and DiWrapper will inject it for you.
-
-# The generated factory code behind the scenes
 
 Just for illustration, this is the generated service locator created by DiWrapper and used in `DiWrapper::get()`. 
 
