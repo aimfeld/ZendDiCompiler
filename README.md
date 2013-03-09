@@ -99,11 +99,11 @@ Note that DiWrapper provides some _default shared instances_ automatically
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
 The following _default shared instances_ can be constructor-injected without explicitly adding them:
 
-- DiWrapper\DiWrapper
-- DiWrapper\DiFactory
-- Zend\Config\Config
-- Zend\Mvc\Router\Http\TreeRouteStack
-- Zend\View\Renderer\PhpRenderer
+- `DiWrapper\DiWrapper`
+- `DiWrapper\DiFactory`
+- `Zend\Config\Config`
+- `Zend\Mvc\Router\Http\TreeRouteStack`
+- `Zend\View\Renderer\PhpRenderer`
 
 # Examples
 
