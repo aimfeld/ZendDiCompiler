@@ -50,7 +50,7 @@ Add 'DiWrapper' to the modules array in your `application.config.php`. DiWrapper
 modules where it is used:
 
 ```
-'modules' => array(		
+'modules' => array(    	
     'SomeModule',
     'Application',
     'DiWrapper',
@@ -110,18 +110,20 @@ use Zend\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
-    public function __construct(DiWrapper $diWrapper, Config $config, ServiceA $serviceA)
+    public function __construct(DiWrapper $diWrapper, ServiceA $serviceA,
+                                ServiceC $serviceC, Config $config)
     {
         $this->diWrapper = $diWrapper;
-        $this->config = $config;
         $this->serviceA = $serviceA;
+        $this->serviceC = $serviceC;
+        $this->config = $config;
     }
 
     public function indexAction()
     {
-        // Of course we could also constructor-inject ServiceC
-        $serviceC = $this->diWrapper->get('DiWrapper\Example\ServiceC');
-        $serviceC->serviceMethod();
+        // Of course we could also constructor-inject ServiceD
+        $serviceD = $this->diWrapper->get('DiWrapper\Example\ServiceD');
+        $serviceD->serviceMethod();
     }
 }
 
@@ -150,6 +152,20 @@ class ServiceB
     }
 }
 ```
+
+ServiceC which requires complicated runtime initialization and will be added as shared instance.
+
+```
+class ServiceC
+{
+    public function init(MvcEvent $mvcEvent)
+    {
+        $sm = $mvcEvent->getApplication()->getServiceManager();
+        $router = $mvcEvent->getRouter();
+        // Some complicated bootstrapping using e.g. the service manager and the router
+    }
+}
+```
     
 We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
 have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor 
@@ -172,12 +188,11 @@ looks like this
 ),
 ```
 
-This is how you can use DiWrapper in your Application module. Here we provide the config as a shared instance to 
-DiWrapper and create a controller _without writing Zend\ServiceManager factory methods for the controller, A, B, or C_:
+Now we can create the `ExampleController` in our application's module class. Since the `ServiceC`
+dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
+DiWrapper.
 
 ```
-namespace Application;
-
 class Module
 {    
     protected $diWrapper;
@@ -186,32 +201,40 @@ class Module
     {
         return array(
             'factories' => array(
-                'Application\Controller\Example' => function() {
+                // Suppose one of our routes specifies a controller named 'ExampleController'
+                'ExampleController' => function() {
                     return $this->diWrapper->get('DiWrapper\Example\ExampleController');
-                },                
+                },
             ),
         );
-    }    
+    }
 
     public function onBootstrap(MvcEvent $mvcEvent)
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
 
-        // Add shared instances to DiWrapper
+        // Provide DiWrapper as a local variable for convience
         $this->diWrapper = $sm->get('di-wrapper');
+        
+        // Set up shared instance
+        $serviceC = new ServiceC;
+        $serviceC->init($mvcEvent);
+        
+        // Provide shared instance
         $this->diWrapper->addSharedInstances(array(
-            'Zend\Config\Config' => new Config($sm->get('config'));
+            'DiWrapper\Example\ServiceC' => $serviceC,
         ));
     }
 }
 ```
 
-DiWrapper has automatically generated a ServiceLocator in the data directory.
-Services can be created or retrieved using `DiWrapper::get()`. You can just constructor inject in the retrieved class and
-you don't need to worry about instantiation. 
+DiWrapper will automatically generate a service locator in the `data` directory and update it if constructors are changed
+during development. Services can be created/retrieved using `DiWrapper::get()`. If you need a new dependency in one of your
+classes, you can just put it in the constructor and DiWrapper will inject it for you.
 
-This is how it looks behind the scenes. Some services may need to be provided as shared instances (like the config in this 
-example). Just for illustration, this is the generated service locator used by `DiWrapper::get()`. 
+# The generated factory code behind the scenes
+
+Just for illustration, this is the generated service locator created by DiWrapper and used in `DiWrapper::get()`. 
 
 ```
 namespace DiWrapper;
@@ -236,78 +259,30 @@ class GeneratedServiceLocator extends ServiceLocator
         }
 
         switch ($name) {
-            case 'DiWrapper\Example\A':
-                return $this->getDiWrapperExampleA($params, $newInstance);
-
-            case 'DiWrapper\Example\B':
-                return $this->getDiWrapperExampleB($params, $newInstance);
-                
-            case 'DiWrapper\Example\C':
-                return $this->getDiWrapperExampleC($params, $newInstance);
-
             case 'DiWrapper\Example\ExampleController':
                 return $this->getDiWrapperExampleExampleController($params, $newInstance);
+
+            case 'DiWrapper\Example\ExampleDiFactory':
+                return $this->getDiWrapperExampleExampleDiFactory($params, $newInstance);
+
+            case 'DiWrapper\Example\RuntimeA':
+                return $this->getDiWrapperExampleRuntimeA($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceA':
+                return $this->getDiWrapperExampleServiceA($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceB':
+                return $this->getDiWrapperExampleServiceB($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceC':
+                return $this->getDiWrapperExampleServiceC($params, $newInstance);
+
+            case 'DiWrapper\Example\ServiceD':
+                return $this->getDiWrapperExampleServiceD($params, $newInstance);
 
             default:
                 return parent::get($name, $params);
         }
-    }
-
-    /**
-     * @param array $params
-     * @param bool $newInstance
-     * @return \DiWrapper\Example\A
-     */
-    public function getDiWrapperExampleA(array $params = array(), $newInstance = false)
-    {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\A'])) {
-            return $this->services['DiWrapper\Example\A'];
-        }
-
-        $object = new \DiWrapper\Example\A($this->getDiWrapperExampleB());
-        if (!$newInstance) {
-            $this->services['DiWrapper\Example\A'] = $object;
-        }
-
-        return $object;
-    }
-
-    /**
-     * @param array $params
-     * @param bool $newInstance
-     * @return \DiWrapper\Example\B
-     */
-    public function getDiWrapperExampleB(array $params = array(), $newInstance = false)
-    {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\B'])) {
-            return $this->services['DiWrapper\Example\B'];
-        }
-
-        $object = new \DiWrapper\Example\B('Hello');
-        if (!$newInstance) {
-            $this->services['DiWrapper\Example\B'] = $object;
-        }
-
-        return $object;
-    }
-    
-    /**
-     * @param array $params
-     * @param bool $newInstance
-     * @return \DiWrapper\Example\C
-     */
-    public function getDiWrapperExampleC(array $params = array(), $newInstance = false)
-    {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\C'])) {
-            return $this->services['DiWrapper\Example\C'];
-        }
-
-        $object = new \DiWrapper\Example\C($this->get('Zend\Config\Config'), $params);
-        if (!$newInstance) {
-            $this->services['DiWrapper\Example\C'] = $object;
-        }
-
-        return $object;
     }
 
     /**
@@ -321,12 +296,126 @@ class GeneratedServiceLocator extends ServiceLocator
             return $this->services['DiWrapper\Example\ExampleController'];
         }
 
-        $object = new \DiWrapper\Example\ExampleController($this->get('DiWrapper\DiWrapper'), $this->get('Zend\Config\Config'), $this->getDiWrapperExampleA());
+        $object = new \DiWrapper\Example\ExampleController($this->get('DiWrapper\DiWrapper'), $this->getDiWrapperExampleServiceA(), $this->getDiWrapperExampleServiceC(), $this->get('Zend\Config\Config'));
         if (!$newInstance) {
             $this->services['DiWrapper\Example\ExampleController'] = $object;
         }
 
-        return $object;    
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ExampleDiFactory
+     */
+    public function getDiWrapperExampleExampleDiFactory(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ExampleDiFactory'])) {
+            return $this->services['DiWrapper\Example\ExampleDiFactory'];
+        }
+
+        $object = new \DiWrapper\Example\ExampleDiFactory($this->get('DiWrapper\DiWrapper'));
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ExampleDiFactory'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\RuntimeA
+     */
+    public function getDiWrapperExampleRuntimeA(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\RuntimeA'])) {
+            return $this->services['DiWrapper\Example\RuntimeA'];
+        }
+
+        $object = new \DiWrapper\Example\RuntimeA($this->get('Zend\Config\Config'), $params);
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\RuntimeA'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceA
+     */
+    public function getDiWrapperExampleServiceA(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceA'])) {
+            return $this->services['DiWrapper\Example\ServiceA'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceA($this->getDiWrapperExampleServiceB());
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceA'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceB
+     */
+    public function getDiWrapperExampleServiceB(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceB'])) {
+            return $this->services['DiWrapper\Example\ServiceB'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceB('Hello');
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceB'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceC
+     */
+    public function getDiWrapperExampleServiceC(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceC'])) {
+            return $this->services['DiWrapper\Example\ServiceC'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceC();
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceC'] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $newInstance
+     * @return \DiWrapper\Example\ServiceD
+     */
+    public function getDiWrapperExampleServiceD(array $params = array(), $newInstance = false)
+    {
+        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceD'])) {
+            return $this->services['DiWrapper\Example\ServiceD'];
+        }
+
+        $object = new \DiWrapper\Example\ServiceD($this->getDiWrapperExampleExampleDiFactory());
+        if (!$newInstance) {
+            $this->services['DiWrapper\Example\ServiceD'] = $object;
+        }
+
+        return $object;
     }
 }
 ```
