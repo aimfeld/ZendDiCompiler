@@ -50,7 +50,7 @@ Add 'DiWrapper' to the modules array in your `application.config.php`. DiWrapper
 modules where it is used:
 
 ```
-'modules' => array(		
+'modules' => array(    	
     'SomeModule',
     'Application',
     'DiWrapper',
@@ -110,11 +110,13 @@ use Zend\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
-    public function __construct(DiWrapper $diWrapper, Config $config, ServiceA $serviceA)
+    public function __construct(DiWrapper $diWrapper, ServiceA $serviceA,
+                                Config $config, SharedInstance $sharedInstance)
     {
         $this->diWrapper = $diWrapper;
-        $this->config = $config;
         $this->serviceA = $serviceA;
+        $this->config = $config;
+        $this->sharedInstance = $sharedInstance;
     }
 
     public function indexAction()
@@ -150,6 +152,18 @@ class ServiceB
     }
 }
 ```
+
+SharedInstance class which requires complicated initialization.
+
+```
+class SharedInstance
+{
+    public function init(array $options = array())
+    {
+        // Some complicated bootstrapping here
+    }
+}
+```
     
 We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
 have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor 
@@ -172,8 +186,9 @@ looks like this
 ),
 ```
 
-This is how you can use DiWrapper in your Application module. Here we provide the config as a shared instance to 
-DiWrapper and create a controller _without writing Zend\ServiceManager factory methods for the controller, A, B, or C_:
+Now we can create the `ExampleController` in our application's module class. Since the `SharedInstance`
+dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
+DiWrapper.
 
 ```
 namespace Application;
@@ -197,10 +212,16 @@ class Module
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
 
-        // Add shared instances to DiWrapper
+        // Provide DiWrapper as a local variable for convience
         $this->diWrapper = $sm->get('di-wrapper');
+        
+        // Set up shared instance
+        $sharedInstance = new SharedInstance;
+        $sharedInstance->init(array('some', 'crazy', 'options'));
+        
+        // Provide shared instance
         $this->diWrapper->addSharedInstances(array(
-            'Zend\Config\Config' => new Config($sm->get('config'));
+            'DiWrapper\Example\SharedInstance' => $sharedInstance,
         ));
     }
 }
