@@ -50,7 +50,7 @@ Add 'DiWrapper' to the modules array in your `application.config.php`. DiWrapper
 modules where it is used:
 
 ```
-'modules' => array(    	
+'modules' => array(        
     'SomeModule',
     'Application',
     'DiWrapper',
@@ -77,12 +77,12 @@ deployment/update process, make sure that `data/GeneratedServiceLocator.php` is 
 You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
 
-- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)
+- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php).
 - The object to be injected requires some special bootstrapping (e.g. a session object).
 
-Note that DiWrapper by default provides some commonly used shared instances in ZF2 
+Note that DiWrapper provides some _default shared instances_ automatically
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
-Thee following default shared instances can be constructor-injected without explicitly adding them:
+The following _default shared instances_ can be constructor-injected without explicitly adding them:
 
 - DiWrapper\DiWrapper
 - DiWrapper\DiFactory
@@ -249,7 +249,7 @@ class RuntimeA
 }
 ```
 
-DiWrapper automatically injects `DiWrapper\DiFactory` as a default shared instance. So
+DiWrapper automatically injects `DiWrapper\DiFactory` as a _default shared instance_. So
 we can just use it to create `RuntimeA` objects in `ServiceD`. `RuntimeA`'s dependencies (the `Config` default shared instance 
 and `ServiceA`) are injected automatically, so you only need to provide the runtime parameters: 
 
