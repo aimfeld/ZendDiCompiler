@@ -1,29 +1,46 @@
 _This module is in beta stage. Please create github issues for bugs or feature requests._
 
-# DiWrapper
+# Table of Contents
 
-Are you tired of writing tons of factory code (closures) for the ServiceManager in your Zend Framework 2 application? 
+* [Introduction](#introduction)
+* [Features](#features)
+* [Installation](#installation) 
+* [Usage](#usage) 
+    * [Shared instances](#shared-instances) 
+* [Examples](#examples) 
+    * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
+    * [Using the DiFactory to create runtime objects with dependencies](#using-diwrapper-to-create-runtime-objects-with-dependencies)
+        * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-params-array)
+        * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
+    * [Using type preferences](#using-type-preferences)
+* [The generated factory code behind the scenes](#the-generated-factory-code-behind-the-scenes) 
+       
+
+
+# Introduction
+
+Are you tired of writing tons of factory code (closures) for the `Zend\ServiceManager` in your Zend Framework 2 application? 
 Are outdated factory methods causing bugs? This can all be avoided by using DiWrapper!
 
-DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
-It saves you a lot of work, since there's no need anymore for writing 
-[Zend\ServiceManager](http://framework.zend.com/manual/2.1/en/modules/zend.service-manager.intro.html) 
-factory closures and keeping them up-to-date manually.
+**DiWrapper** is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
+It saves you a lot of work, since there's **no need anymore for writing 
+`Zend\ServiceManager` factory closures** and keeping them up-to-date manually.
 
 DiWrapper scans your code using `Zend\Di` and creates factory methods automatically. If the factory methods are outdated, DiWrapper
-updates them in the background. Therefore, you _develop faster_, _avoid bugs_ due to outdated factory methods, and 
-experience _great performance_ in production!
+updates them in the background. Therefore, you **develop faster**, **avoid bugs** due to outdated factory methods, and 
+experience **great performance** in production!
 
-## Features
+# Features
 
-- DI definition scanning and factory code generation
-- Can deal with shared instances and type preferences
-- Allows for custom code introspection strategies (by default, only constructors are scanned)
-- Is automatically used as a fallback abstract factory for Zend\ServiceManager
-- Can also be used as a full replacement for Zend\ServiceManager
-- Detection of outdated generated code and automatic rescanning (great for development)
+- **Code scanning** for creating DI definitions and **automatic factory code generation**
+- Can deal with **shared instances** and **type preferences**
+- Allows for **custom code introspection strategies** (by default, only constructors are scanned)
+- Is automatically used as a **fallback abstract factory for `Zend\ServiceManager`**
+- Can be used **instead of `Zend\ServiceManager`**
+- Detection of outdated generated factory code and **automatic rescanning** (great for development)
 - Can create new instances or reuse instances created before
-- Can be used as a factory for runtime objects combining DI and passing of runtime parameters. 
+- Can be used as a **factory for runtime objects** combining DI and passing of runtime parameters.
+- **Greater perfomance** and less memory consumption, as compared to using `Zend\Di\Di` with cached definitions.
 
 # Installation
 
@@ -50,7 +67,7 @@ Add 'DiWrapper' to the modules array in your `application.config.php`. DiWrapper
 modules where it is used:
 
 ```
-'modules' => array(    	
+'modules' => array(        
     'SomeModule',
     'Application',
     'DiWrapper',
@@ -77,12 +94,12 @@ deployment/update process, make sure that `data/GeneratedServiceLocator.php` is 
 You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
 
-- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)
+- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php).
 - The object to be injected requires some special bootstrapping (e.g. a session object).
 
-Note that DiWrapper by default provides some commonly used shared instances in ZF2 
+Note that DiWrapper provides some _default shared instances_ automatically
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
-Thee following default shared instances can be constructor-injected without explicitly adding them:
+The following _default shared instances_ can be constructor-injected without explicitly adding them:
 
 - DiWrapper\DiWrapper
 - DiWrapper\DiFactory
@@ -249,7 +266,7 @@ class RuntimeA
 }
 ```
 
-DiWrapper automatically injects `DiWrapper\DiFactory` as a default shared instance. So
+DiWrapper automatically injects `DiWrapper\DiFactory` as a _default shared instance_. So
 we can just use it to create `RuntimeA` objects in `ServiceD`. `RuntimeA`'s dependencies (the `Config` default shared instance 
 and `ServiceA`) are injected automatically, so you only need to provide the runtime parameters: 
 
