@@ -3,14 +3,14 @@ _!!!Warning: this module is still in alpha stage, use at your own risk!!!_
 # DiWrapper
 
 Are you tired of writing tons of factory code (closures) for the ServiceManager in your Zend Framework 2 application? 
-Are outdated factory methods causing bugs? This can all be avoided by using the DiWrapper module!
+Are outdated factory methods causing bugs? This can all be avoided by using DiWrapper!
 
 DiWrapper is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection. 
 It saves you a lot of work, since there's no need anymore for writing 
 [Zend\ServiceManager](http://framework.zend.com/manual/2.1/en/modules/zend.service-manager.intro.html) 
 factory closures and keeping them up-to-date manually.
 
-DiWrapper scans your code (using Zend\Di) and creates factory methods automatically. If the factory methods are outdated, DiWrapper
+DiWrapper scans your code using `Zend\Di` and creates factory methods automatically. If the factory methods are outdated, DiWrapper
 updates them in the background. Therefore, you _develop faster_, _avoid bugs_ due to outdated factory methods, and 
 experience _great performance_ in production!
 
@@ -24,10 +24,6 @@ experience _great performance_ in production!
 - Detection of outdated generated code and automatic rescanning (great for development)
 - Can create new instances or reuse instances created before
 - Can be used as a factory for runtime objects combining DI and passing of runtime parameters. 
-
-## Current limitations
-
-- If you want to pass _runtime_ parameters (as opposed to [DI instance parameters](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)) to [DiWrapper::get()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php), the retrieved class must use an array named `$params` in the constructor (see [ExampleController](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/ExampleController.php) and [class C](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/C.php))
 
 # Installation
 
@@ -71,12 +67,12 @@ examples of how to specify:
 - Instance configuration
 - Type preferences
 
-DiWrapper creates a `GeneratedServiceLocator` class n the data directory and automatically refreshes it when changed constructors cause
+DiWrapper creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when changed constructors cause
 an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php),
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
-## Using shared instances
+## Shared instances
 
 You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
@@ -86,89 +82,79 @@ your application module's onBootstrap() method in the following cases (also see 
 
 Note that DiWrapper by default provides some commonly used shared instances in ZF2 
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
-These default shared instances can be constructor-injected without explicitly adding shared instances:
+Thee following default shared instances can be constructor-injected without explicitly adding them:
 
 - DiWrapper\DiWrapper
+- DiWrapper\DiFactory
 - Zend\Config\Config
 - Zend\Mvc\Router\Http\TreeRouteStack
 - Zend\View\Renderer\PhpRenderer
 
-# Example
+# Examples
 
-Let's say we want to use the DiWrapper to create a controller class and inject some 
-dependencies (of course without writing factory methods for Zend\ServiceManager). 
-We also want to inject the DiWrapper itself into the controller, so we can use it to get 
-dependencies from within the controller. We have the following classes 
-(see [example source](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example)):
+All examples sources listed here are included as [source code](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example).
 
-ExampleController:
+## Using DiWrapper to create a controller
+
+Let's say we want to use DiWrapper to create a controller class and inject some 
+dependencies. We also want to inject the DiWrapper itself into the controller, so we can use it to get 
+dependencies from within the controller (it is a moot topic whether this is a good idea or not). 
+We have the following classes:
+
+ExampleController
 
 ```
-namespace DiWrapper\Example;
-
 use Zend\Mvc\Controller\AbstractActionController;
 use DiWrapper\DiWrapper;
 use Zend\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
-    public function __construct(DiWrapper $diWrapper, Config $config, A $a)
+    public function __construct(DiWrapper $diWrapper, Config $config, ServiceA $serviceA)
     {
         $this->diWrapper = $diWrapper;
         $this->config = $config;
-        $this->a = $a;
-        
-        // Of course we could also contructor-inject B, this is just for illustration
-        $this->b = $diWrapper->get('DiWrapper\Example\B');
-        
-        // And here we use the DiWrapper as a runtime-object factory, automatically injecting the config
-        $this->c = $diWrapper->get('DiWrapper\Example\C', array('hello' => 'world'), true);
+        $this->serviceA = $serviceA;
+    }
+
+    public function indexAction()
+    {
+        // Of course we could also constructor-inject ServiceC
+        $serviceC = $this->diWrapper->get('DiWrapper\Example\ServiceC');
+        $serviceC->serviceMethod();
+    }
+}
+
+```
+
+ServiceA with a dependency on ServiceB
+
+```
+class ServiceA
+{
+    public function __construct(ServiceB $serviceB)
+    {
+        $this->serviceB = $serviceB;
     }
 }
 ```
 
-Class A with a dependency on class B:
+ServiceB with a constructor parameter of unspecified type:
 
 ```
-namespace DiWrapper\Example;
-
-class A
+class ServiceB
 {
-    public function __construct(B $b)
+    public function __construct($diParam)
     {
-        $this->b = $b;
-    }
-}
-```
-
-Class B with a constructor parameter of unspecified type:
-
-```
-class B
-{
-    public function __construct($someParam)
-    {
-        $this->someParam = $someParam;
+        $this->diParam = $diParam;
     }
 }
 ```
     
-Class C with a dependency on the config and a runtime-parameter array (which can be passed to DiWrapper::get())
-
-```
-class C
-{
-    public function __construct(Config $config, array $params = array())
-    {
-        $this->config = $config;
-        $this->param = $params;
-    }
-}
-```
-    
-We add the source directory as a scan directory for DiWrapper. Since B has a parameter of unspecified type, we
-have to specify a value to inject. If class B had required the config in its constructor and retrieved the
-parameter from there, we wouldn't need to specify anything. The config looks like this
+We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
+have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor 
+and retrieve the parameter from there, so we wouldn't need to specify a di instance configuration. The configuration for our example
+looks like this
 (also see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)).
 
 ```
@@ -177,9 +163,9 @@ parameter from there, we wouldn't need to specify anything. The config looks lik
         __DIR__ . '/../src/DiWrapper/Example',
     ),
     'instance' => array(
-        'DiWrapper\Example\B' => array(
+        'DiWrapper\Example\ServiceB' => array(
             'parameters' => array(
-                'someParam' => 'Hello',
+                'diParam' => 'Hello',
             ),
         ),
     ),            
