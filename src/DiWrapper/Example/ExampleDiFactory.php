@@ -12,9 +12,8 @@
 
 namespace DiWrapper\Example;
 
-
 use DiWrapper\DiFactory;
-
+use Zend\Config\Config;
 
 /**
  * @package    DiWrapper
@@ -23,16 +22,19 @@ use DiWrapper\DiFactory;
 class ExampleDiFactory extends DiFactory
 {
     /**
-     * Custom factory method with runtime params not passed as a $params array.
+     * Custom factory method with runtime params.
      *
-     * @param $param1
-     * @param $param2
-     * @return D
+     * Only runtime parameters are passed, RuntimeB's other dependencies are
+     * retrieved using DiWrapper.
+     *
+     * @param string $runtimeParam1
+     * @param int $runtimeParam2
+     * @return RuntimeB
      */
-    public function createD($param1, $param2)
+    public function createRuntimeB($runtimeParam1, $runtimeParam2)
     {
-        $config = $this->diWrapper->get('Zend\Config\Config'); /** @var \Zend\Config\Config $config */
-        $a = $this->diWrapper->get('DiWrapper\Example\A'); /** @var \DiWrapper\Example\A $a */
-        return new D($config, $a, $param1, $param2);
+        $config = $this->diWrapper->get('Zend\Config\Config');
+        $serviceA = $this->diWrapper->get('DiWrapper\Example\ServiceA');
+        return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
     }
 }

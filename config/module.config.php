@@ -33,9 +33,9 @@ return array(
             // A good approach is to pass a Zend\Config\Config object to your classes instead of single
             // parameters. This makes things more flexible and avoids the need of configuring instance parameters.
             // Of course, third party modules may not follow this approach, so intances need to be configured here, e.g.
-            'DiWrapper\Example\B' => array(
+            'DiWrapper\Example\ServiceB' => array(
                 'parameters' => array(
-                    'someParam' => 'Hello',
+                    'diParam' => 'Hello',
                 ),
             ),
         ),

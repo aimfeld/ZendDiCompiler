@@ -18,19 +18,15 @@ use Zend\Config\Config;
  * @package    DiWrapper
  * @subpackage Example
  */
-class D
+class RuntimeA
 {
     /**
      * @param Config $config
-     * @param A $a
-     * @param $param1
-     * @param $param2
+     * @param array $params
      */
-    public function __construct(Config $config, A $a, $param1, $param2)
+    public function __construct(Config $config, array $params = array())
     {
         $this->config = $config;
-        $this->a = $a;
-        $this->param1 = $param1;
-        $this->param2 = $param2;
+        $this->param = $params;
     }
 }

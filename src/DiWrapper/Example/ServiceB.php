@@ -16,13 +16,13 @@ namespace DiWrapper\Example;
  * @package    DiWrapper
  * @subpackage Example
  */
-class B
+class ServiceB
 {
     /**
-     * @param string $someParam
+     * @param string $diParam
      */
-    public function __construct($someParam)
+    public function __construct($diParam)
     {
-        $this->someParam = $someParam;
+        $this->diParam = $diParam;
     }
 }
