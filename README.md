@@ -16,15 +16,15 @@ experience _great performance_ in production!
 
 ## Features
 
-- DI definition scanning and factory code generation
-- Can deal with shared instances and type preferences
-- Allows for custom code introspection strategies (by default, only constructors are scanned)
-- Is automatically used as a fallback abstract factory for Zend\ServiceManager
-- Can also be used as a full replacement for Zend\ServiceManager
-- Detection of outdated generated code and automatic rescanning (great for development)
+- **Code scanning** for creating DI definitions and **automatic factory code generation**
+- Can deal with **shared instances** and **type preferences**
+- Allows for **custom code introspection strategies** (by default, only constructors are scanned)
+- Is automatically used as a **fallback abstract factory for `Zend\ServiceManager`**
+- Can be used **instead of `Zend\ServiceManager`**
+- Detection of outdated generated factory code and **automatic rescanning** (great for development)
 - Can create new instances or reuse instances created before
-- Can be used as a factory for runtime objects combining DI and passing of runtime parameters.
-- Greater perfomance and less memory consumption, as compared to using `Zend\Di\Di` with cached definitions.
+- Can be used as a **factory for runtime objects** combining DI and passing of runtime parameters.
+- **Greater perfomance** and less memory consumption, as compared to using `Zend\Di\Di` with cached definitions.
 
 # Installation
 
