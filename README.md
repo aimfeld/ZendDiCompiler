@@ -1,5 +1,14 @@
 _This module is in beta stage. Please create github issues for bugs or feature requests._
 
+# Table of Contents
+
+* [Introduction](#introduction)
+* [Features](#features)
+* [Installation](#installation) 
+* [Usage](#usage) 
+** [Shared instances](#shared_instances) 
+
+
 # Introduction
 
 Are you tired of writing tons of factory code (closures) for the `Zend\ServiceManager` in your Zend Framework 2 application? 
@@ -12,11 +21,6 @@ It saves you a lot of work, since there's **no need anymore for writing
 DiWrapper scans your code using `Zend\Di` and creates factory methods automatically. If the factory methods are outdated, DiWrapper
 updates them in the background. Therefore, you **develop faster**, **avoid bugs** due to outdated factory methods, and 
 experience **great performance** in production!
-
-# Table of Contents
- 
-* [Features](#features)
-* [Installation](#installation) 
 
 # Features
 
