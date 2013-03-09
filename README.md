@@ -153,14 +153,16 @@ class ServiceB
 }
 ```
 
-ServiceC which requires complicated initialization and will be added as shared instance.
+ServiceC which requires complicated runtime initialization and will be added as shared instance.
 
 ```
 class ServiceC
 {
-    public function init(array $options = array())
+    public function init(MvcEvent $mvcEvent)
     {
-        // Some complicated bootstrapping here
+        $sm = $mvcEvent->getApplication()->getServiceManager();
+        $router = $mvcEvent->getRouter();
+        // Some complicated bootstrapping using e.g. the service manager and the router
     }
 }
 ```
@@ -217,7 +219,7 @@ class Module
         
         // Set up shared instance
         $serviceC = new ServiceC;
-        $serviceC->init(array('some', 'crazy', 'options'));
+        $serviceC->init($mvcEvent);
         
         // Provide shared instance
         $this->diWrapper->addSharedInstances(array(
