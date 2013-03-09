@@ -153,7 +153,7 @@ class ServiceB
 }
 ```
 
-ServiceC class which requires complicated initialization.
+ServiceC which requires complicated initialization and will be added as shared instance.
 
 ```
 class ServiceC
@@ -227,12 +227,13 @@ class Module
 }
 ```
 
-DiWrapper has automatically generated a ServiceLocator in the data directory.
-Services can be created or retrieved using `DiWrapper::get()`. You can just constructor inject in the retrieved class and
-you don't need to worry about instantiation. 
+DiWrapper will automatically generate a service locator in the `data` directory and update it if constructors are changed
+during development. Services can be created/retrieved using `DiWrapper::get()`. If you need a new dependency in one of your
+classes, you can just put it in the constructor and DiWrapper will inject it for you.
 
-This is how it looks behind the scenes. Some services may need to be provided as shared instances (like the config in this 
-example). Just for illustration, this is the generated service locator used by `DiWrapper::get()`. 
+# The generated factory code behind the scenes
+
+Just for illustration, this is the generated service locator created by DiWrapper and used in `DiWrapper::get()`. 
 
 ```
 namespace DiWrapper;
