@@ -42,7 +42,7 @@ experience **great performance** in production!
 
 # Installation
 
-This module is available on [Packagist](https://packagist.org/packages/aimfeld/di-wrapper).
+This module is [available](https://packagist.org/packages/aimfeld/di-wrapper) on [Packagist](https://packagist.org).
 In your project's `composer.json` use:
 
 ```
