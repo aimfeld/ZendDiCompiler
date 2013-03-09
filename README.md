@@ -193,8 +193,6 @@ dependency requires some complicated initialization, we need to initialize it an
 DiWrapper.
 
 ```
-namespace Application;
-
 class Module
 {    
     protected $diWrapper;
@@ -203,12 +201,13 @@ class Module
     {
         return array(
             'factories' => array(
-                'Application\Controller\Example' => function() {
+                // Suppose one of our routes specifies a controller named 'ExampleController'
+                'ExampleController' => function() {
                     return $this->diWrapper->get('DiWrapper\Example\ExampleController');
-                },                
+                },
             ),
         );
-    }    
+    }
 
     public function onBootstrap(MvcEvent $mvcEvent)
     {
