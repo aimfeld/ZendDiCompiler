@@ -1,4 +1,4 @@
-_!!!Warning: this module is still in alpha stage, use at your own risk!!!_
+_This module is in beta stage. Please create github issues for bugs or feature requests._
 
 # DiWrapper
 
