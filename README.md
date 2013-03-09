@@ -223,6 +223,8 @@ class Module
 
 ## Using the DiFactory to create runtime objects with dependencies
 
+### Pass all runtime parameters in a $params array
+
 It is useful to distinguish two types of objects: _services_ and _runtime objects_. For _services_, all parameters should
 be specified in the configuration (e.g. a config array wrapped in a `Zend\Config\Config` object). If class constructors
 e.g. in third party code require some custom parameters, they can be specified in the 
@@ -267,6 +269,8 @@ class ServiceD
 }
 ```
 
+### Pass custom runtime parameters
+
 If you can't or don't want to follow the convention of passing all runtime parameters in a single `$params` array,
 DiWrapper still is very useful. In that case, you can just extend a custom factory from `DiWrapper\DiFactory` and 
 add your specific creation methods. `RuntimeB` requires two separate run time parameters:
@@ -304,7 +308,8 @@ class ExampleDiFactory extends DiFactory
 }
 ```
 
-Now we can create `RuntimeB` objects as follows:
+In `ServiceE`, we inject our extended factory. If the extended factory is located in a directory scanned by DiWrapper, 
+we don't need to provide it as a shared instance. Now we can create `RuntimeB` objects as follows:
 
 ```
 class ServiceE
