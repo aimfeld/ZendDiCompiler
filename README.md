@@ -348,7 +348,51 @@ class ServiceE
 
 ## Using type preferences
 
-todo
+It is common to inject interfaces or abstract classes. Let's have a look at interface injection (for abstract classes,
+it works the same).
+
+```
+class ServiceF
+{    
+    public function __construct(ExampleInterface $example)
+    {
+        // ExampleImplementor is injected since it is a type preference for ExampleInterface
+        $this->example = $example;
+    }
+}
+```
+
+We need to tell DiWrapper which implementing class to inject for `ExampleInterface`. We specify `ExampleImplementor` as 
+a type preference for `ExampleInterface` in our [example config](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php):
+
+```
+'di' => array(     
+    'instance' => array(         
+        'preference' => array(
+            'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
+        ),         
+    ),
+),
+```
+
+DiWrapper will now always inject `ExampleImplementor` for `ExampleInterface`. Calling 
+`DiWrapper::get('DiWrapper\Example\ExampleInterface')` will return the `ExampleImplementor`.
+
+Type preferences can not only be used for interfaces and abstract classes, but for substituting classes
+in general. They can even be used to deal with non-existing classes:
+
+```
+'di' => array(     
+    'instance' => array(         
+        'preference' => array(
+            'DiWrapper\Example\NotExists' => 'DiWrapper\Example\Exists',
+        ),         
+    ),
+),
+```
+
+Calling `DiWrapper::get('DiWrapper\Example\NotExists')` will return a `DiWrapper\Example\Exists` instance.
+Believe it or not, there are actually some good use cases for this.
 
 
 # The generated factory code behind the scenes
