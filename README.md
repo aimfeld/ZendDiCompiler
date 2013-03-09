@@ -8,7 +8,9 @@ _This module is in beta stage. Please create github issues for bugs or feature r
 * [Usage](#usage) 
     * [Shared instances](#shared-instances) 
 * [Examples](#examples) 
-    * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller) 
+    * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
+    * [Using the DiFactory to create runtime objects with dependencies](#using-diwrapper-to-create-runtime-objects-with-dependencies)
+        * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-$params-array)
 
 
 # Introduction
