@@ -12,11 +12,13 @@
 namespace DiWrapper;
 
 use Zend\Code\Generator\DocBlockGenerator;
+use Zend\Di\InstanceManager;
 use Zend\Di\ServiceLocator\GeneratorInstance;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\FileGenerator;
+use DiWrapper\Exception\RuntimeException;
 use DateTime;
 
 /**
@@ -28,6 +30,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
      * Support for passing a $params array for instance creation
      */
     const PARAMS_ARRAY = '__paramsArray__';
+    const INDENT = '    ';
 
     /**
      * Construct, configure, and return a PHP class file code generation object
@@ -41,184 +44,27 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
      */
     public function getCodeGenerator($filename = null)
     {
-        $injector       = $this->injector;
-        $im             = $injector->instanceManager();
-        $indent         = '    ';
-        $aliases        = $this->reduceAliases($im->getAliases());
-        $caseStatements = array();
-        $getters        = array();
-        $definitions    = $injector->definitions();
+        $im = $this->injector->instanceManager();
+        $definitions = $this->injector->definitions();
+        $classesOrAliases = array_unique(array_merge($definitions->getClasses(), $im->getAliases()));
 
-        $fetched = array_unique(array_merge($definitions->getClasses(), $im->getAliases()));
+        $generatorInstances = $this->getGeneratorInstances($classesOrAliases);
 
-        foreach ($fetched as $name) {
-            // Filter out abstract classes and interfaces
-            $class = new \ReflectionClass($name);
-            if ($class->isAbstract() || $class->isInterface()) {
-                continue;
-            }
-
-            $getter = $this->normalizeAlias($name);
-            try {
-                // Support for passing a $params array for instance creation
-                $meta = $injector->newInstance($name, array('params' => self::PARAMS_ARRAY));
-                $params = $meta->getParams();
-            } catch (\Exception $e) {
-                continue;
-            }
-
-            // Build parameter list for instantiation
-            foreach ($params as $key => $param) {
-                if ($param === self::PARAMS_ARRAY) {
-                    // Support for passing a $params array for instance creation
-                    $params[$key] = "\$params";
-                } elseif (null === $param || is_scalar($param) || is_array($param)) {
-                    $string = var_export($param, 1);
-                    if (strstr($string, '::__set_state(')) {
-                        throw new Exception\RuntimeException('Arguments in definitions may not contain objects');
-                    }
-                    $params[$key] = $string;
-                } elseif ($param instanceof GeneratorInstance) {
-                    /* @var $param GeneratorInstance */
-                    $params[$key] = sprintf("\$this->%s()", $this->normalizeAlias($param->getName()));
-                } elseif (is_object($param)) {
-                    $objectClass = get_class($param);
-                    if ($im->hasSharedInstance($objectClass)) {
-                        $params[$key] = sprintf("\$this->get('%s')", $objectClass);
-                    } else {
-                        $message = sprintf('Unable to use object arguments when building containers. Encountered with "%s", parameter of type "%s"', $name, get_class($param));
-                        throw new Exception\RuntimeException($message);
-                    }
-                }
-            }
-
-            // Strip null arguments from the end of the params list
-            $reverseParams = array_reverse($params, true);
-            foreach ($reverseParams as $key => $param) {
-                if ('NULL' === $param) {
-                    unset($params[$key]);
-                    continue;
-                }
-                break;
-            }
-
-            // Create instantiation code
-            $constructor = $meta->getConstructor();
-            if ('__construct' != $constructor) {
-                // Constructor callback
-                $callback = var_export($constructor, 1);
-                if (strstr($callback, '::__set_state(')) {
-                    throw new Exception\RuntimeException('Unable to build containers that use callbacks requiring object instances');
-                }
-                if (count($params)) {
-                    $creation = sprintf('$object = call_user_func(%s, %s);', $callback, implode(', ', $params));
-                } else {
-                    $creation = sprintf('$object = call_user_func(%s);', $callback);
-                }
-            } else {
-                // Normal instantiation
-                $className = '\\' . ltrim($name, '\\');
-                $creation = sprintf('$object = new %s(%s);', $className, implode(', ', $params));
-            }
-
-            // Create method call code
-            $methods = '';
-            foreach ($meta->getMethods() as $methodData) {
-                if (!isset($methodData['name']) && !isset($methodData['method'])) {
-                    continue;
-                }
-                $methodName   = isset($methodData['name']) ? $methodData['name'] : $methodData['method'];
-                $methodParams = $methodData['params'];
-
-                // Create method parameter representation
-                foreach ($methodParams as $key => $param) {
-                    if (null === $param || is_scalar($param) || is_array($param)) {
-                        $string = var_export($param, 1);
-                        if (strstr($string, '::__set_state(')) {
-                            throw new Exception\RuntimeException('Arguments in definitions may not contain objects');
-                        }
-                        $methodParams[$key] = $string;
-                    } elseif ($param instanceof GeneratorInstance) {
-                        $methodParams[$key] = sprintf("\$this->%s(\$params)", $this->normalizeAlias($param->getName()));
-                    } else {
-                        $message = sprintf('Unable to use object arguments when generating method calls. Encountered with class "%s", method "%s", parameter of type "%s"', $name, $methodName, get_class($param));
-                        throw new Exception\RuntimeException($message);
-                    }
-                }
-
-                // Strip null arguments from the end of the params list
-                $reverseParams = array_reverse($methodParams, true);
-                foreach ($reverseParams as $key => $param) {
-                    if ('NULL' === $param) {
-                        unset($methodParams[$key]);
-                        continue;
-                    }
-                    break;
-                }
-
-                $methods .= sprintf("\$object->%s(%s);\n", $methodName, implode(', ', $methodParams));
-            }
-
-            // Generate caching statement
-            $storage = '';
-            $storage .= "if (!\$newInstance) {\n";
-            $storage .= sprintf("%s\$this->services['%s'] = \$object;\n}\n\n", $indent, $name);
-
-
-            // Start creating getter
-            $getterBody = '';
-
-            // Create fetch of stored service
-            $getterBody .= sprintf("if (!\$newInstance && isset(\$this->services['%s'])) {\n", $name);
-            $getterBody .= sprintf("%sreturn \$this->services['%s'];\n}\n\n", $indent, $name);
-
-
-            // Creation and method calls
-            $getterBody .= sprintf("%s\n", $creation);
-            $getterBody .= $methods;
-
-            // Stored service
-            $getterBody .= $storage;
-
-            // End getter body
-            $getterBody .= "return \$object;\n";
-
-            $getterDef = new MethodGenerator();
-            $getterDef->setName($getter);
-            $paramParam = new ParameterGenerator('params', 'array', array());
-            $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
-            $getterDef->setParameters(array($paramParam, $newInstanceParam));
-            $getterDef->setBody($getterBody);
-            $getterDef->setDocBlock("@param array \$params\n@param bool \$newInstance\n@return \\$name");
-            $getters[] = $getterDef;
-
-            // Get cases for case statements
-            $cases = array($name);
-            if (isset($aliases[$name])) {
-                $cases = array_merge($aliases[$name], $cases);
-            }
-
-            // Build case statement and store
-            $statement = '';
-            foreach ($cases as $value) {
-                $statement .= sprintf("%scase '%s':\n", $indent, $value);
-            }
-            $statement .= sprintf("%sreturn \$this->%s(\$params, \$newInstance);\n", str_repeat($indent, 2), $getter);
-
-            $caseStatements[] = $statement;
-        }
+        $getterMethods = $this->getGetterMethods($generatorInstances);
+        $aliasMethods = $this->getAliasMethods($im);
+        $caseStatements = $this->createCaseStatements($generatorInstances);
 
         // Build get() method body
         $body = "if (!\$newInstance && isset(\$this->services[\$name])) {\n";
-        $body .= sprintf("%sreturn \$this->services[\$name];\n}\n\n", $indent);
+        $body .= sprintf("%sreturn \$this->services[\$name];\n}\n\n", self::INDENT);
 
         // Build switch statement
         $body .= sprintf("switch (%s) {\n%s\n", '$name', implode("\n", $caseStatements));
-        $body .= sprintf("%sdefault:\n%sreturn parent::get(%s, %s);\n", $indent, str_repeat($indent, 2), '$name', '$params');
+        $body .= sprintf("%sdefault:\n%sreturn parent::get(%s, %s);\n", self::INDENT, str_repeat(self::INDENT, 2), '$name', '$params');
         $body .= "}\n\n";
 
         // Build get() method
-        $nameParam   = new ParameterGenerator('name');
+        $nameParam = new ParameterGenerator('name');
         $paramsParam = new ParameterGenerator('params', 'array', array());
         $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
 
@@ -227,14 +73,6 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         $get->setParameters(array($nameParam, $paramsParam, $newInstanceParam));
         $get->setDocBlock("@param string \$name\n@param array \$params\n@param bool \$newInstance\n@return mixed");
         $get->setBody($body);
-
-        // Create getters for aliases
-        $aliasMethods = array();
-        foreach ($aliases as $class => $classAliases) {
-            foreach ($classAliases as $alias) {
-                $aliasMethods[] = $this->getCodeGenMethodFromAlias($alias, $class);
-            }
-        }
 
         // Create class code generation object
         $container = new ClassGenerator();
@@ -245,14 +83,13 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         $container->setName($this->containerClass)
             ->setExtendedClass('ServiceLocator')
             ->addMethodFromGenerator($get)
-            ->addMethods($getters)
+            ->addMethods($getterMethods)
             ->addMethods($aliasMethods)
             ->setDocBlock($classDocBlockGenerator);
 
         // Create PHP file code generation object
         $classFile = new FileGenerator();
-        $classFile->setUse('Zend\Di\ServiceLocator')
-            ->setClass($container);
+        $classFile->setUse('Zend\Di\ServiceLocator')->setClass($container);
 
         if (null !== $this->namespace) {
             $classFile->setNamespace($this->namespace);
@@ -263,5 +100,267 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         }
 
         return $classFile;
+    }
+
+    /**
+     * @param string[] $classesOrAliases
+     * @return GeneratorInstance[]
+     */
+    protected function getGeneratorInstances(array &$classesOrAliases)
+    {
+        $generatorInstances = array();
+        foreach ($classesOrAliases as $classOrAlias) {
+            // Filter out abstract classes and interfaces
+            $class = new \ReflectionClass($classOrAlias);
+            if ($class->isAbstract() || $class->isInterface()) {
+                continue;
+            }
+
+            try {
+                // Support for passing a $params array for instance creation
+                $generatorInstance = $this->injector->newInstance($classOrAlias, array('params' => self::PARAMS_ARRAY));
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            if ($generatorInstance instanceof GeneratorInstance) {
+                $generatorInstances[$classOrAlias] = $generatorInstance;
+            }
+        }
+
+        return $generatorInstances;
+    }
+
+    /**
+     * @param GeneratorInstance[] $generatorInstances
+     * @throws Exception\RuntimeException
+     * @return MethodGenerator[]
+     */
+    protected function getGetterMethods(array $generatorInstances)
+    {
+        $im = $this->injector->instanceManager();
+        $getters = array();
+
+        foreach ($generatorInstances as $classOrAlias => $generatorInstance) {
+            // Parameter list for instantiation
+            $params = $this->getParams($classOrAlias, $generatorInstance, $im);
+
+            // Create instantiation code
+            $creationCode = $this->getCreationCode($classOrAlias, $generatorInstance, $params);
+
+            // Create method call code
+            $methodCallCode = $this->getMethodCallCode($classOrAlias, $generatorInstance);
+
+            // Generate caching statement
+            $storage = '';
+            $storage .= "if (!\$newInstance) {\n";
+            $storage .= sprintf("%s\$this->services['%s'] = \$object;\n}\n\n", self::INDENT, $classOrAlias);
+
+            // Start creating getter
+            $getterBody = '';
+
+            // Create fetch of stored service
+            $getterBody .= sprintf("if (!\$newInstance && isset(\$this->services['%s'])) {\n", $classOrAlias);
+            $getterBody .= sprintf("%sreturn \$this->services['%s'];\n}\n\n", self::INDENT, $classOrAlias);
+
+
+            // Creation and method calls
+            $getterBody .= sprintf("%s\n", $creationCode);
+            $getterBody .= $methodCallCode;
+
+            // Stored service
+            $getterBody .= $storage;
+
+            // End getter body
+            $getterBody .= "return \$object;\n";
+
+            $getterDef = new MethodGenerator();
+            $getterDef->setName($this->normalizeAlias($classOrAlias));
+
+            $paramParam = new ParameterGenerator('params', 'array', array());
+            $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
+            $getterDef->setParameters(array($paramParam, $newInstanceParam));
+            $getterDef->setBody($getterBody);
+            $getterDef->setDocBlock("@param array \$params\n@param bool \$newInstance\n@return \\$classOrAlias");
+            $getters[] = $getterDef;
+        }
+
+        return $getters;
+    }
+
+    /**
+     * @param InstanceManager $im
+     * @return MethodGenerator[]
+     */
+    protected function getAliasMethods(InstanceManager $im)
+    {
+        $aliasMethods = array();
+        $aliases = $this->reduceAliases($im->getAliases());
+        foreach ($aliases as $class => $classAliases) {
+            foreach ($classAliases as $alias) {
+                $aliasMethods[] = $this->getCodeGenMethodFromAlias($alias, $class);
+            }
+        }
+        return $aliasMethods;
+    }
+
+    /**
+     * @param GeneratorInstance[] $generatorInstances
+     * @return string[]
+     */
+    protected function createCaseStatements(array $generatorInstances)
+    {
+        $caseStatements = array();
+
+        foreach (array_keys($generatorInstances) as $classOrAlias) {
+            // Get cases for case statements
+            $cases = array($classOrAlias);
+            if (isset($aliases[$classOrAlias])) {
+                $cases = array_merge($aliases[$classOrAlias], $cases);
+            }
+
+            // Build case statement and store
+            $getter = $this->normalizeAlias($classOrAlias);
+            $statement = '';
+            foreach ($cases as $value) {
+                $statement .= sprintf("%scase '%s':\n", self::INDENT, $value);
+            }
+            $statement .= sprintf("%sreturn \$this->%s(\$params, \$newInstance);\n", str_repeat(self::INDENT, 2), $getter);
+
+            $caseStatements[] = $statement;
+        }
+
+        return $caseStatements;
+    }
+
+    /**
+     * E.g. setter injection
+     *
+     * @param string $classOrAlias
+     * @param GeneratorInstance $generatorInstance
+     * @return string
+     * @throws Exception\RuntimeException
+     */
+    protected function getMethodCallCode($classOrAlias, GeneratorInstance $generatorInstance)
+    {
+        $methods = '';
+        foreach ($generatorInstance->getMethods() as $methodData) {
+            if (!isset($methodData['name']) && !isset($methodData['method'])) {
+                continue;
+            }
+            $methodName = isset($methodData['name']) ? $methodData['name'] : $methodData['method'];
+            $methodParams = $methodData['params'];
+
+            // Create method parameter representation
+            foreach ($methodParams as $key => $param) {
+                if (null === $param || is_scalar($param) || is_array($param)) {
+                    $string = var_export($param, 1);
+                    if (strstr($string, '::__set_state(')) {
+                        throw new Exception\RuntimeException('Arguments in definitions may not contain objects');
+                    }
+                    $methodParams[$key] = $string;
+                } elseif ($param instanceof GeneratorInstance) {
+                    $methodParams[$key] = sprintf("\$this->%s(\$params)", $this->normalizeAlias($param->getName()));
+                } else {
+                    $message = sprintf('Unable to use object arguments when generating method calls. Encountered with class "%s", method "%s", parameter of type "%s"', $classOrAlias, $methodName, get_class($param));
+                    throw new Exception\RuntimeException($message);
+                }
+            }
+
+            // Strip null arguments from the end of the params list
+            $reverseParams = array_reverse($methodParams, true);
+            foreach ($reverseParams as $key => $param) {
+                if ('NULL' === $param) {
+                    unset($methodParams[$key]);
+                    continue;
+                }
+                break;
+            }
+
+            $methods .= sprintf("\$object->%s(%s);\n", $methodName, implode(', ', $methodParams));
+        }
+        return $methods;
+    }
+
+    /**
+     * Create instantiation code
+     *
+     * @param $classOrAlias
+     * @param GeneratorInstance $generatorInstance
+     * @param string[] $params
+     * @return string
+     * @throws RuntimeException
+     */
+    protected function getCreationCode($classOrAlias, GeneratorInstance $generatorInstance, array &$params)
+    {
+        $constructor = $generatorInstance->getConstructor();
+        if ('__construct' != $constructor) {
+            // Constructor callback
+            $callback = var_export($constructor, 1);
+            if (strstr($callback, '::__set_state(')) {
+                throw new RuntimeException('Unable to build containers that use callbacks requiring object instances');
+            }
+            if (count($params)) {
+                $creation = sprintf('$object = call_user_func(%s, %s);', $callback, implode(', ', $params));
+            } else {
+                $creation = sprintf('$object = call_user_func(%s);', $callback);
+            }
+        } else {
+            // Normal instantiation
+            $className = '\\' . ltrim($classOrAlias, '\\');
+            $creation = sprintf('$object = new %s(%s);', $className, implode(', ', $params));
+        }
+
+        return $creation;
+    }
+
+    /**
+     * Build parameter list for instantiation
+     *
+     * @param string $classOrAlias
+     * @param GeneratorInstance $generatorInstance
+     * @param InstanceManager $im
+     * @throws Exception\RuntimeException
+     * @return string
+     */
+    protected function getParams($classOrAlias, GeneratorInstance $generatorInstance, InstanceManager $im)
+    {
+        $params = $generatorInstance->getParams();
+
+        foreach ($params as $key => $param) {
+            if ($param === self::PARAMS_ARRAY) {
+                // Support for passing a $params array for instance creation
+                $params[$key] = "\$params";
+            } elseif (null === $param || is_scalar($param) || is_array($param)) {
+                $string = var_export($param, 1);
+                if (strstr($string, '::__set_state(')) {
+                    throw new Exception\RuntimeException('Arguments in definitions may not contain objects');
+                }
+                $params[$key] = $string;
+            } elseif ($param instanceof GeneratorInstance) {
+                /* @var $param GeneratorInstance */
+                $params[$key] = sprintf("\$this->%s()", $this->normalizeAlias($param->getName()));
+            } elseif (is_object($param)) {
+                $objectClass = get_class($param);
+                if ($im->hasSharedInstance($objectClass)) {
+                    $params[$key] = sprintf("\$this->get('%s')", $objectClass);
+                } else {
+                    $message = sprintf('Unable to use object arguments when building containers. Encountered with "%s", parameter of type "%s"', $classOrAlias, get_class($param));
+                    throw new RuntimeException($message);
+                }
+            }
+        }
+
+        // Strip null arguments from the end of the params list
+        $reverseParams = array_reverse($params, true);
+        foreach ($reverseParams as $key => $param) {
+            if ('NULL' === $param) {
+                unset($params[$key]);
+                continue;
+            }
+            break;
+        }
+
+        return $params;
     }
 }
