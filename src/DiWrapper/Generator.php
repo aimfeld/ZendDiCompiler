@@ -338,7 +338,6 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                 }
                 $params[$key] = $string;
             } elseif ($param instanceof GeneratorInstance) {
-                /* @var $param GeneratorInstance */
                 $params[$key] = sprintf("\$this->%s()", $this->normalizeAlias($param->getName()));
             } elseif (is_object($param)) {
                 $objectClass = get_class($param);
