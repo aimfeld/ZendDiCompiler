@@ -63,7 +63,7 @@ the following content (you may want to replace `*` with `GeneratedServiceLocator
 !.gitignore
 ```
 
-Add 'DiWrapper' to the modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
+Add `'DiWrapper'` to the modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
 modules where it is used:
 
 ```php
