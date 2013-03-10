@@ -9,6 +9,8 @@
 return array(
     // DiWrapper configuration
     'diWrapper' => array(
+        // Path for writing the generated service locator class. Must be writable!
+        'writePath' => './data',
         // Directories that will be code-scanned
         'scanDirectories' => array(
             // e.g. 'vendor/provider/module/src',
