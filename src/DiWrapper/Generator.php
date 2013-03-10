@@ -128,8 +128,11 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
     {
         $paramArrayNames = $this->config->diWrapper->paramArrayNames;
         $newInstanceParams = array();
-        foreach ($paramArrayNames as $paramArrayName) {
-            $newInstanceParams[$paramArrayName] = self::PARAMS_ARRAY;
+        foreach ($paramArrayNames as $paramArrayName => $enabled) {
+            // Allow for disabling param array names
+            if ($enabled) {
+                $newInstanceParams[$paramArrayName] = self::PARAMS_ARRAY;
+            }
         }
 
         $generatorInstances = array();

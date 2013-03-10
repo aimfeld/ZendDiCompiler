@@ -17,8 +17,9 @@ return array(
         ),
         // Names of class constructor parameters which will be passed the $params array
         // when calling DiWrapper::get($class, $params)
+        // disable like this: 'params' => false
         'paramArrayNames' => array(
-            'params',
+            'params' => true,
         ),
     ),
     // ZF2 DI definition and instance configuration used by DiWrapper
