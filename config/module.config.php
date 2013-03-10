@@ -7,14 +7,17 @@
  * the 'instance' and the 'preference' array, see Zend\Di documentation.
  */
 return array(
-    // Definition and instance configuration
-    'di' => array(
+    // DiWrapper configuration
+    'diWrapper' => array(
         // Path for writing the generated service locator class. Must be writable!
-        'write_path' => './data',
+        'writePath' => './data',
         // Directories that will be code-scanned
-        'scan_directories' => array(
+        'scanDirectories' => array(
             // e.g. 'vendor/provider/module/src',
         ),
+    ),
+    // ZF2 DI definition and instance configuration used by DiWrapper
+    'di' => array(
         // Definitions
         'definition' => array(
         ),

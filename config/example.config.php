@@ -7,13 +7,16 @@
  * see Zend\Di documentation.
  */
 return array(
-    // Definition and instance configuration
-    'di' => array(
+    // DiWrapper configuration
+    'diWrapper' => array(
         // Directories that will be code-scanned
-        'scan_directories' => array(
-            // 'vendor/provider/module/src',
-             __DIR__ . '/../src/DiWrapper/Example',
+        'scanDirectories' => array(
+            // e.g. 'vendor/provider/module/src',
+            __DIR__ . '/../src/DiWrapper/Example',
         ),
+    ),
+    // ZF2 DI definition and instance configuration used by DiWrapper
+    'di' => array(
         // Instance configuration
         'instance' => array(
             // Type preferences for abstract classes and interfaces.

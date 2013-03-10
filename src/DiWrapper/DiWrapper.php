@@ -167,7 +167,7 @@ class DiWrapper implements AbstractFactoryInterface
         $this->isInitialized = true;
 
         $fileName = realpath(sprintf('%s/%s.php',
-            $this->config->di->write_path, self::GENERATED_SERVICE_LOCATOR));
+            $this->config->diWrapper->writePath, self::GENERATED_SERVICE_LOCATOR));
         if (file_exists($fileName)) {
             require_once $fileName;
             $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
@@ -259,7 +259,7 @@ class DiWrapper implements AbstractFactoryInterface
 
         // Set up the directory scanner.
         $directoryScanner = new DirectoryScanner;
-        foreach ($this->config->di->scan_directories as $directory) {
+        foreach ($this->config->diWrapper->scanDirectories as $directory) {
             $directoryScanner->addDirectory($directory);
         }
 
@@ -361,7 +361,7 @@ class DiWrapper implements AbstractFactoryInterface
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
         $file = $generator->getCodeGenerator();
-        $path = $this->config->di->write_path;
+        $path = $this->config->diWrapper->writePath;
         $fileName = $path . "/$className.php";
         $file->setFilename($fileName);
         $file->write();
