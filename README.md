@@ -6,6 +6,8 @@ _This module is in beta stage. Please create github issues for bugs or feature r
 * [Features](#features)
 * [Installation](#installation) 
 * [Usage](#usage) 
+    * [Dependency injection container vs. service locator](#dependency-injection-container-vs-service-locator) 
+    * [Configuration](#configuration) 
     * [Shared instances](#shared-instances) 
 * [Examples](#examples) 
     * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
@@ -73,6 +75,21 @@ modules where it is used:
 ```
 
 # Usage
+
+## Dependency injection container vs. service locator
+
+Is DiWrapper a dependency injection container (DiC) or a service locator (SL)? Well, that depends on where you use it.
+DiWrapper can be used as a DiC to [create your controllers](#using-diwrapper-to-create-a-controller) in your module class
+and inject the controller dependencies from outside. This is [the recommended way] by experts like Mark Seemann and others.
+
+As soon as you inject the DiWrapper itself into your controllers and other classes, you are using it as a service locator.
+In my opinion, it is very convenient to inject the DiWrapper as a single dependency into ZF2 controller classes which means using it as a service locator,
+(just like `Zend\ServiceManager` is typically used). I think that ZF2 controllers are designed in a way that makes it difficult to respect 
+the [Single Responsibility Principle (SRP)](http://en.wikipedia.org/wiki/Single_responsibility_principle), that's why you'll
+quickly end up with a lot of controller dependencies, even if you use controller plugins.
+
+
+## Configuration
 
 DiWrapper uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
 (which is not well documented yet). To make things easier, see [example.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php) for 
@@ -197,6 +214,9 @@ looks like this:
 ```
 
 Now we can create the `ExampleController` in our application's [module class](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/Module.php). 
+For convenience, we retrieve the DiWrapper from the service manager and assign it to a local variable (`$this->diWrapper = $sm->get('di-wrapper')`).
+This makes it easier for writing `getControllerConfig()` or `getViewHelperConfig()` callbacks.
+
 Since the `ServiceC` dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
 DiWrapper.
 
