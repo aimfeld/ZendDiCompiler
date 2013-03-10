@@ -15,6 +15,11 @@ return array(
         'scanDirectories' => array(
             // e.g. 'vendor/provider/module/src',
         ),
+        // Names of class constructor parameters which will be passed the $params array
+        // when calling DiWrapper::get($class, $params)
+        'paramArrayNames' => array(
+            'params',
+        ),
     ),
     // ZF2 DI definition and instance configuration used by DiWrapper
     'di' => array(

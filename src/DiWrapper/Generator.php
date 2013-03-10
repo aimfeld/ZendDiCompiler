@@ -12,12 +12,14 @@
 namespace DiWrapper;
 
 use Zend\Code\Generator\DocBlockGenerator;
+use Zend\Di\Di;
 use Zend\Di\InstanceManager;
 use Zend\Di\ServiceLocator\GeneratorInstance;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\FileGenerator;
+use Zend\Config\Config;
 use DiWrapper\Exception\RuntimeException;
 use DateTime;
 
@@ -31,6 +33,22 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
      */
     const PARAMS_ARRAY = '__paramsArray__';
     const INDENT = '    ';
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @param Di $injector
+     * @param Config $config
+     */
+    public function __construct(Di $injector, Config $config)
+    {
+        $this->config = $config;
+
+        parent::__construct($injector);
+    }
 
     /**
      * Construct, configure, and return a PHP class file code generation object
@@ -108,6 +126,12 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
      */
     protected function getGeneratorInstances(array &$classesOrAliases)
     {
+        $paramArrayNames = $this->config->diWrapper->paramArrayNames;
+        $newInstanceParams = array();
+        foreach ($paramArrayNames as $paramArrayName) {
+            $newInstanceParams[$paramArrayName] = self::PARAMS_ARRAY;
+        }
+
         $generatorInstances = array();
         foreach ($classesOrAliases as $classOrAlias) {
             // Filter out abstract classes and interfaces
@@ -118,7 +142,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
 
             try {
                 // Support for passing a $params array for instance creation
-                $generatorInstance = $this->injector->newInstance($classOrAlias, array('params' => self::PARAMS_ARRAY));
+                $generatorInstance = $this->injector->newInstance($classOrAlias, $newInstanceParams);
             } catch (\Exception $e) {
                 continue;
             }

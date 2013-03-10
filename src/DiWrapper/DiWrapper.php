@@ -330,7 +330,7 @@ class DiWrapper implements AbstractFactoryInterface
         $di->setDefinitionList($this->getDefinitionList());
         $this->setSharedInstances($di->instanceManager());
 
-        $generator = new Generator($di);
+        $generator = new Generator($di, $this->config);
 
         list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
 

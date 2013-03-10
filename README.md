@@ -108,6 +108,8 @@ examples of how to specify:
 - Instance configuration
 - Type preferences
 
+For a full list of configuration options, see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)
+
 DiWrapper creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when changed constructors cause
 an exception. However, if you e.g. change parameters in the [instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php),
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
@@ -258,8 +260,6 @@ looks like this:
 ```php
 // DiWrapper configuration
 'diWrapper' => array(
-    // Path for writing the generated service locator class. Must be writable!
-    'writePath' => './data',
     // Directories that will be code-scanned
     'scanDirectories' => array(
         // e.g. 'vendor/provider/module/src',
