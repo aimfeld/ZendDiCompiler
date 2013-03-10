@@ -9,12 +9,12 @@ _This module is in beta stage. Please create github issues for bugs or feature r
     * [Dependency injection container vs. service locator](#dependency-injection-container-vs-service-locator) 
     * [Configuration](#configuration) 
     * [Shared instances](#shared-instances) 
+    * [Type preferences](#type-preferences)
 * [Examples](#examples) 
     * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
     * [Using the DiFactory to create runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies)
         * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-params-array)
-        * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
-    * [Using type preferences](#using-type-preferences)
+        * [Passing custom runtime parameters](#passing-custom-runtime-parameters)    
 * [The generated factory code behind the scenes](#the-generated-factory-code-behind-the-scenes) 
        
 # Introduction
@@ -130,6 +130,54 @@ The following _default shared instances_ can be constructor-injected without exp
 - `Zend\Config\Config`
 - `Zend\Mvc\Router\Http\TreeRouteStack`
 - `Zend\View\Renderer\PhpRenderer`
+
+## Type preferences
+
+It is common to inject interfaces or abstract classes. Let's have a look at interface injection (for abstract classes,
+it works the same).
+
+```php
+class ServiceF
+{    
+    public function __construct(ExampleInterface $example)
+    {
+        // ExampleImplementor is injected since it is a type preference for ExampleInterface
+        $this->example = $example;
+    }
+}
+```
+
+We need to tell DiWrapper which implementing class to inject for `ExampleInterface`. We specify `ExampleImplementor` as 
+a type preference for `ExampleInterface` in our [example config](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php):
+
+```php
+'di' => array(     
+    'instance' => array(         
+        'preference' => array(
+            'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
+        ),         
+    ),
+),
+```
+
+DiWrapper will now always inject `ExampleImplementor` for `ExampleInterface`. Calling 
+`DiWrapper::get('DiWrapper\Example\ExampleInterface')` will return the `ExampleImplementor`.
+
+Type preferences can not only be used for interfaces and abstract classes, but for substituting classes
+in general. They can even be used to deal with non-existing classes:
+
+```php
+'di' => array(     
+    'instance' => array(         
+        'preference' => array(
+            'DiWrapper\Example\NotExists' => 'DiWrapper\Example\Exists',
+        ),         
+    ),
+),
+```
+
+Calling `DiWrapper::get('DiWrapper\Example\NotExists')` will return a `DiWrapper\Example\Exists` instance.
+Believe it or not, there are actually some good use cases for this.
 
 # Examples
 
@@ -372,55 +420,6 @@ class ServiceE
     }
 }
 ```
-
-## Using type preferences
-
-It is common to inject interfaces or abstract classes. Let's have a look at interface injection (for abstract classes,
-it works the same).
-
-```php
-class ServiceF
-{    
-    public function __construct(ExampleInterface $example)
-    {
-        // ExampleImplementor is injected since it is a type preference for ExampleInterface
-        $this->example = $example;
-    }
-}
-```
-
-We need to tell DiWrapper which implementing class to inject for `ExampleInterface`. We specify `ExampleImplementor` as 
-a type preference for `ExampleInterface` in our [example config](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php):
-
-```php
-'di' => array(     
-    'instance' => array(         
-        'preference' => array(
-            'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
-        ),         
-    ),
-),
-```
-
-DiWrapper will now always inject `ExampleImplementor` for `ExampleInterface`. Calling 
-`DiWrapper::get('DiWrapper\Example\ExampleInterface')` will return the `ExampleImplementor`.
-
-Type preferences can not only be used for interfaces and abstract classes, but for substituting classes
-in general. They can even be used to deal with non-existing classes:
-
-```php
-'di' => array(     
-    'instance' => array(         
-        'preference' => array(
-            'DiWrapper\Example\NotExists' => 'DiWrapper\Example\Exists',
-        ),         
-    ),
-),
-```
-
-Calling `DiWrapper::get('DiWrapper\Example\NotExists')` will return a `DiWrapper\Example\Exists` instance.
-Believe it or not, there are actually some good use cases for this.
-
 
 # The generated factory code behind the scenes
 
