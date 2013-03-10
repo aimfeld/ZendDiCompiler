@@ -78,15 +78,24 @@ modules where it is used:
 
 ## Dependency injection container vs. service locator
 
-Is DiWrapper a dependency injection container (DiC) or a service locator (SL)? Well, that depends on where you use it.
-DiWrapper can be used as a DiC to [create your controllers](#using-diwrapper-to-create-a-controller) in your module class
-and inject the controller dependencies from outside. This is [the recommended way] by experts like Mark Seemann and others.
+Is DiWrapper a _dependency injection container (DiC)_ or a _service locator (SL)_? Well, that depends on where you use it.
+DiWrapper can be used as a _DiC_ to [create your controllers](#using-diwrapper-to-create-a-controller) in your module class
+and inject the controller dependencies from outside. This has been coined as 
+[Register Resolve Release](http://blog.ploeh.dk/2010/09/29/TheRegisterResolveReleasepattern/) pattern and is 
+[the recommended way](http://stackoverflow.com/a/1994455/94289) by experts like Mark Seemann and others.
 
-As soon as you inject the DiWrapper itself into your controllers and other classes, you are using it as a service locator.
+As soon as you inject the DiWrapper itself into your controllers and other classes, you are using it as a _service locator_.
 In my opinion, it is very convenient to inject the DiWrapper as a single dependency into ZF2 controller classes which means using it as a service locator,
 (just like `Zend\ServiceManager` is typically used). I think that ZF2 controllers are designed in a way that makes it difficult to respect 
 the [Single Responsibility Principle (SRP)](http://en.wikipedia.org/wiki/Single_responsibility_principle), that's why you'll
 quickly end up with a lot of controller dependencies, even if you use controller plugins.
+
+DiWrapper is also used as a _service locator_ inside of `DiWrapper\DiFactory` which is very useful for 
+[creating runtime objects with dependencies](#using-diwrapper-to-create-runtime-objects-with-dependencies). This
+avoids a lot of [abstract factory code](http://stackoverflow.com/a/1945023/94289) you would otherwise have to write.
+Besides ZF2 controllers, I recommend _not_ to inject DiWrapper directly anywhere. If you need a service in one of your
+classes, just ask for it in the constructor. If you need to create runtime objects with dependencies, inject
+DiFactory or your extended version of it with [custom creation methods](#passing-custom-runtime-parameters).
 
 
 ## Configuration
