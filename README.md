@@ -188,9 +188,9 @@ All examples sources listed here are included as [source code](https://github.co
 Let's say we want to use the DiWrapper to create a controller class and inject some
 dependencies. For illustriation, we also inject the DiWrapper itself into the controller. 
 As mentioned [above](#dependency-injection-container-vs-service-locator), it 
-is a moot topic whether this is a good idea or not. But _if_ we decide to use the DiWrapper inside the controller to
-get other dependencies, we can either inject it in the constructor or pull it from the ZF2 service manager 
-using `$this->serviceManager->get('di-wrapper')`.
+is a moot topic whether this is a good idea or not. But _if_ we decide to use the DiWrapper _inside_ the controller to
+get other dependencies, we can either inject it in the constructor or pull it from the ZF2 service locator 
+using `$this->serviceLocator->get('di-wrapper')`.
 
 In our example, we have the following classes:
 
