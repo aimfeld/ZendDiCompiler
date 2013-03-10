@@ -68,10 +68,7 @@ class Module
     public function onBootstrap(MvcEvent $mvcEvent)
     {
         $config = $mvcEvent->getApplication()->getServiceManager()->get('config');
-        $diWrapperConfig = array();
-        $diWrapperConfig['diWrapper'] = $config['diWrapper'];
-        $diWrapperConfig['di'] = $config['di'];
-        $this->diWrapper->setConfig(new Config($diWrapperConfig));
+        $this->diWrapper->setConfig(new Config($config));
         $this->diWrapper->init($mvcEvent);
     }
 }
