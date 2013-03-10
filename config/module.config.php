@@ -19,7 +19,7 @@ return array(
         // when calling DiWrapper::get($class, $params)
         // disable like this: 'params' => false
         'paramArrayNames' => array(
-            'params' => true,
+            'dwParams' => true,
         ),
     ),
     // ZF2 DI definition and instance configuration used by DiWrapper

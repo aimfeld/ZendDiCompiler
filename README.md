@@ -13,7 +13,7 @@ _This module is in beta stage. Please create github issues for bugs or feature r
 * [Examples](#examples)
     * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
     * [Using the DiFactory to create runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies)
-        * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-params-array)
+        * [Passing all runtime parameters in a single array](#passing-all-runtime-parameters-in-a-single-array)
         * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
 * [The generated factory code behind the scenes](#the-generated-factory-code-behind-the-scenes)
 
@@ -335,9 +335,9 @@ e.g. in third party code require some custom parameters, they can be specified i
 _Runtime objects_, on the other hand, require at least one parameter which is determined at runtime only.
 DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ and inject their dependencies.
 
-### Passing all runtime parameters in a $params array
+### Passing all runtime parameters in a single array
 
-If you follow the convention of passing runtime parameters in a single array named `$params` as in `RuntimeA`,
+If you follow the convention of passing runtime parameters in a single array named `$dwParams` as in `RuntimeA`,
 things are very easy (in case of parameter name clashes, the array name can be configured in
 [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)):
 
@@ -345,11 +345,11 @@ things are very easy (in case of parameter name clashes, the array name can be c
 class RuntimeA
 {
     public function __construct(Config $config, ServiceA $serviceA,
-                                array $params = array())
+                                array $dwParams = array())
     {
         $this->config = $config;
         $this->serviceA = $serviceA;
-        $this->params = $params;
+        $this->params = $dwParams;
     }
 }
 ```
@@ -378,7 +378,7 @@ class ServiceD
 
 ### Passing custom runtime parameters
 
-If you can't or don't want to follow the convention of passing all runtime parameters in a single `$params` array,
+If you can't or don't want to follow the convention of passing all runtime parameters in a single `$dwParams` array,
 DiWrapper still is very useful. In that case, you can just extend a custom factory from `DiWrapper\DiFactory` and
 add your specific creation methods. `RuntimeB` requires two separate run time parameters:
 
