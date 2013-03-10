@@ -199,8 +199,7 @@ use Zend\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
-    public function __construct(DiWrapper $diWrapper, ServiceA $serviceA,
-                                ServiceC $serviceC, Config $config)
+    public function __construct(DiWrapper $diWrapper, ServiceA $serviceA, ServiceC $serviceC, Config $config)
     {
         $this->diWrapper = $diWrapper;
         $this->serviceA = $serviceA;
@@ -342,8 +341,7 @@ things are very easy (the array name(s) can be configured in
 ```php
 class RuntimeA
 {
-    public function __construct(Config $config, ServiceA $serviceA,
-                                array $dwParams = array())
+    public function __construct(Config $config, ServiceA $serviceA, array $dwParams = array())
     {
         $this->config = $config;
         $this->serviceA = $serviceA;
@@ -383,8 +381,7 @@ add your specific creation methods. `RuntimeB` requires two separate run time pa
 ```php
 class RuntimeB
 {
-    public function __construct(Config $config, ServiceA $serviceA,
-                                $runtimeParam1, $runtimeParam2)
+    public function __construct(Config $config, ServiceA $serviceA, $runtimeParam1, $runtimeParam2)
     {
         $this->config = $config;
         $this->serviceA = $serviceA;
