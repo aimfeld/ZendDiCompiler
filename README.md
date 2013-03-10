@@ -338,7 +338,8 @@ DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ an
 ### Passing all runtime parameters in a $params array
 
 If you follow the convention of passing runtime parameters in a single array named `$params` as in `RuntimeA`,
-things are very easy:
+things are very easy (in case of parameter name clashes, the array name can be configured in
+[module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)):
 
 ```php
 class RuntimeA
