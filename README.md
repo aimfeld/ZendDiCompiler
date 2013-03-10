@@ -11,7 +11,7 @@ _This module is in beta stage. Please create github issues for bugs or feature r
     * [Shared instances](#shared-instances) 
 * [Examples](#examples) 
     * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
-    * [Using the DiFactory to create runtime objects with dependencies](#using-diwrapper-to-create-runtime-objects-with-dependencies)
+    * [Using the DiFactory to create runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies)
         * [Passing all runtime parameters in a $params array](#passing-all-runtime-parameters-in-a-params-array)
         * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
     * [Using type preferences](#using-type-preferences)
@@ -91,7 +91,7 @@ the [Single Responsibility Principle (SRP)](http://en.wikipedia.org/wiki/Single_
 quickly end up with a lot of controller dependencies, even if you use controller plugins.
 
 DiWrapper is also used as a _service locator_ inside of `DiWrapper\DiFactory` which is very useful for 
-[creating runtime objects with dependencies](#using-diwrapper-to-create-runtime-objects-with-dependencies). This
+[creating runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies). This
 avoids a lot of [abstract factory code](http://stackoverflow.com/a/1945023/94289) you would otherwise have to write.
 Besides ZF2 controllers, I recommend _not_ to inject DiWrapper directly anywhere. If you need a service in one of your
 classes, just ask for it in the constructor. If you need to create runtime objects with dependencies, inject
