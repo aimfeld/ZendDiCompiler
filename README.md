@@ -42,7 +42,7 @@ experience **great performance** in production!
 
 # Installation
 
-This module is available on [Packagist](https://packagist.org/packages/aimfeld/di-wrapper).
+This module is [available](https://packagist.org/packages/aimfeld/di-wrapper) on [Packagist](https://packagist.org).
 In your project's `composer.json` use:
 
 ```
@@ -64,7 +64,7 @@ the following content (you may want to replace `*` with `GeneratedServiceLocator
 Add 'DiWrapper' to the modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
 modules where it is used:
 
-```
+```php
 'modules' => array(        
     'SomeModule',
     'Application',
@@ -83,7 +83,7 @@ examples of how to specify:
 - Type preferences
 
 DiWrapper creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when changed constructors cause
-an exception. However, if you e.g. change parameters in the [di instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php),
+an exception. However, if you e.g. change parameters in the [instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php),
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
@@ -99,11 +99,11 @@ Note that DiWrapper provides some _default shared instances_ automatically
 (see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)). 
 The following _default shared instances_ can be constructor-injected without explicitly adding them:
 
-- DiWrapper\DiWrapper
-- DiWrapper\DiFactory
-- Zend\Config\Config
-- Zend\Mvc\Router\Http\TreeRouteStack
-- Zend\View\Renderer\PhpRenderer
+- `DiWrapper\DiWrapper`
+- `DiWrapper\DiFactory`
+- `Zend\Config\Config`
+- `Zend\Mvc\Router\Http\TreeRouteStack`
+- `Zend\View\Renderer\PhpRenderer`
 
 # Examples
 
@@ -118,7 +118,7 @@ We have the following classes:
 
 ExampleController
 
-```
+```php
 use Zend\Mvc\Controller\AbstractActionController;
 use DiWrapper\DiWrapper;
 use Zend\Config\Config;
@@ -139,7 +139,7 @@ class ExampleController extends AbstractActionController
 
 ServiceA with a dependency on ServiceB
 
-```
+```php
 class ServiceA
 {
     public function __construct(ServiceB $serviceB)
@@ -151,7 +151,7 @@ class ServiceA
 
 ServiceB with a constructor parameter of unspecified type:
 
-```
+```php
 class ServiceB
 {
     public function __construct($diParam)
@@ -163,7 +163,7 @@ class ServiceB
 
 ServiceC which requires complicated runtime initialization and will be added as shared instance.
 
-```
+```php
 class ServiceC
 {
     public function init(MvcEvent $mvcEvent)
@@ -177,11 +177,11 @@ class ServiceC
     
 We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
 have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor 
-and retrieve the parameter from there, so we wouldn't need to specify a di instance configuration. The 
+and retrieve the parameter from there, so we wouldn't need to specify an instance configuration. The 
 [configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php) for our example
 looks like this:
 
-```
+```php
 'di' => array(
     'scan_directories' => array(
         __DIR__ . '/../src/DiWrapper/Example',
@@ -196,11 +196,11 @@ looks like this:
 ),
 ```
 
-Now we can create the `ExampleController` in our application's module class. Since the `ServiceC`
-dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
+Now we can create the `ExampleController` in our application's [module class](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/Module.php). 
+Since the `ServiceC` dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
 DiWrapper.
 
-```
+```php
 class Module
 {    
     protected $diWrapper;
@@ -241,7 +241,7 @@ class Module
 It is useful to distinguish two types of objects: _services_ and _runtime objects_. For _services_, all parameters should
 be specified in the configuration (e.g. a config array wrapped in a `Zend\Config\Config` object). If class constructors
 e.g. in third party code require some custom parameters, they can be specified in the 
-[DI instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php)).
+[instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php)).
 
 _Runtime objects_, on the other hand, require at least one parameter which is determined at runtime only.
 DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ and inject their dependencies. 
@@ -251,7 +251,7 @@ DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ an
 If you follow the convention of passing runtime parameters in a single array named `$params` as in `RuntimeA`, 
 things are very easy:
 
-```
+```php
 class RuntimeA
 {    
     public function __construct(Config $config, ServiceA $serviceA,
@@ -268,7 +268,7 @@ DiWrapper automatically injects `DiWrapper\DiFactory` as a _default shared insta
 we can just use it to create `RuntimeA` objects in `ServiceD`. `RuntimeA`'s dependencies (the `Config` default shared instance 
 and `ServiceA`) are injected automatically, so you only need to provide the runtime parameters: 
 
-```
+```php
 use DiWrapper\DiFactory;
 
 class ServiceD
@@ -292,7 +292,7 @@ If you can't or don't want to follow the convention of passing all runtime param
 DiWrapper still is very useful. In that case, you can just extend a custom factory from `DiWrapper\DiFactory` and 
 add your specific creation methods. `RuntimeB` requires two separate run time parameters:
 
-```
+```php
 class RuntimeB
 {
     public function __construct(Config $config, ServiceA $serviceA,
@@ -308,7 +308,7 @@ class RuntimeB
 
 So we extend `ExampleDiFactory` from `DiWrapper\DiFactory` and write a creation method `createRuntimeB`:
 
-```
+```php
 class ExampleDiFactory extends DiFactory
 {
     /**
@@ -328,7 +328,7 @@ class ExampleDiFactory extends DiFactory
 In `ServiceE`, we inject our extended factory. If the extended factory is located in a directory scanned by DiWrapper, 
 we don't need to provide it as a shared instance. Now we can create `RuntimeB` objects as follows:
 
-```
+```php
 class ServiceE
 {
     public function __construct(ExampleDiFactory $diFactory)
@@ -349,7 +349,7 @@ class ServiceE
 It is common to inject interfaces or abstract classes. Let's have a look at interface injection (for abstract classes,
 it works the same).
 
-```
+```php
 class ServiceF
 {    
     public function __construct(ExampleInterface $example)
@@ -363,7 +363,7 @@ class ServiceF
 We need to tell DiWrapper which implementing class to inject for `ExampleInterface`. We specify `ExampleImplementor` as 
 a type preference for `ExampleInterface` in our [example config](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php):
 
-```
+```php
 'di' => array(     
     'instance' => array(         
         'preference' => array(
@@ -379,7 +379,7 @@ DiWrapper will now always inject `ExampleImplementor` for `ExampleInterface`. Ca
 Type preferences can not only be used for interfaces and abstract classes, but for substituting classes
 in general. They can even be used to deal with non-existing classes:
 
-```
+```php
 'di' => array(     
     'instance' => array(         
         'preference' => array(
@@ -401,7 +401,7 @@ classes, you can just put it in the constructor and DiWrapper will inject it for
 
 Just for illustration, this is the generated service locator created by DiWrapper and used in `DiWrapper::get()`. 
 
-```
+```php
 namespace DiWrapper;
 
 use Zend\Di\ServiceLocator;
