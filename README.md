@@ -86,7 +86,7 @@ and inject the controller dependencies from outside. This has been coined as
 
 As soon as you inject the DiWrapper itself into your controllers and other classes, you are using it as a _service locator_.
 In my opinion, it is very convenient to inject the DiWrapper as a single dependency into ZF2 controller classes which means using it as a service locator,
-(just like `Zend\ServiceManager` is typically used).
+just like `Zend\ServiceManager` is typically used.
 
 DiWrapper is also used as a _service locator_ inside of `DiWrapper\DiFactory` which is very useful for
 [creating runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies). This
