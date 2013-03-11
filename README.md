@@ -80,8 +80,8 @@ modules where it is used:
 
 Is DiWrapper a _dependency injection container (DiC)_ or a _service locator (SL)_? Well, that depends on where you use it.
 DiWrapper can be used as a _DiC_ to [create your controllers](#using-diwrapper-to-create-a-controller) in your module class
-and inject the controller dependencies from outside. A _DiC_ is used only during the bootstrap process and is disposed
-_before_ your controller is dispatched. This has been coined the
+and inject the controller dependencies _from outside_. Pure _DiC_ usage implies that DiWrapper is used only during the bootstrap 
+process and disposed _before_ the controller is dispatched. This has been coined the
 "[Register Resolve Release](http://blog.ploeh.dk/2010/09/29/TheRegisterResolveReleasepattern/) pattern" and is
 [the recommended way](http://stackoverflow.com/a/1994455/94289) by experts like Mark Seemann and others.
 
