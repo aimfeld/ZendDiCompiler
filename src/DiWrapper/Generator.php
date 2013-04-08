@@ -71,26 +71,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         $getterMethods = $this->getGetterMethods($generatorInstances);
         $aliasMethods = $this->getAliasMethods($im);
         $caseStatements = $this->createCaseStatements($generatorInstances);
-
-        // Build get() method body
-        $body = "if (!\$newInstance && isset(\$this->services[\$name])) {\n";
-        $body .= sprintf("%sreturn \$this->services[\$name];\n}\n\n", self::INDENT);
-
-        // Build switch statement
-        $body .= sprintf("switch (%s) {\n%s\n", '$name', implode("\n", $caseStatements));
-        $body .= sprintf("%sdefault:\n%sreturn parent::get(%s, %s);\n", self::INDENT, str_repeat(self::INDENT, 2), '$name', '$params');
-        $body .= "}\n\n";
-
-        // Build get() method
-        $nameParam = new ParameterGenerator('name');
-        $paramsParam = new ParameterGenerator('params', 'array', array());
-        $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
-
-        $get = new MethodGenerator();
-        $get->setName('get');
-        $get->setParameters(array($nameParam, $paramsParam, $newInstanceParam));
-        $get->setDocBlock("@param string \$name\n@param array \$params\n@param bool \$newInstance\n@return mixed");
-        $get->setBody($body);
+        $get = $this->getGetMethod($caseStatements);
 
         // Create class code generation object
         $container = new ClassGenerator();
@@ -118,6 +99,36 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         }
 
         return $classFile;
+    }
+
+    /**
+     * Creates the main get() method
+     *
+     * @param $caseStatements
+     * @return MethodGenerator
+     */
+    public function getGetMethod($caseStatements)
+    {
+        // Build get() method body
+        $body = "if (!\$newInstance && isset(\$this->services[\$name])) {\n";
+        $body .= sprintf("%sreturn \$this->services[\$name];\n}\n\n", self::INDENT);
+
+        // Build switch statement
+        $body .= sprintf("switch (%s) {\n%s\n", '$name', implode("\n", $caseStatements));
+        $body .= sprintf("%sdefault:\n%sreturn parent::get(%s, %s);\n", self::INDENT, str_repeat(self::INDENT, 2), '$name', '$params');
+        $body .= "}\n\n";
+
+        // Build get() method
+        $nameParam = new ParameterGenerator('name');
+        $paramsParam = new ParameterGenerator('params', 'array', array());
+        $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
+
+        $get = new MethodGenerator();
+        $get->setName('get');
+        $get->setParameters(array($nameParam, $paramsParam, $newInstanceParam));
+        $get->setDocBlock("@param string \$name\n@param array \$params\n@param bool \$newInstance\n@return mixed");
+        $get->setBody($body);
+        return $get;
     }
 
     /**
