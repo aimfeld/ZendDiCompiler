@@ -328,6 +328,7 @@ class DiWrapper implements AbstractFactoryInterface
         $diConfig = new DiConfig($this->config->di);
         $di->configure($diConfig);
         $di->setDefinitionList($this->getDefinitionList());
+
         $this->setSharedInstances($di->instanceManager());
 
         $generator = new Generator($di, $this->config);
@@ -341,7 +342,11 @@ class DiWrapper implements AbstractFactoryInterface
             // The next request uses the updated service locator class.
             list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::TEMP_SERVICE_LOCATOR);
             require_once $fileName;
+            /** @var TempServiceLocator $serviceLocator  */
             $serviceLocator = new $generatedClass;
+
+            // Reuse previous shared instances.
+            $serviceLocator->services = $this->generatedServiceLocator->services;
             unlink($fileName);
         } else {
             require_once $fileName;
