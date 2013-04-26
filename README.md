@@ -38,7 +38,7 @@ experience **great performance** in production!
 - Is automatically used as a **fallback abstract factory** for Zend\ServiceManager
 - Can be used **instead of Zend\ServiceManager**
 - Detection of outdated generated factory code and **automatic rescanning** (great for development)
-- Can create new instances or reuse instances created before
+- Can create new instances or reuse instances created before.
 - Can be used as a **factory for runtime objects** combining DI and passing of runtime parameters.
 - **Greater perfomance** and less memory consumption, as compared to using Zend\Di\Di with cached definitions.
 
