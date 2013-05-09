@@ -135,6 +135,7 @@ class DiWrapper implements AbstractFactoryInterface
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
         } catch (\Exception $e) {
             restore_error_handler();
+            throw $e;
         }
 
         return $instance;
