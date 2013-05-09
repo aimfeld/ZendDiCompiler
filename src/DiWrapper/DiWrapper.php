@@ -124,14 +124,17 @@ class DiWrapper implements AbstractFactoryInterface
             // Convert PHP errors to exception to catch errors due to changed constructors, etc.
             set_error_handler(array($this, 'exceptionErrorHandler'));
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+
+            if (! $instance) {
+                $this->generatedServiceLocator = $this->reset(true);
+                $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+            }
             restore_error_handler();
         } catch (RecoverException $e) {
             restore_error_handler();
 
             // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
             $this->generatedServiceLocator = $this->reset(true);
-
-            // If an exception occurs here or null is returned, the problem was not caused by outdated DI definitions.
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
         } catch (\Exception $e) {
             restore_error_handler();
