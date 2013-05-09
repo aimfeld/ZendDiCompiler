@@ -17,6 +17,6 @@ namespace DiWrapper\Exception;
  * @subpackage Exception
  * @copyright  Copyright (c) by cloud solutions. (www.cloud-solutions.net)
  */
-class RuntimeException extends \RuntimeException implements Exception
+class RecoverException extends \ErrorException implements Exception
 {
 }

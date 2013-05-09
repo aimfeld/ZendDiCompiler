@@ -24,6 +24,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use DiWrapper\Exception\RuntimeException;
+use DiWrapper\Exception\RecoverException;
 
 
 /**
@@ -124,17 +125,16 @@ class DiWrapper implements AbstractFactoryInterface
             set_error_handler(array($this, 'exceptionErrorHandler'));
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             restore_error_handler();
-        } catch (\Exception $e) {
-            // Ignore exception, recovery in code below
+        } catch (RecoverException $e) {
             restore_error_handler();
-        }
 
-        if (! $instance) {
             // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
             $this->generatedServiceLocator = $this->reset(true);
 
             // If an exception occurs here or null is returned, the problem was not caused by outdated DI definitions.
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+        } catch (\Exception $e) {
+            restore_error_handler();
         }
 
         return $instance;
@@ -400,7 +400,8 @@ class DiWrapper implements AbstractFactoryInterface
     /**
      * Convert PHP errors to exceptions.
      *
-     * It respects error-reporting level, so that you can still use error-suppression.
+     * Instantiating classes with wrong constructor arguments results in an
+     * E_RECOVERABLE_ERROR which is converted in a RecoverException.
      *
      * @see http://php.net/manual/en/class.errorexception.php
      *
@@ -409,15 +410,13 @@ class DiWrapper implements AbstractFactoryInterface
      * @param $errfile
      * @param $errline
      * @return bool
-     * @throws \ErrorException
+     * @throws RecoverException
      */
     public function exceptionErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        $errorReporting = error_reporting();
-        if ($errorReporting == 0 || $errno == E_USER_NOTICE) {
-            return;
-        } elseif ($errorReporting & $errno) {
-            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        if ($errno == E_RECOVERABLE_ERROR) {
+            throw new RecoverException($errstr, 0, $errno, $errfile, $errline);
         }
+        return;
     }
 }
