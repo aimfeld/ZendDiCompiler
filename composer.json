@@ -15,6 +15,9 @@
     "require": {
         "php": ">=5.3.3"
     },
+    "replace": {
+        "aimfeld/di-wrapper": "*"
+    },
     "autoload": {
         "psr-0": {
             "ZendDiCompiler": "src/"
