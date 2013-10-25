@@ -450,7 +450,7 @@ class ZendDiCompiler implements AbstractFactoryInterface
         $info .= 'Scanned classes are grouped into components (e.g. the Zend\Mvc\MvcEvent class belongs to the Zend\Mvc component).'. PHP_EOL .
                  'For every component, all constructor-injected classes are listed. This helps you analyze which components' . PHP_EOL .
                  'depend on which classes of other components. Consider organizing your components into layers.' . PHP_EOL .
-                 'Each layer should depends on classes of the same or lower layers only.' . PHP_EOL .
+                 'Each layer should depend on classes of the same or lower layers only.' . PHP_EOL .
                  'Note that only constructor-injection is considered for this analysis, so the picture might be incomplete.' . PHP_EOL;
         $info .= PHP_EOL;
 
