@@ -1,21 +1,21 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper\Example;
+namespace ZendDiCompiler\Example;
 
-use DiWrapper\DiFactory;
+use ZendDiCompiler\DiFactory;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  */
 class ServiceD
@@ -34,7 +34,7 @@ class ServiceD
      */
     public function serviceMethod()
     {
-        $runtimeA1 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('hello', 'world'));
-        $runtimeA2 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('goodbye', 'world'));
+        $runtimeA1 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', array('hello', 'world'));
+        $runtimeA2 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', array('goodbye', 'world'));
     }
 }

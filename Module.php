@@ -1,28 +1,28 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper;
+namespace ZendDiCompiler;
 
 use Zend\Mvc\MvcEvent;
 use Zend\Config\Config;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  */
 class Module
 {
     /**
-     * @var DiWrapper
+     * @var ZendDiCompiler
      */
-    protected $diWrapper;
+    protected $zendDiCompiler;
 
     /**
      * @return array
@@ -48,16 +48,16 @@ class Module
     public function getServiceConfig()
     {
         // Instance must be created here already but is set up later.
-        $this->diWrapper = new DiWrapper;
+        $this->zendDiCompiler = new ZendDiCompiler;
 
         return array(
-            // Set diWrapper as fallback. Now Zend\ServiceManager uses DiWrapper to retrieve instances.
+            // Set zendDiCompiler as fallback. Now Zend\ServiceManager uses ZendDiCompiler to retrieve instances.
             'abstract_factories' => array(
-                $this->diWrapper,
+                $this->zendDiCompiler,
             ),
-            // Provide di-wrapper as a Zend\ServiceManager service.
+            // Provide ZendDiCompiler as a Zend\ServiceManager service.
             'services' => array(
-                'di-wrapper' => $this->diWrapper,
+                'ZendDiCompiler' => $this->zendDiCompiler,
             )
         );
     }
@@ -68,7 +68,7 @@ class Module
     public function onBootstrap(MvcEvent $mvcEvent)
     {
         $config = $mvcEvent->getApplication()->getServiceManager()->get('config');
-        $this->diWrapper->setConfig(new Config($config));
-        $this->diWrapper->init($mvcEvent);
+        $this->zendDiCompiler->setConfig(new Config($config));
+        $this->zendDiCompiler->init($mvcEvent);
     }
 }

@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-0": {
-            "DiWrapper": "src/"
+            "ZendDiCompiler": "src/"
         },
         "classmap": [
             "./Module.php"

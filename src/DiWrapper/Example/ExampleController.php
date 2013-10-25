@@ -1,37 +1,37 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper\Example;
+namespace ZendDiCompiler\Example;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use DiWrapper\DiWrapper;
+use ZendDiCompiler\ZendDiCompiler;
 use Zend\Config\Config;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  */
 class ExampleController extends AbstractActionController
 {
     /**
-     * @param DiWrapper $diWrapper
+     * @param ZendDiCompiler $zendDiCompiler
      * @param ServiceA $serviceA
      * @param ServiceC $serviceC
      * @param Config $config
      */
-    public function __construct(DiWrapper $diWrapper, ServiceA $serviceA,
+    public function __construct(ZendDiCompiler $zendDiCompiler, ServiceA $serviceA,
                                 ServiceC $serviceC, Config $config)
     {
-        $this->diWrapper = $diWrapper;
+        $this->zendDiCompiler = $zendDiCompiler;
         $this->serviceA = $serviceA;
         $this->serviceC = $serviceC;
         $this->config = $config;

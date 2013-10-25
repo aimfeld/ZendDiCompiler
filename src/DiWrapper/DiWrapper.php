@@ -1,15 +1,15 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper;
+namespace ZendDiCompiler;
 
 use Zend\Di\Di;
 use Zend\Di\Definition\ArrayDefinition;
@@ -24,8 +24,8 @@ use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\EventManager\GlobalEventManager;
-use DiWrapper\Exception\RuntimeException;
-use DiWrapper\Exception\RecoverException;
+use ZendDiCompiler\Exception\RuntimeException;
+use ZendDiCompiler\Exception\RecoverException;
 
 
 /**
@@ -38,9 +38,9 @@ use DiWrapper\Exception\RecoverException;
  * - Detects outdated generated code and automatic rescanning (great for development)
  * - Can create new instances or reuse instances created before
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  */
-class DiWrapper implements AbstractFactoryInterface
+class ZendDiCompiler implements AbstractFactoryInterface
 {
     const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
     const TEMP_SERVICE_LOCATOR      = 'TempServiceLocator';
@@ -76,10 +76,10 @@ class DiWrapper implements AbstractFactoryInterface
     protected $introspectionStrategy = null;
 
     /**
-     * Add shared instances to be used by DiWrapper.
+     * Add shared instances to be used by ZendDiCompiler.
      *
      * Typical things you want to add are e.g. a db adapter, the config, a session. These instances are
-     * then constructor-injected by DiWrapper. Call this the onBootstrap() method of your module class.
+     * then constructor-injected by ZendDiCompiler. Call this the onBootstrap() method of your module class.
      *
      * @param array $sharedInstances ('MyModule\MyClass' => $instance)
      *
@@ -89,15 +89,15 @@ class DiWrapper implements AbstractFactoryInterface
     {
         if ($this->isInitialized) {
             throw new RuntimeException(
-                'Shared instances must be added before the onBootstrap() method of the DiWrapper module is executed.
-                Make sure your module is added *before* the DiWrapper module.');
+                'Shared instances must be added before the onBootstrap() method of the ZendDiCompiler module is executed.
+                Make sure your module is added *before* the ZendDiCompiler module.');
         }
 
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
     }
 
     /**
-     * Use this to replace the standard introspection strategy of DiWrapper
+     * Use this to replace the standard introspection strategy of ZendDiCompiler
      *
      * Call this the onBootstrap() method of your module class.
      *
@@ -149,7 +149,7 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
-     * Is called by the DiWrapper module itself.
+     * Is called by the ZendDiCompiler module itself.
      *
      * @param Config $config
      */
@@ -166,7 +166,7 @@ class DiWrapper implements AbstractFactoryInterface
     /**
      * Set up DI definitions and create instances.
      *
-     * Is called by the DiWrapper module itself.
+     * Is called by the ZendDiCompiler module itself.
      */
     public function init(MvcEvent $mvcEvent)
     {
@@ -177,7 +177,7 @@ class DiWrapper implements AbstractFactoryInterface
         $fileName = realpath(
             sprintf(
                 '%s/%s.php',
-                $this->config->diWrapper->writePath, self::GENERATED_SERVICE_LOCATOR
+                $this->config->zendDiCompiler->writePath, self::GENERATED_SERVICE_LOCATOR
             )
         );
         if (file_exists($fileName)) {
@@ -253,8 +253,8 @@ class DiWrapper implements AbstractFactoryInterface
             'Zend\Config\Config'                  => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer'      => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
-            'DiWrapper\DiFactory'                 => new DiFactory($this), // Provide DiFactory
-            get_class($this)                      => $this, // Provide DiWrapper itself
+            'ZendDiCompiler\DiFactory'                 => new DiFactory($this), // Provide DiFactory
+            get_class($this)                      => $this, // Provide ZendDiCompiler itself
         );
     }
 
@@ -282,7 +282,7 @@ class DiWrapper implements AbstractFactoryInterface
 
         // Set up the directory scanner.
         $directoryScanner = new DirectoryScanner;
-        foreach ($this->config->diWrapper->scanDirectories as $directory) {
+        foreach ($this->config->zendDiCompiler->scanDirectories as $directory) {
             $directoryScanner->addDirectory($directory);
         }
 
@@ -393,7 +393,7 @@ class DiWrapper implements AbstractFactoryInterface
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
         $file     = $generator->getCodeGenerator();
-        $path     = $this->config->diWrapper->writePath;
+        $path     = $this->config->zendDiCompiler->writePath;
         $fileName = $path . "/$className.php";
         $file->setFilename($fileName);
         $file->write();

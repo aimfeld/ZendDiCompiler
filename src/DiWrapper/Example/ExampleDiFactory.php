@@ -1,22 +1,21 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper\Example;
+namespace ZendDiCompiler\Example;
 
-use DiWrapper\DiFactory;
-use Zend\Config\Config;
+use ZendDiCompiler\DiFactory;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  */
 class ExampleDiFactory extends DiFactory
@@ -25,7 +24,7 @@ class ExampleDiFactory extends DiFactory
      * Custom factory method with runtime parameters.
      *
      * Only runtime parameters are passed, RuntimeB's other dependencies are
-     * retrieved using DiWrapper.
+     * retrieved using ZendDiCompiler.
      *
      * @param string $runtimeParam1
      * @param int $runtimeParam2
@@ -33,8 +32,8 @@ class ExampleDiFactory extends DiFactory
      */
     public function createRuntimeB($runtimeParam1, $runtimeParam2)
     {
-        $config = $this->diWrapper->get('Zend\Config\Config');
-        $serviceA = $this->diWrapper->get('DiWrapper\Example\ServiceA');
+        $config = $this->zendDiCompiler->get('Zend\Config\Config');
+        $serviceA = $this->zendDiCompiler->get('ZendDiCompiler\Example\ServiceA');
         return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
     }
 }

@@ -11,7 +11,7 @@ _This module is in beta stage. Please create github issues for bugs or feature r
     * [Shared instances](#shared-instances)
     * [Type preferences](#type-preferences)
 * [Examples](#examples)
-    * [Using DiWrapper to create a controller](#using-diwrapper-to-create-a-controller)
+    * [Using ZendDiCompiler to create a controller](#using-zenddicompiler-to-create-a-controller)
     * [Using the DiFactory to create runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies)
         * [Passing all runtime parameters in a single array](#passing-all-runtime-parameters-in-a-single-array)
         * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
@@ -20,13 +20,13 @@ _This module is in beta stage. Please create github issues for bugs or feature r
 # Introduction
 
 Are you tired of writing tons of factory code (closures) for the Zend\ServiceManager in your Zend Framework 2 application?
-Are outdated factory methods causing bugs? This can all be avoided by using DiWrapper!
+Are outdated factory methods causing bugs? This can all be avoided by using ZendDiCompiler!
 
-**DiWrapper** is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection.
+**ZendDiCompiler** is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection.
 It saves you a lot of work, since there's **no need anymore for writing
 Zend\ServiceManager factory closures** and keeping them up-to-date manually.
 
-DiWrapper scans your code using **Zend\Di** and creates factory methods automatically. If the factory methods are outdated, DiWrapper
+ZendDiCompiler scans your code using **Zend\Di** and creates factory methods automatically. If the factory methods are outdated, ZendDiCompiler
 updates them in the background. Therefore, you **develop faster**, **avoid bugs** due to outdated factory methods, and
 experience **great performance** in production!
 
@@ -44,13 +44,13 @@ experience **great performance** in production!
 
 # Installation
 
-This module is [available](https://packagist.org/packages/aimfeld/di-wrapper) on [Packagist](https://packagist.org).
+This module is [available](https://packagist.org/packages/aimfeld/ZendDiCompiler) on [Packagist](https://packagist.org).
 In your project's `composer.json` use:
 
 ```
 {
     "require": {
-        "aimfeld/di-wrapper": "0.2.*"
+        "aimfeld/ZendDiCompiler": "1.*"
 }
 ```
 
@@ -63,14 +63,14 @@ the following content (you may want to replace `*` with `GeneratedServiceLocator
 !.gitignore
 ```
 
-Add `'DiWrapper'` to the modules array in your `application.config.php`. DiWrapper must be the loaded _after_ the
+Add `'ZendDiCompiler'` to the modules array in your `application.config.php`. ZendDiCompiler must be the loaded _after_ the
 modules where it is used:
 
 ```php
 'modules' => array(
     'SomeModule',
     'Application',
-    'DiWrapper',
+    'ZendDiCompiler',
 ),
 ```
 
@@ -78,56 +78,56 @@ modules where it is used:
 
 ## Dependency injection container vs. service locator
 
-Is DiWrapper a _dependency injection container (DiC)_ or a _service locator (SL)_? Well, that depends on where you use it.
-DiWrapper can be used as a _DiC_ to [create your controllers](#using-diwrapper-to-create-a-controller) in your module class
-and inject the controller dependencies _from outside_. Pure _DiC_ usage implies that DiWrapper is used only during the bootstrap 
+Is ZendDiCompiler a _dependency injection container (DiC)_ or a _service locator (SL)_? Well, that depends on where you use it.
+ZendDiCompiler can be used as a _DiC_ to [create your controllers](#using-zenddicompiler-to-create-a-controller) in your module class
+and inject the controller dependencies _from outside_. Pure _DiC_ usage implies that ZendDiCompiler is used only during the bootstrap
 process and disposed _before_ the controller is dispatched. This has been coined the
 "[Register Resolve Release](http://blog.ploeh.dk/2010/09/29/TheRegisterResolveReleasepattern/) pattern" and is
 [the recommended way](http://stackoverflow.com/a/1994455/94289) by experts like Mark Seemann and others.
 
-As soon as you inject the DiWrapper itself into your controllers and other classes, you are using it as a _service locator_.
-In my opinion, it is very convenient to inject the DiWrapper as a single dependency into ZF2 controller classes. This means using 
+As soon as you inject the ZendDiCompiler itself into your controllers and other classes, you are using it as a _service locator_.
+In my opinion, it is very convenient to inject the ZendDiCompiler as a single dependency into ZF2 controller classes. This means using
 it as a _service locator_, just like `Zend\ServiceManager` is typically used.
 
-DiWrapper is also used as a _service locator_ inside of the provided `DiWrapper\DiFactory` which is very useful for
+ZendDiCompiler is also used as a _service locator_ inside of the provided `ZendDiCompiler\DiFactory` which is very useful for
 [creating runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies). This
 avoids a lot of [abstract factory code](http://stackoverflow.com/a/1945023/94289) you would otherwise have to write.
-Besides ZF2 controllers, I recommend _not_ to inject DiWrapper directly anywhere. If you need a service in one of your
+Besides ZF2 controllers, I recommend _not_ to inject ZendDiCompiler directly anywhere. If you need a service in one of your
 classes, just ask for it in the constructor. If you need to create runtime objects with dependencies, inject
 DiFactory or your extended version of it with [custom creation methods](#passing-custom-runtime-parameters).
 
 
 ## Configuration
 
-DiWrapper uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
-(which is not well documented yet). To make things easier, see [example.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php) for
+ZendDiCompiler uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
+(which is not well documented yet). To make things easier, see [example.config.php](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php) for
 examples of how to specify:
 
 - Directories for the code scanner
 - Instance configuration
 - Type preferences
 
-For a full list of configuration options, see [module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)
+For a full list of configuration options, see [module.config.php](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/module.config.php)
 
-DiWrapper creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when constructors change during 
-development. However, if you e.g. change parameters in the [instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php),
+ZendDiCompiler creates a `GeneratedServiceLocator` class in the `data` directory and automatically refreshes it when constructors change during
+development. However, if you e.g. change parameters in the [instance configuration](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php),
 you have to manually delete `data/GeneratedServiceLocator.php` to force a refresh. In your staging and production
 deployment/update process, make sure that `data/GeneratedServiceLocator.php` is deleted!
 
 ## Shared instances
 
-You need to provide shared instances to [DiWrapper::addSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php) in
+You need to provide shared instances to [ZendDiCompiler::addSharedInstances()](https://github.com/aimfeld/ZendDiCompiler/blob/master/src/ZendDiCompiler/ZendDiCompiler.php) in
 your application module's onBootstrap() method in the following cases (also see example below):
 
-- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php).
+- The object to be injected is an instance of a class outside of the [scanned directories](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php).
 - The object to be injected requires some special bootstrapping (e.g. a session object).
 
-Note that DiWrapper provides some _default shared instances_ automatically
-(see [DiWrapper::getDefaultSharedInstances()](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/DiWrapper.php)).
+Note that ZendDiCompiler provides some _default shared instances_ automatically
+(see [ZendDiCompiler::getDefaultSharedInstances()](https://github.com/aimfeld/ZendDiCompiler/blob/master/src/ZendDiCompiler/ZendDiCompiler.php)).
 The following _default shared instances_ can be constructor-injected without explicitly adding them:
 
-- `DiWrapper\DiWrapper`
-- `DiWrapper\DiFactory`
+- `ZendDiCompiler\ZendDiCompiler`
+- `ZendDiCompiler\DiFactory`
 - `Zend\Mvc\MvcEvent`
 - `Zend\Mvc\Application`
 - `Zend\ServiceManager\ServiceManager`
@@ -152,21 +152,21 @@ class ServiceF
 }
 ```
 
-We need to tell DiWrapper which implementing class to inject for `ExampleInterface`. We specify `ExampleImplementor` as
-a type preference for `ExampleInterface` in our [example config](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php):
+We need to tell ZendDiCompiler which implementing class to inject for `ExampleInterface`. We specify `ExampleImplementor` as
+a type preference for `ExampleInterface` in our [example config](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php):
 
 ```php
 'di' => array(
     'instance' => array(
         'preference' => array(
-            'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
+            'ZendDiCompiler\Example\ExampleInterface' => 'ZendDiCompiler\Example\ExampleImplementor',
         ),
     ),
 ),
 ```
 
-DiWrapper will now always inject `ExampleImplementor` for `ExampleInterface`. Calling
-`DiWrapper::get('DiWrapper\Example\ExampleInterface')` will return the `ExampleImplementor`.
+ZendDiCompiler will now always inject `ExampleImplementor` for `ExampleInterface`. Calling
+`ZendDiCompiler::get('ZendDiCompiler\Example\ExampleInterface')` will return the `ExampleImplementor`.
 
 Type preferences can not only be used for interfaces and abstract classes, but for substituting classes
 in general. They can even be used to deal with non-existing classes:
@@ -175,27 +175,27 @@ in general. They can even be used to deal with non-existing classes:
 'di' => array(
     'instance' => array(
         'preference' => array(
-            'DiWrapper\Example\NotExists' => 'DiWrapper\Example\Exists',
+            'ZendDiCompiler\Example\NotExists' => 'ZendDiCompiler\Example\Exists',
         ),
     ),
 ),
 ```
 
-Calling `DiWrapper::get('DiWrapper\Example\NotExists')` will return a `DiWrapper\Example\Exists` instance.
+Calling `ZendDiCompiler::get('ZendDiCompiler\Example\NotExists')` will return a `ZendDiCompiler\Example\Exists` instance.
 Believe it or not, there are actually some good use cases for this.
 
 # Examples
 
-All examples sources listed here are included as [source code](https://github.com/aimfeld/di-wrapper/tree/master/src/DiWrapper/Example).
+All examples sources listed here are included as [source code](https://github.com/aimfeld/ZendDiCompiler/tree/master/src/ZendDiCompiler/Example).
 
-## Using DiWrapper to create a controller
+## Using ZendDiCompiler to create a controller
 
-Let's say we want to use the DiWrapper to create a controller class and inject some
-dependencies. For illustriation, we also inject the DiWrapper itself into the controller. 
-As mentioned [above](#dependency-injection-container-vs-service-locator), it 
-is a moot topic whether this is a good idea or not. But _if_ we decide to use the DiWrapper _inside_ the controller to
-get other dependencies, we can either inject it in the constructor or pull it from the ZF2 service locator 
-using `$this->serviceLocator->get('di-wrapper')`.
+Let's say we want to use the ZendDiCompiler to create a controller class and inject some
+dependencies. For illustriation, we also inject the ZendDiCompiler itself into the controller.
+As mentioned [above](#dependency-injection-container-vs-service-locator), it
+is a moot topic whether this is a good idea or not. But _if_ we decide to use the ZendDiCompiler _inside_ the controller to
+get other dependencies, we can either inject it in the constructor or pull it from the ZF2 service locator
+using `$this->serviceLocator->get('ZendDiCompiler')`.
 
 In our example, we have the following classes:
 
@@ -203,14 +203,14 @@ ExampleController
 
 ```php
 use Zend\Mvc\Controller\AbstractActionController;
-use DiWrapper\DiWrapper;
+use ZendDiCompiler\ZendDiCompiler;
 use Zend\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
-    public function __construct(DiWrapper $diWrapper, ServiceA $serviceA, ServiceC $serviceC, Config $config)
+    public function __construct(ZendDiCompiler $zendDiCompiler, ServiceA $serviceA, ServiceC $serviceC, Config $config)
     {
-        $this->diWrapper = $diWrapper;
+        $this->zendDiCompiler = $zendDiCompiler;
         $this->serviceA = $serviceA;
         $this->serviceC = $serviceC;
         $this->config = $config;
@@ -257,48 +257,48 @@ class ServiceC
 }
 ```
 
-We add the example source directory as a scan directory for DiWrapper. Since `ServiceB` has a parameter of unspecified type, we
+We add the example source directory as a scan directory for ZendDiCompiler. Since `ServiceB` has a parameter of unspecified type, we
 have to specify a value to inject. A better approach for `ServiceB` would be to require the `Config` in its constructor
 and retrieve the parameter from there, so we wouldn't need to specify an instance configuration. The
-[configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php) for our example
+[configuration](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php) for our example
 looks like this:
 
 ```php
-// DiWrapper configuration
-'diWrapper' => array(
+// ZendDiCompiler configuration
+'zendDiCompiler' => array(
     // Directories that will be code-scanned
     'scanDirectories' => array(
         // e.g. 'vendor/provider/module/src',
-        __DIR__ . '/../src/DiWrapper/Example',
+        __DIR__ . '/../src/ZendDiCompiler/Example',
     ),
 ),
-// ZF2 DI definition and instance configuration used by DiWrapper
+// ZF2 DI definition and instance configuration used by ZendDiCompiler
 'di' => array(
     // Instance configuration
     'instance' => array(
         // Type preferences for abstract classes and interfaces.
         'preference' => array(
-            'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
+            'ZendDiCompiler\Example\ExampleInterface' => 'ZendDiCompiler\Example\ExampleImplementor',
         ),
         // Add instance configuration if there are specific parameters to be used for instance creation.
-        'DiWrapper\Example\ServiceB' => array('parameters' => array(
+        'ZendDiCompiler\Example\ServiceB' => array('parameters' => array(
             'diParam' => 'Hello',
         )),
     ),
 ),
 ```
 
-Now we can create the `ExampleController` in our application's [module class](https://github.com/aimfeld/di-wrapper/blob/master/src/DiWrapper/Example/Module.php).
-For convenience, we retrieve the DiWrapper from the service manager and assign it to a local variable (`$this->diWrapper = $sm->get('di-wrapper')`).
+Now we can create the `ExampleController` in our application's [module class](https://github.com/aimfeld/ZendDiCompiler/blob/master/src/ZendDiCompiler/Example/Module.php).
+For convenience, we retrieve the ZendDiCompiler from the service manager and assign it to a local variable (`$this->zendDiCompiler = $sm->get('ZendDiCompiler')`).
 This makes it easier for writing `getControllerConfig()` or `getViewHelperConfig()` callbacks.
 
 Since the `ServiceC` dependency requires some complicated initialization, we need to initialize it and add it as a shared instance to
-DiWrapper.
+ZendDiCompiler.
 
 ```php
 class Module
 {
-    protected $diWrapper;
+    protected $zendDiCompiler;
 
     public function getControllerConfig()
     {
@@ -306,7 +306,7 @@ class Module
             'factories' => array(
                 // Suppose one of our routes specifies a controller named 'ExampleController'
                 'ExampleController' => function() {
-                    return $this->diWrapper->get('DiWrapper\Example\ExampleController');
+                    return $this->zendDiCompiler->get('ZendDiCompiler\Example\ExampleController');
                 },
             ),
         );
@@ -316,16 +316,16 @@ class Module
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
 
-        // Provide DiWrapper as a local variable for convience
-        $this->diWrapper = $sm->get('di-wrapper');
+        // Provide ZendDiCompiler as a local variable for convience
+        $this->zendDiCompiler = $sm->get('ZendDiCompiler');
 
         // Set up shared instance
         $serviceC = new ServiceC;
         $serviceC->init($mvcEvent);
 
         // Provide shared instance
-        $this->diWrapper->addSharedInstances(array(
-            'DiWrapper\Example\ServiceC' => $serviceC,
+        $this->zendDiCompiler->addSharedInstances(array(
+            'ZendDiCompiler\Example\ServiceC' => $serviceC,
         ));
     }
 }
@@ -336,16 +336,16 @@ class Module
 It is useful to distinguish two types of objects: _services_ and _runtime objects_. For _services_, all parameters should
 be specified in the configuration (e.g. a config array wrapped in a `Zend\Config\Config` object). If class constructors
 e.g. in third party code require some custom parameters, they can be specified in the
-[instance configuration](https://github.com/aimfeld/di-wrapper/blob/master/config/example.config.php)).
+[instance configuration](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php)).
 
 _Runtime objects_, on the other hand, require at least one parameter which is determined at runtime only.
-DiWrapper provides `DiWrapper\DiFactory` to help you create _runtime objects_ and inject their dependencies.
+ZendDiCompiler provides `ZendDiCompiler\DiFactory` to help you create _runtime objects_ and inject their dependencies.
 
 ### Passing all runtime parameters in a single array
 
 If you follow the convention of passing runtime parameters in a single array named `$dwParams` as in `RuntimeA`,
 things are very easy (the array name(s) can be configured in
-[module.config.php](https://github.com/aimfeld/di-wrapper/blob/master/config/module.config.php)):
+[module.config.php](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/module.config.php)):
 
 ```php
 class RuntimeA
@@ -359,12 +359,12 @@ class RuntimeA
 }
 ```
 
-DiWrapper automatically injects `DiWrapper\DiFactory` as a _default shared instance_. So
+ZendDiCompiler automatically injects `ZendDiCompiler\DiFactory` as a _default shared instance_. So
 we can just use it to create `RuntimeA` objects in `ServiceD`. `RuntimeA`'s dependencies (the `Config` default shared instance
 and `ServiceA`) are injected automatically, so you only need to provide the runtime parameters:
 
 ```php
-use DiWrapper\DiFactory;
+use ZendDiCompiler\DiFactory;
 
 class ServiceD
 {
@@ -375,8 +375,8 @@ class ServiceD
 
     public function serviceMethod()
     {
-        $runtimeA1 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('hello', 'world'));
-        $runtimeA2 = $this->diFactory->create('DiWrapper\Example\RuntimeA', array('goodbye', 'world'));
+        $runtimeA1 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', array('hello', 'world'));
+        $runtimeA2 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', array('goodbye', 'world'));
     }
 }
 ```
@@ -384,7 +384,7 @@ class ServiceD
 ### Passing custom runtime parameters
 
 If you can't or don't want to follow the convention of passing all runtime parameters in a single `$dwParams` array,
-DiWrapper still is very useful. In that case, you can just extend a custom factory from `DiWrapper\DiFactory` and
+ZendDiCompiler still is very useful. In that case, you can just extend a custom factory from `ZendDiCompiler\DiFactory` and
 add your specific creation methods. `RuntimeB` requires two separate run time parameters:
 
 ```php
@@ -400,7 +400,7 @@ class RuntimeB
 }
 ```
 
-So we extend `ExampleDiFactory` from `DiWrapper\DiFactory` and write a creation method `createRuntimeB`:
+So we extend `ExampleDiFactory` from `ZendDiCompiler\DiFactory` and write a creation method `createRuntimeB`:
 
 ```php
 class ExampleDiFactory extends DiFactory
@@ -412,14 +412,14 @@ class ExampleDiFactory extends DiFactory
      */
     public function createRuntimeB($runtimeParam1, $runtimeParam2)
     {
-        $config = $this->diWrapper->get('Zend\Config\Config');
-        $serviceA = $this->diWrapper->get('DiWrapper\Example\ServiceA');
+        $config = $this->zendDiCompiler->get('Zend\Config\Config');
+        $serviceA = $this->zendDiCompiler->get('ZendDiCompiler\Example\ServiceA');
         return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
     }
 }
 ```
 
-In `ServiceE`, we inject our extended factory. If the extended factory is located in a directory scanned by DiWrapper,
+In `ServiceE`, we inject our extended factory. If the extended factory is located in a directory scanned by ZendDiCompiler,
 we don't need to provide it as a shared instance. Now we can create `RuntimeB` objects as follows:
 
 ```php
@@ -440,19 +440,19 @@ class ServiceE
 
 # The generated factory code behind the scenes
 
-DiWrapper will automatically generate a service locator in the `data` directory and update it if constructors are changed
-during development. Services can be created/retrieved using `DiWrapper::get()`. If you need a new dependency in one of your
-classes, you can just put it in the constructor and DiWrapper will inject it for you.
+ZendDiCompiler will automatically generate a service locator in the `data` directory and update it if constructors are changed
+during development. Services can be created/retrieved using `ZendDiCompiler::get()`. If you need a new dependency in one of your
+classes, you can just put it in the constructor and ZendDiCompiler will inject it for you.
 
-Just for illustration, this is the generated service locator created by DiWrapper and used in `DiWrapper::get()`.
+Just for illustration, this is the generated service locator created by ZendDiCompiler and used in `ZendDiCompiler::get()`.
 
 ```php
-namespace DiWrapper;
+namespace ZendDiCompiler;
 
 use Zend\Di\ServiceLocator;
 
 /**
- * Generated by DiWrapper\Generator (2013-03-07 21:11:39)
+ * Generated by ZendDiCompiler\Generator (2013-03-07 21:11:39)
  */
 class GeneratedServiceLocator extends ServiceLocator
 {
@@ -469,38 +469,38 @@ class GeneratedServiceLocator extends ServiceLocator
         }
 
         switch ($name) {
-            case 'DiWrapper\Example\ExampleController':
-                return $this->getDiWrapperExampleExampleController($params, $newInstance);
+            case 'ZendDiCompiler\Example\ExampleController':
+                return $this->getZendDiCompilerExampleExampleController($params, $newInstance);
 
-            case 'DiWrapper\Example\ExampleDiFactory':
-                return $this->getDiWrapperExampleExampleDiFactory($params, $newInstance);
+            case 'ZendDiCompiler\Example\ExampleDiFactory':
+                return $this->getZendDiCompilerExampleExampleDiFactory($params, $newInstance);
 
-            case 'DiWrapper\Example\ExampleImplementor':
-                return $this->getDiWrapperExampleExampleImplementor($params, $newInstance);
+            case 'ZendDiCompiler\Example\ExampleImplementor':
+                return $this->getZendDiCompilerExampleExampleImplementor($params, $newInstance);
 
-            case 'DiWrapper\Example\Module':
-                return $this->getDiWrapperExampleModule($params, $newInstance);
+            case 'ZendDiCompiler\Example\Module':
+                return $this->getZendDiCompilerExampleModule($params, $newInstance);
 
-            case 'DiWrapper\Example\RuntimeA':
-                return $this->getDiWrapperExampleRuntimeA($params, $newInstance);
+            case 'ZendDiCompiler\Example\RuntimeA':
+                return $this->getZendDiCompilerExampleRuntimeA($params, $newInstance);
 
-            case 'DiWrapper\Example\ServiceA':
-                return $this->getDiWrapperExampleServiceA($params, $newInstance);
+            case 'ZendDiCompiler\Example\ServiceA':
+                return $this->getZendDiCompilerExampleServiceA($params, $newInstance);
 
-            case 'DiWrapper\Example\ServiceB':
-                return $this->getDiWrapperExampleServiceB($params, $newInstance);
+            case 'ZendDiCompiler\Example\ServiceB':
+                return $this->getZendDiCompilerExampleServiceB($params, $newInstance);
 
-            case 'DiWrapper\Example\ServiceC':
-                return $this->getDiWrapperExampleServiceC($params, $newInstance);
+            case 'ZendDiCompiler\Example\ServiceC':
+                return $this->getZendDiCompilerExampleServiceC($params, $newInstance);
 
-            case 'DiWrapper\Example\ServiceD':
-                return $this->getDiWrapperExampleServiceD($params, $newInstance);
+            case 'ZendDiCompiler\Example\ServiceD':
+                return $this->getZendDiCompilerExampleServiceD($params, $newInstance);
 
-            case 'DiWrapper\Example\ServiceE':
-                return $this->getDiWrapperExampleServiceE($params, $newInstance);
+            case 'ZendDiCompiler\Example\ServiceE':
+                return $this->getZendDiCompilerExampleServiceE($params, $newInstance);
 
-            case 'DiWrapper\Example\ServiceF':
-                return $this->getDiWrapperExampleServiceF($params, $newInstance);
+            case 'ZendDiCompiler\Example\ServiceF':
+                return $this->getZendDiCompilerExampleServiceF($params, $newInstance);
 
             default:
                 return parent::get($name, $params);
@@ -510,17 +510,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ExampleController
+     * @return \ZendDiCompiler\Example\ExampleController
      */
-    public function getDiWrapperExampleExampleController(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleExampleController(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ExampleController'])) {
-            return $this->services['DiWrapper\Example\ExampleController'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ExampleController'])) {
+            return $this->services['ZendDiCompiler\Example\ExampleController'];
         }
 
-        $object = new \DiWrapper\Example\ExampleController($this->get('DiWrapper\DiWrapper'), $this->getDiWrapperExampleServiceA(), $this->getDiWrapperExampleServiceC(), $this->get('Zend\Config\Config'));
+        $object = new \ZendDiCompiler\Example\ExampleController($this->get('ZendDiCompiler\ZendDiCompiler'), $this->getZendDiCompilerExampleServiceA(), $this->getZendDiCompilerExampleServiceC(), $this->get('Zend\Config\Config'));
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ExampleController'] = $object;
+            $this->services['ZendDiCompiler\Example\ExampleController'] = $object;
         }
 
         return $object;
@@ -529,17 +529,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ExampleDiFactory
+     * @return \ZendDiCompiler\Example\ExampleDiFactory
      */
-    public function getDiWrapperExampleExampleDiFactory(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleExampleDiFactory(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ExampleDiFactory'])) {
-            return $this->services['DiWrapper\Example\ExampleDiFactory'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ExampleDiFactory'])) {
+            return $this->services['ZendDiCompiler\Example\ExampleDiFactory'];
         }
 
-        $object = new \DiWrapper\Example\ExampleDiFactory($this->get('DiWrapper\DiWrapper'));
+        $object = new \ZendDiCompiler\Example\ExampleDiFactory($this->get('ZendDiCompiler\ZendDiCompiler'));
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ExampleDiFactory'] = $object;
+            $this->services['ZendDiCompiler\Example\ExampleDiFactory'] = $object;
         }
 
         return $object;
@@ -548,17 +548,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ExampleImplementor
+     * @return \ZendDiCompiler\Example\ExampleImplementor
      */
-    public function getDiWrapperExampleExampleImplementor(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleExampleImplementor(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ExampleImplementor'])) {
-            return $this->services['DiWrapper\Example\ExampleImplementor'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ExampleImplementor'])) {
+            return $this->services['ZendDiCompiler\Example\ExampleImplementor'];
         }
 
-        $object = new \DiWrapper\Example\ExampleImplementor();
+        $object = new \ZendDiCompiler\Example\ExampleImplementor();
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ExampleImplementor'] = $object;
+            $this->services['ZendDiCompiler\Example\ExampleImplementor'] = $object;
         }
 
         return $object;
@@ -567,17 +567,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\Module
+     * @return \ZendDiCompiler\Example\Module
      */
-    public function getDiWrapperExampleModule(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleModule(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\Module'])) {
-            return $this->services['DiWrapper\Example\Module'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\Module'])) {
+            return $this->services['ZendDiCompiler\Example\Module'];
         }
 
-        $object = new \DiWrapper\Example\Module();
+        $object = new \ZendDiCompiler\Example\Module();
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\Module'] = $object;
+            $this->services['ZendDiCompiler\Example\Module'] = $object;
         }
 
         return $object;
@@ -586,17 +586,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\RuntimeA
+     * @return \ZendDiCompiler\Example\RuntimeA
      */
-    public function getDiWrapperExampleRuntimeA(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleRuntimeA(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\RuntimeA'])) {
-            return $this->services['DiWrapper\Example\RuntimeA'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\RuntimeA'])) {
+            return $this->services['ZendDiCompiler\Example\RuntimeA'];
         }
 
-        $object = new \DiWrapper\Example\RuntimeA($this->get('Zend\Config\Config'), $this->getDiWrapperExampleServiceA(), $params);
+        $object = new \ZendDiCompiler\Example\RuntimeA($this->get('Zend\Config\Config'), $this->getZendDiCompilerExampleServiceA(), $params);
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\RuntimeA'] = $object;
+            $this->services['ZendDiCompiler\Example\RuntimeA'] = $object;
         }
 
         return $object;
@@ -605,17 +605,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ServiceA
+     * @return \ZendDiCompiler\Example\ServiceA
      */
-    public function getDiWrapperExampleServiceA(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleServiceA(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceA'])) {
-            return $this->services['DiWrapper\Example\ServiceA'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ServiceA'])) {
+            return $this->services['ZendDiCompiler\Example\ServiceA'];
         }
 
-        $object = new \DiWrapper\Example\ServiceA($this->getDiWrapperExampleServiceB());
+        $object = new \ZendDiCompiler\Example\ServiceA($this->getZendDiCompilerExampleServiceB());
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ServiceA'] = $object;
+            $this->services['ZendDiCompiler\Example\ServiceA'] = $object;
         }
 
         return $object;
@@ -624,17 +624,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ServiceB
+     * @return \ZendDiCompiler\Example\ServiceB
      */
-    public function getDiWrapperExampleServiceB(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleServiceB(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceB'])) {
-            return $this->services['DiWrapper\Example\ServiceB'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ServiceB'])) {
+            return $this->services['ZendDiCompiler\Example\ServiceB'];
         }
 
-        $object = new \DiWrapper\Example\ServiceB('Hello');
+        $object = new \ZendDiCompiler\Example\ServiceB('Hello');
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ServiceB'] = $object;
+            $this->services['ZendDiCompiler\Example\ServiceB'] = $object;
         }
 
         return $object;
@@ -643,17 +643,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ServiceC
+     * @return \ZendDiCompiler\Example\ServiceC
      */
-    public function getDiWrapperExampleServiceC(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleServiceC(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceC'])) {
-            return $this->services['DiWrapper\Example\ServiceC'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ServiceC'])) {
+            return $this->services['ZendDiCompiler\Example\ServiceC'];
         }
 
-        $object = new \DiWrapper\Example\ServiceC();
+        $object = new \ZendDiCompiler\Example\ServiceC();
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ServiceC'] = $object;
+            $this->services['ZendDiCompiler\Example\ServiceC'] = $object;
         }
 
         return $object;
@@ -662,17 +662,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ServiceD
+     * @return \ZendDiCompiler\Example\ServiceD
      */
-    public function getDiWrapperExampleServiceD(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleServiceD(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceD'])) {
-            return $this->services['DiWrapper\Example\ServiceD'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ServiceD'])) {
+            return $this->services['ZendDiCompiler\Example\ServiceD'];
         }
 
-        $object = new \DiWrapper\Example\ServiceD($this->get('DiWrapper\DiFactory'));
+        $object = new \ZendDiCompiler\Example\ServiceD($this->get('ZendDiCompiler\DiFactory'));
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ServiceD'] = $object;
+            $this->services['ZendDiCompiler\Example\ServiceD'] = $object;
         }
 
         return $object;
@@ -681,17 +681,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ServiceE
+     * @return \ZendDiCompiler\Example\ServiceE
      */
-    public function getDiWrapperExampleServiceE(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleServiceE(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceE'])) {
-            return $this->services['DiWrapper\Example\ServiceE'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ServiceE'])) {
+            return $this->services['ZendDiCompiler\Example\ServiceE'];
         }
 
-        $object = new \DiWrapper\Example\ServiceE($this->getDiWrapperExampleExampleDiFactory());
+        $object = new \ZendDiCompiler\Example\ServiceE($this->getZendDiCompilerExampleExampleDiFactory());
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ServiceE'] = $object;
+            $this->services['ZendDiCompiler\Example\ServiceE'] = $object;
         }
 
         return $object;
@@ -700,17 +700,17 @@ class GeneratedServiceLocator extends ServiceLocator
     /**
      * @param array $params
      * @param bool $newInstance
-     * @return \DiWrapper\Example\ServiceF
+     * @return \ZendDiCompiler\Example\ServiceF
      */
-    public function getDiWrapperExampleServiceF(array $params = array(), $newInstance = false)
+    public function getZendDiCompilerExampleServiceF(array $params = array(), $newInstance = false)
     {
-        if (!$newInstance && isset($this->services['DiWrapper\Example\ServiceF'])) {
-            return $this->services['DiWrapper\Example\ServiceF'];
+        if (!$newInstance && isset($this->services['ZendDiCompiler\Example\ServiceF'])) {
+            return $this->services['ZendDiCompiler\Example\ServiceF'];
         }
 
-        $object = new \DiWrapper\Example\ServiceF($this->getDiWrapperExampleExampleImplementor());
+        $object = new \ZendDiCompiler\Example\ServiceF($this->getZendDiCompilerExampleExampleImplementor());
         if (!$newInstance) {
-            $this->services['DiWrapper\Example\ServiceF'] = $object;
+            $this->services['ZendDiCompiler\Example\ServiceF'] = $object;
         }
 
         return $object;

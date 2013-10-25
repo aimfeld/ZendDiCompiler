@@ -7,8 +7,8 @@
  * the 'instance' and the 'preference' array, see Zend\Di documentation.
  */
 return array(
-    // DiWrapper configuration
-    'diWrapper' => array(
+    // ZendDiCompiler configuration
+    'zendDiCompiler' => array(
         // Path for writing the generated service locator class. Must be writable!
         'writePath' => './data',
         // Directories that will be code-scanned
@@ -16,13 +16,13 @@ return array(
             // e.g. 'vendor/provider/module/src',
         ),
         // Names of class constructor parameters which will be passed the $params array
-        // when calling DiWrapper::get($class, $params)
+        // when calling ZendDiCompiler::get($class, $params)
         // disable like this: 'params' => false
         'paramArrayNames' => array(
             'dwParams' => true,
         ),
     ),
-    // ZF2 DI definition and instance configuration used by DiWrapper
+    // ZF2 DI definition and instance configuration used by ZendDiCompiler
     'di' => array(
         // Definitions
         'definition' => array(
@@ -31,10 +31,10 @@ return array(
         'instance' => array(
             // Type preferences for abstract classes and interfaces.
             'preference' => array(
-                // e.g. 'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
+                // e.g. 'ZendDiCompiler\Example\ExampleInterface' => 'ZendDiCompiler\Example\ExampleImplementor',
             ),
             /* e.g.
-            'DiWrapper\Example\ServiceB' => array('parameters' => array(
+            'ZendDiCompiler\Example\ServiceB' => array('parameters' => array(
                 'diParam' => 'Hello',
             )),*/
          ),

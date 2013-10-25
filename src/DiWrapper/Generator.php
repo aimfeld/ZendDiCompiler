@@ -1,15 +1,15 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper;
+namespace ZendDiCompiler;
 
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Di\Di;
@@ -21,11 +21,11 @@ use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 use Zend\Config\Config;
-use DiWrapper\Exception\RuntimeException;
+use ZendDiCompiler\Exception\RuntimeException;
 use DateTime;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  */
 class Generator extends \Zend\Di\ServiceLocator\Generator
 {
@@ -139,7 +139,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
      */
     protected function getGeneratorInstances(array &$classesOrAliases)
     {
-        $paramArrayNames = $this->config->diWrapper->paramArrayNames;
+        $paramArrayNames = $this->config->zendDiCompiler->paramArrayNames;
         $newInstanceParams = array();
         foreach ($paramArrayNames as $paramArrayName => $enabled) {
             // Allow for disabling param array names

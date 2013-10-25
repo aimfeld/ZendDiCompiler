@@ -1,19 +1,19 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Exception
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper\Exception;
+namespace ZendDiCompiler\Exception;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Exception
  */
 interface Exception

@@ -7,24 +7,24 @@
  * see Zend\Di documentation.
  */
 return array(
-    // DiWrapper configuration
-    'diWrapper' => array(
+    // ZendDiCompiler configuration
+    'zendDiCompiler' => array(
         // Directories that will be code-scanned
         'scanDirectories' => array(
             // e.g. 'vendor/provider/module/src',
-            __DIR__ . '/../src/DiWrapper/Example',
+            __DIR__ . '/../src/ZendDiCompiler/Example',
         ),
     ),
-    // ZF2 DI definition and instance configuration used by DiWrapper
+    // ZF2 DI definition and instance configuration used by ZendDiCompiler
     'di' => array(
         // Instance configuration
         'instance' => array(
             // Type preferences for abstract classes and interfaces.
             'preference' => array(
-                'DiWrapper\Example\ExampleInterface' => 'DiWrapper\Example\ExampleImplementor',
+                'ZendDiCompiler\Example\ExampleInterface' => 'ZendDiCompiler\Example\ExampleImplementor',
             ),
             // Add instance configuration if there are specific parameters to be used for instance creation.
-            'DiWrapper\Example\ServiceB' => array('parameters' => array(
+            'ZendDiCompiler\Example\ServiceB' => array('parameters' => array(
                 'diParam' => 'Hello',
             )),
         ),

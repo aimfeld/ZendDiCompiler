@@ -1,19 +1,19 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper\Example;
+namespace ZendDiCompiler\Example;
 
 /**
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @subpackage Example
  */
 class ServiceB

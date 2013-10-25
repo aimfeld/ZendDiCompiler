@@ -1,18 +1,18 @@
 <?php
 /**
- * DiWrapper
+ * ZendDiCompiler
  *
- * This source file is part of the DiWrapper package
+ * This source file is part of the ZendDiCompiler package
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  * @license    New BSD License
  * @copyright  Copyright (c) 2013, aimfeld
  */
 
-namespace DiWrapper;
+namespace ZendDiCompiler;
 
 
-use DiWrapper\Exception\RuntimeException;
+use ZendDiCompiler\Exception\RuntimeException;
 
 
 /**
@@ -22,21 +22,21 @@ use DiWrapper\Exception\RuntimeException;
  * Extend to add your custom factory methods, if you don't want to pass all
  * runtime parameters in a singe array named $params.
  *
- * @package    DiWrapper
+ * @package    ZendDiCompiler
  */
 class DiFactory
 {
     /**
-     * @var DiWrapper
+     * @var ZendDiCompiler
      */
-    protected $diWrapper;
+    protected $zendDiCompiler;
 
     /**
-     * @param DiWrapper $diWrapper
+     * @param ZendDiCompiler $zendDiCompiler
      */
-    public function __construct(DiWrapper $diWrapper)
+    public function __construct(ZendDiCompiler $zendDiCompiler)
     {
-        $this->diWrapper = $diWrapper;
+        $this->zendDiCompiler = $zendDiCompiler;
     }
 
     /**
@@ -47,7 +47,7 @@ class DiFactory
      */
     public function create($className, array $params = array())
     {
-        $instance = $this->diWrapper->get($className, $params, true);
+        $instance = $this->zendDiCompiler->get($className, $params, true);
 
         if (is_null($instance)) {
             throw new RuntimeException(sprintf('Instance of class %s could not be created.', $className));
