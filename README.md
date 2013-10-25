@@ -342,18 +342,18 @@ ZendDiCompiler provides `ZendDiCompiler\DiFactory` to help you create _runtime o
 
 ### Passing all runtime parameters in a single array
 
-If you follow the convention of passing runtime parameters in a single array named `$dwParams` as in `RuntimeA`,
+If you follow the convention of passing runtime parameters in a single array named `$zdcParams` as in `RuntimeA`,
 things are very easy (the array name(s) can be configured in
 [module.config.php](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/module.config.php)):
 
 ```php
 class RuntimeA
 {
-    public function __construct(Config $config, ServiceA $serviceA, array $dwParams = array())
+    public function __construct(Config $config, ServiceA $serviceA, array $zdcParams = array())
     {
         $this->config = $config;
         $this->serviceA = $serviceA;
-        $this->params = $dwParams;
+        $this->params = $zdcParams;
     }
 }
 ```
@@ -382,7 +382,7 @@ class ServiceD
 
 ### Passing custom runtime parameters
 
-If you can't or don't want to follow the convention of passing all runtime parameters in a single `$dwParams` array,
+If you can't or don't want to follow the convention of passing all runtime parameters in a single `$zdcParams` array,
 ZendDiCompiler still is very useful. In that case, you can just extend a custom factory from `ZendDiCompiler\DiFactory` and
 add your specific creation methods. `RuntimeB` requires two separate run time parameters:
 
