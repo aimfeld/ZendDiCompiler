@@ -13,7 +13,9 @@
     * [Using the DiFactory to create runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies)
         * [Passing all runtime parameters in a single array](#passing-all-runtime-parameters-in-a-single-array)
         * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
-* [The generated factory code behind the scenes](#the-generated-factory-code-behind-the-scenes)
+* [Generated code and info](#generated-code-and-info)
+    * [Factory code](#factory-code)
+    * [Component dependency info](#component-dependency-info)
 
 # Introduction
 
@@ -437,7 +439,9 @@ class ServiceE
 }
 ```
 
-# The generated factory code behind the scenes
+# Generated code and info
+
+## Factory code
 
 ZendDiCompiler will automatically generate a service locator in the `data` directory and update it if constructors are changed
 during development. Services can be created/retrieved using `ZendDiCompiler::get()`. If you need a new dependency in one of your
@@ -715,5 +719,30 @@ class GeneratedServiceLocator extends ServiceLocator
         return $object;
     }
 }
+```
+
+## Component dependency info
+
+As a bonus, ZendDiCompiler will write a `component-dependency-info.txt` file containing information about
+which of the scanned components depend on which classes.
+
+Scanned classes are grouped into components (e.g. the Zend\Mvc\MvcEvent class belongs to the Zend\Mvc component).
+For every component, all constructor-injected classes are listed. This helps you analyze which components
+depend on which classes of other components. Consider organizing your components into layers.
+Each layer should depend on classes of the same or lower layers only.
+Note that only constructor-injection is considered for this analysis, so the picture might be incomplete.
+
+Here's an example of what you might see:
+```
+...
+Survey\Mail classes inject:
+- Survey\Mail\Transport
+- Survey\TextEngine\TextEngine
+- Zend\Config\Config
+
+Survey\Validator classes inject:
+- Survey\Db\Tables
+- Survey\I18n\Translator\Translator
+...
 ```
 
