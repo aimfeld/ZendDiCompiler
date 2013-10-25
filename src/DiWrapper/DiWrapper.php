@@ -108,9 +108,11 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
-     * @param string $name       The full class name (including namespace)
-     * @param array $params      A parameter array passed to the class constructor, if it has a array $params argument
-     * @param bool $newInstance  If true, create a new instance every time (use as factory)
+     * @param string $name        The full class name (including namespace)
+     * @param array  $params      A parameter array passed to the class constructor, if it has a array $params argument
+     * @param bool   $newInstance If true, create a new instance every time (use as factory)
+     *
+     * @throws \Exception
      * @return null|object
      */
     public function get($name, array $params = array(), $newInstance = false)
