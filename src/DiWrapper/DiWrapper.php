@@ -43,7 +43,7 @@ use DiWrapper\Exception\RecoverException;
 class DiWrapper implements AbstractFactoryInterface
 {
     const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
-    const TEMP_SERVICE_LOCATOR = 'TempServiceLocator';
+    const TEMP_SERVICE_LOCATOR      = 'TempServiceLocator';
 
     /**
      * @var Config
@@ -131,7 +131,7 @@ class DiWrapper implements AbstractFactoryInterface
 
             if (!$instance) {
                 $this->generatedServiceLocator = $this->reset(true);
-                $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+                $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
             restore_error_handler();
         } catch (RecoverException $e) {
@@ -139,7 +139,7 @@ class DiWrapper implements AbstractFactoryInterface
 
             // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
             $this->generatedServiceLocator = $this->reset(true);
-            $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+            $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
         } catch (\Exception $e) {
             restore_error_handler();
             throw $e;
@@ -159,7 +159,7 @@ class DiWrapper implements AbstractFactoryInterface
 
         // Provide easy access to type preferences
         /** @var Config $typePreferences */
-        $typePreferences = $this->config->di->instance->preference;
+        $typePreferences       = $this->config->di->instance->preference;
         $this->typePreferences = $typePreferences->toArray();
     }
 
@@ -182,7 +182,7 @@ class DiWrapper implements AbstractFactoryInterface
         );
         if (file_exists($fileName)) {
             require_once $fileName;
-            $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
+            $serviceLocatorClass           = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
             $this->generatedServiceLocator = new $serviceLocatorClass;
             $this->setSharedInstances($this->generatedServiceLocator);
         } else {
@@ -244,12 +244,12 @@ class DiWrapper implements AbstractFactoryInterface
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
         return array(
-            'Zend\Config\Config'             => $this->config,
+            'Zend\Config\Config'                  => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
-            'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
-            'Zend\EventManager\EventManager' => GlobalEventManager::getEventCollection(),
-            'DiWrapper\DiFactory'            => new DiFactory($this), // Provide DiFactory
-            get_class($this)                 => $this, // Provide DiWrapper itself
+            'Zend\View\Renderer\PhpRenderer'      => $sm->get('Zend\View\Renderer\PhpRenderer'),
+            'Zend\EventManager\EventManager'      => GlobalEventManager::getEventCollection(),
+            'DiWrapper\DiFactory'                 => new DiFactory($this), // Provide DiFactory
+            get_class($this)                      => $this, // Provide DiWrapper itself
         );
     }
 
@@ -283,14 +283,14 @@ class DiWrapper implements AbstractFactoryInterface
 
         // Compile definitions and convert them to an array.
         $introspectionStrategy = $this->getIntrospectionStrategy();
-        $compilerDefinition = new CompilerDefinition($introspectionStrategy);
+        $compilerDefinition    = new CompilerDefinition($introspectionStrategy);
         $compilerDefinition->setAllowReflectionExceptions(true);
         $compilerDefinition->addDirectoryScanner($directoryScanner);
         $compilerDefinition->compile();
         $definitionArray = $compilerDefinition->toArrayDefinition()->toArray();
 
         // Set up the DIC with compiled definitions.
-        $definitionList = new DefinitionList(array());
+        $definitionList     = new DefinitionList(array());
         $compiledDefinition = new ArrayDefinition($definitionArray);
         $definitionList->addDefinition($compiledDefinition);
 
@@ -345,7 +345,7 @@ class DiWrapper implements AbstractFactoryInterface
     protected function generateServiceLocator($recoverFromOutdatedDefinitions)
     {
         // Setup Di
-        $di = new Di;
+        $di       = new Di;
         $diConfig = new DiConfig($this->config->di);
         $di->configure($diConfig);
         $di->setDefinitionList($this->getDefinitionList());
@@ -387,8 +387,8 @@ class DiWrapper implements AbstractFactoryInterface
     {
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
-        $file = $generator->getCodeGenerator();
-        $path = $this->config->diWrapper->writePath;
+        $file     = $generator->getCodeGenerator();
+        $path     = $this->config->diWrapper->writePath;
         $fileName = $path . "/$className.php";
         $file->setFilename($fileName);
         $file->write();
