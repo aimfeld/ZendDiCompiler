@@ -1,8 +1,8 @@
 {
-    "name": "aimfeld/di-wrapper",
+    "name": "aimfeld/ZendDiCompiler",
     "description": "A Zend Framework 2 module that uses auto-generated factory code for dependency-injection.",
     "keywords": ["dependency-injection", "zend-framework", "service manager"],
-    "homepage": "https://github.com/aimfeld/di-wrapper",
+    "homepage": "https://github.com/aimfeld/ZendDiCompiler",
     "type": "library",
     "license": "New BSD License",
     "authors": [
