@@ -1,5 +1,3 @@
-_This module is in beta stage. Please create github issues for bugs or feature requests._
-
 # Table of Contents
 
 * [Introduction](#introduction)
