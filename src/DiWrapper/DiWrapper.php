@@ -81,7 +81,8 @@ class DiWrapper implements AbstractFactoryInterface
      * Typical things you want to add are e.g. a db adapter, the config, a session. These instances are
      * then constructor-injected by DiWrapper. Call this the onBootstrap() method of your module class.
      *
-     * @param array $sharedInstances  ('MyModule\MyClass' => $instance)
+     * @param array $sharedInstances ('MyModule\MyClass' => $instance)
+     *
      * @throws RuntimeException
      */
     public function addSharedInstances(array $sharedInstances)
@@ -128,7 +129,7 @@ class DiWrapper implements AbstractFactoryInterface
             set_error_handler(array($this, 'exceptionErrorHandler'));
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
 
-            if (! $instance) {
+            if (!$instance) {
                 $this->generatedServiceLocator = $this->reset(true);
                 $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
@@ -173,8 +174,12 @@ class DiWrapper implements AbstractFactoryInterface
 
         $this->isInitialized = true;
 
-        $fileName = realpath(sprintf('%s/%s.php',
-            $this->config->diWrapper->writePath, self::GENERATED_SERVICE_LOCATOR));
+        $fileName = realpath(
+            sprintf(
+                '%s/%s.php',
+                $this->config->diWrapper->writePath, self::GENERATED_SERVICE_LOCATOR
+            )
+        );
         if (file_exists($fileName)) {
             require_once $fileName;
             $serviceLocatorClass = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
@@ -191,8 +196,9 @@ class DiWrapper implements AbstractFactoryInterface
      * This function is called by the ServiceManager.
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
+     * @param string                  $name
+     * @param string                  $requestedName
+     *
      * @return bool
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
@@ -206,8 +212,9 @@ class DiWrapper implements AbstractFactoryInterface
      * This function is called by the ServiceManager.
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
+     * @param string                  $name
+     * @param string                  $requestedName
+     *
      * @return mixed
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
@@ -218,7 +225,8 @@ class DiWrapper implements AbstractFactoryInterface
     /**
      * Returns class name or its substitute.
      *
-     * @param $className
+     * @param string $className
+     *
      * @return string
      */
     public function getTypePreference($className)
@@ -229,29 +237,31 @@ class DiWrapper implements AbstractFactoryInterface
 
     /**
      * @param MvcEvent $mvcEvent
+     *
      * @return array
      */
     protected function getDefaultSharedInstances(MvcEvent $mvcEvent)
     {
         $sm = $mvcEvent->getApplication()->getServiceManager();
         return array(
-            'Zend\Config\Config' => $this->config,
+            'Zend\Config\Config'             => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
             'Zend\EventManager\EventManager' => GlobalEventManager::getEventCollection(),
-            'DiWrapper\DiFactory' => new DiFactory($this), // Provide DiFactory
-            get_class($this) => $this, // Provide DiWrapper itself
+            'DiWrapper\DiFactory'            => new DiFactory($this), // Provide DiFactory
+            get_class($this)                 => $this, // Provide DiWrapper itself
         );
     }
 
     /**
      * @param MvcEvent $mvcEvent
+     *
      * @return array
      */
     protected function setDefaultSharedInstances(MvcEvent $mvcEvent)
     {
         foreach ($this->getDefaultSharedInstances($mvcEvent) as $class => $instance) {
-            if (! array_key_exists($class, $this->sharedInstances)) {
+            if (!array_key_exists($class, $this->sharedInstances)) {
                 $this->sharedInstances[$class] = $instance;
             }
         }
@@ -294,7 +304,7 @@ class DiWrapper implements AbstractFactoryInterface
      */
     protected function getIntrospectionStrategy()
     {
-        if (! $this->introspectionStrategy) {
+        if (!$this->introspectionStrategy) {
             $this->introspectionStrategy = new IntrospectionStrategy();
             $this->introspectionStrategy->setInterfaceInjectionInclusionPatterns(array());
             $this->introspectionStrategy->setMethodNameInclusionPatterns(array());
@@ -304,14 +314,16 @@ class DiWrapper implements AbstractFactoryInterface
     }
 
     /**
-     * @param InstanceManager|GeneratedServiceLocator|TempServiceLocator  $object
+     * @param InstanceManager|GeneratedServiceLocator|TempServiceLocator $object
      */
     protected function setSharedInstances($object)
     {
         /** @noinspection PhpUndefinedClassInspection */
-        assert($object instanceof InstanceManager ||
+        assert(
+            $object instanceof InstanceManager ||
             $object instanceof GeneratedServiceLocator ||
-            $object instanceof TempServiceLocator);
+            $object instanceof TempServiceLocator
+        );
 
         if ($object instanceof InstanceManager) {
             foreach ($this->sharedInstances as $classOrAlias => $instance) {
@@ -327,6 +339,7 @@ class DiWrapper implements AbstractFactoryInterface
 
     /**
      * @param bool $recoverFromOutdatedDefinitions
+     *
      * @return GeneratedServiceLocator|TempServiceLocator
      */
     protected function generateServiceLocator($recoverFromOutdatedDefinitions)
@@ -350,7 +363,7 @@ class DiWrapper implements AbstractFactoryInterface
             // The next request uses the updated service locator class.
             list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::TEMP_SERVICE_LOCATOR);
             require_once $fileName;
-            /** @var TempServiceLocator $serviceLocator  */
+            /** @var TempServiceLocator $serviceLocator */
             $serviceLocator = new $generatedClass;
 
             // Reuse previous shared instances.
@@ -366,7 +379,8 @@ class DiWrapper implements AbstractFactoryInterface
 
     /**
      * @param Generator $generator
-     * @param string $className Without namespace
+     * @param string    $className Without namespace
+     *
      * @return string[] Filename and full class name of the generated service locator class
      */
     protected function writeServiceLocator(Generator $generator, $className)
@@ -384,6 +398,7 @@ class DiWrapper implements AbstractFactoryInterface
 
     /**
      * @param bool $recoverFromOutdatedDefinitions
+     *
      * @return GeneratedServiceLocator|TempServiceLocator
      */
     protected function reset($recoverFromOutdatedDefinitions)
@@ -401,7 +416,8 @@ class DiWrapper implements AbstractFactoryInterface
     {
         if (!$this->isInitialized) {
             throw new RuntimeException(sprintf(
-                '%s:init() must be called before instances can be retrieved.', get_class($this)));
+                '%s:init() must be called before instances can be retrieved.', get_class($this)
+            ));
         }
     }
 
@@ -417,6 +433,7 @@ class DiWrapper implements AbstractFactoryInterface
      * @param $errstr
      * @param $errfile
      * @param $errline
+     *
      * @return bool
      * @throws RecoverException
      */
