@@ -1,7 +1,7 @@
 {
     "name": "aimfeld/ZendDiCompiler",
     "description": "A Zend Framework 2 module that uses auto-generated factory code for dependency-injection.",
-    "keywords": ["dependency-injection", "zend-framework", "service manager"],
+    "keywords": ["dependency injection", "dependency injection container", "DIC", "zend framework", "service manager", "zf2"],
     "homepage": "https://github.com/aimfeld/ZendDiCompiler",
     "type": "library",
     "license": "New BSD License",
