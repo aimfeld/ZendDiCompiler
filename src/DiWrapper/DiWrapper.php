@@ -242,12 +242,17 @@ class DiWrapper implements AbstractFactoryInterface
      */
     protected function getDefaultSharedInstances(MvcEvent $mvcEvent)
     {
-        $sm = $mvcEvent->getApplication()->getServiceManager();
+        $application = $mvcEvent->getApplication();
+        $serviceManager = $application->getServiceManager();
+
         return array(
+            'Zend\Mvc\MvcEvent'                   => $mvcEvent,
+            'Zend\Mvc\Application'                => $application,
+            'Zend\ServiceManager\ServiceManager'  => $serviceManager,
+            'Zend\EventManager\EventManager'      => GlobalEventManager::getEventCollection(),
             'Zend\Config\Config'                  => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
-            'Zend\View\Renderer\PhpRenderer'      => $sm->get('Zend\View\Renderer\PhpRenderer'),
-            'Zend\EventManager\EventManager'      => GlobalEventManager::getEventCollection(),
+            'Zend\View\Renderer\PhpRenderer'      => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
             'DiWrapper\DiFactory'                 => new DiFactory($this), // Provide DiFactory
             get_class($this)                      => $this, // Provide DiWrapper itself
         );
