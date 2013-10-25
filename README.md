@@ -50,7 +50,8 @@ In your project's `composer.json` use:
 ```
 {
     "require": {
-        "aimfeld/ZendDiCompiler": "1.*"
+        "aimfeld/zend-di-compiler": "1.*"
+    }
 }
 ```
 
