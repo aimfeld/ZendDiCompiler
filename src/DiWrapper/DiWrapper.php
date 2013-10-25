@@ -23,6 +23,7 @@ use Zend\Di\Config as DiConfig;
 use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\EventManager\GlobalEventManager;
 use DiWrapper\Exception\RuntimeException;
 use DiWrapper\Exception\RecoverException;
 
@@ -235,6 +236,7 @@ class DiWrapper implements AbstractFactoryInterface
             'Zend\Config\Config' => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer' => $sm->get('Zend\View\Renderer\PhpRenderer'),
+            'Zend\EventManager\EventManager' => GlobalEventManager::getEventCollection(),
             'DiWrapper\DiFactory' => new DiFactory($this), // Provide DiFactory
             get_class($this) => $this, // Provide DiWrapper itself
         );
