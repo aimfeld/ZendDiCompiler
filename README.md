@@ -735,14 +735,14 @@ Note that only constructor-injection is considered for this analysis, so the pic
 Here's an example of what you might see:
 ```
 ...
-Survey\Mail classes inject:
-- Survey\Mail\Transport
-- Survey\TextEngine\TextEngine
+MyLibrary\Mail classes inject:
+- MyLibrary\Mail\Transport
+- MyLibrary\TextEngine\TextEngine
 - Zend\Config\Config
 
-Survey\Validator classes inject:
-- Survey\Db\Tables
-- Survey\I18n\Translator\Translator
+MyLibrary\Validator classes inject:
+- MyLibrary\Db\Tables
+- MyLibrary\I18n\Translator\Translator
 ...
 ```
 
