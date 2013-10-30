@@ -70,6 +70,11 @@ class ZendDiCompiler implements AbstractFactoryInterface
     protected $isInitialized = false;
 
     /**
+     * @var bool
+     */
+    protected $hasBeenReset = false;
+
+    /**
      * @var GeneratedServiceLocator|TempServiceLocator
      */
     protected $generatedServiceLocator = null;
@@ -131,9 +136,12 @@ class ZendDiCompiler implements AbstractFactoryInterface
         try {
             // Convert PHP errors to exception to catch errors due to changed constructors, etc.
             set_error_handler(array($this, 'exceptionErrorHandler'));
+
+            // Outdated definition may cause exceptions (e.g. constructor changes) or a null instance (e.g. new class added).
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
 
-            if (!$instance) {
+            // Handle null instance
+            if (!$instance && !$this->hasBeenReset) {
                 $this->generatedServiceLocator = $this->reset(true);
                 $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
@@ -142,8 +150,11 @@ class ZendDiCompiler implements AbstractFactoryInterface
             restore_error_handler();
 
             // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
-            $this->generatedServiceLocator = $this->reset(true);
-            $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
+            if (!$this->hasBeenReset) {
+                $this->generatedServiceLocator = $this->reset(true);
+                $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
+            }
+
         } catch (\Exception $e) {
             restore_error_handler();
             throw $e;
@@ -498,6 +509,8 @@ class ZendDiCompiler implements AbstractFactoryInterface
     }
 
     /**
+     * Scan code and update the GeneratedServiceLocator class.
+     *
      * @param bool $recoverFromOutdatedDefinitions
      *
      * @return GeneratedServiceLocator|TempServiceLocator
@@ -506,6 +519,8 @@ class ZendDiCompiler implements AbstractFactoryInterface
     {
         $generatedServiceLocator = $this->generateServiceLocator($recoverFromOutdatedDefinitions);
         $this->setSharedInstances($generatedServiceLocator);
+
+        $this->hasBeenReset = true;
 
         return $generatedServiceLocator;
     }
