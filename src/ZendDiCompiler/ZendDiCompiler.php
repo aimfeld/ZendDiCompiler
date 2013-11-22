@@ -29,14 +29,7 @@ use ZendDiCompiler\Exception\RuntimeException;
 use ZendDiCompiler\Exception\RecoverException;
 
 /**
- * Wrapper class for Zend\Di\Di
- *
- * Features:
- * - DI definition scanning and factory code generation
- * - Can deal with shared instances
- * - Can be used as a fallback abstract factory for Zend\ServiceManager
- * - Detects outdated generated code and automatic rescanning (great for development)
- * - Can create new instances or reuse instances created before
+ * ZendDiCompiler
  *
  * @package    ZendDiCompiler
  */
