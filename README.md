@@ -57,7 +57,7 @@ In your project's `composer.json` use:
 
 Make sure you have a _writable_ `data` folder in your application root directory, see
 [ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Put a `.gitignore` file in it with
-the following content (you may want to replace `*` with `GeneratedServiceLocator.php`):
+the following content:
 
 ```
 *
@@ -87,9 +87,9 @@ process and disposed _before_ the controller is dispatched. This has been coined
 [the recommended way](http://stackoverflow.com/a/1994455/94289) by experts like Mark Seemann and others.
 
 As soon as you inject the ZendDiCompiler itself into your controllers and other classes, you are using it as a _service locator_.
-The ZF2 MVC architecture is based on controller classes with action methods. Given this architecture, controller dependencies become 
-numerous very quickly. In order to avoid bloated controller constructors, it makes sense to inject ZendDiCompiler as a 
-single dependency into ZF2 controller classes and use it to pull the other dependencies from inside the controllers. 
+The ZF2 MVC architecture is based on controller classes with action methods. Given this architecture, controller dependencies become
+numerous very quickly. In order to avoid bloated controller constructors, it makes sense to inject ZendDiCompiler as a
+single dependency into ZF2 controller classes and use it to pull the other dependencies from inside the controllers.
 This means using it as a _service locator_, just like `Zend\ServiceManager` is typically used.
 
 ZendDiCompiler is also used as a _service locator_ inside of the provided `ZendDiCompiler\DiFactory` which is very useful for

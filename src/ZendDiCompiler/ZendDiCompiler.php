@@ -353,10 +353,17 @@ class ZendDiCompiler implements AbstractFactoryInterface
     /**
      * @param bool $recoverFromOutdatedDefinitions
      *
+     * @throws Exception\RuntimeException
      * @return GeneratedServiceLocator|TempServiceLocator
      */
     protected function generateServiceLocator($recoverFromOutdatedDefinitions)
     {
+        // Check if write directory exists
+        $path = $this->config->zendDiCompiler->writePath;
+        if (!file_exists($path) && !is_dir($path) && !mkdir($path)) {
+            throw new RuntimeException('The directory %s could not be created, check write permissions!', $path);
+        }
+
         // Setup Di
         $di       = new Di;
         $diConfig = new DiConfig($this->config->di);
