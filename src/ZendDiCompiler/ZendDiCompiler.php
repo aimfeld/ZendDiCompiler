@@ -358,11 +358,8 @@ class ZendDiCompiler implements AbstractFactoryInterface
      */
     protected function generateServiceLocator($recoverFromOutdatedDefinitions)
     {
-        // Check if write directory exists
-        $path = $this->config->zendDiCompiler->writePath;
-        if (!file_exists($path) && !is_dir($path) && !mkdir($path)) {
-            throw new RuntimeException('The directory %s could not be created, check write permissions!', $path);
-        }
+        // Check if write directory exists and create it if not
+        $this->prepareWritePath();
 
         // Setup Di
         $di       = new Di;
@@ -559,5 +556,18 @@ class ZendDiCompiler implements AbstractFactoryInterface
             throw new RecoverException($errstr, 0, $errno, $errfile, $errline);
         }
         return;
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    protected function prepareWritePath()
+    {
+        $path = $this->config->zendDiCompiler->writePath;
+        if (!file_exists($path) && !is_dir($path) && !mkdir($path)) {
+            throw new RuntimeException('The directory %s could not be created, check write permissions.', $path);
+        } elseif (!is_writable($path)) {
+            throw new RuntimeException('The directory %s is not writable.', $path);
+        }
     }
 }
