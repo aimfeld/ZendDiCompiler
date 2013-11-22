@@ -565,9 +565,9 @@ class ZendDiCompiler implements AbstractFactoryInterface
     {
         $path = $this->config->zendDiCompiler->writePath;
         if (!file_exists($path) && !is_dir($path) && !mkdir($path)) {
-            throw new RuntimeException('The directory %s could not be created, check write permissions.', $path);
+            throw new RuntimeException(sprintf('The directory %s could not be created, check write permissions.', $path));
         } elseif (!is_writable($path)) {
-            throw new RuntimeException('The directory %s is not writable.', $path);
+            throw new RuntimeException(sprintf('The directory %s is not writable.', $path));
         }
     }
 }
