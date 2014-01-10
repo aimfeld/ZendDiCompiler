@@ -13,7 +13,9 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "zendframework/zend-mvc": "2.*",
+        "zendframework/zend-servicemanager": "2.*"
     },
     "replace": {
         "aimfeld/di-wrapper": "*"
