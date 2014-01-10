@@ -54,6 +54,10 @@ class Module
         $this->zendDiCompiler = new ZendDiCompiler;
 
         return array(
+            // Set zendDiCompiler as fallback. Now Zend\ServiceManager uses ZendDiCompiler to retrieve instances.
+            'abstract_factories' => array(
+                $this->zendDiCompiler,
+            ),
             // Provide ZendDiCompiler as a Zend\ServiceManager service.
             'services' => array(
                 'ZendDiCompiler' => $this->zendDiCompiler,
@@ -78,7 +82,7 @@ class Module
      */
     public function modulesLoaded(Event $e)
     {
-        // This method is called once all modules are loaded.
+        // This method is called once all modules are loaded and the config has been merged.
         /** @var ServiceManager $serviceManager */
         $serviceManager = $e->getParam('ServiceManager');
         $config = $serviceManager->get('config');

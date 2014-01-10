@@ -22,6 +22,8 @@ use Zend\Config\Config;
 use Zend\Di\Config as DiConfig;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\GlobalEventManager;
+use Zend\ServiceManager\AbstractFactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use DateTime;
 use ZendDiCompiler\Exception\RuntimeException;
 use ZendDiCompiler\Exception\RecoverException;
@@ -31,7 +33,7 @@ use ZendDiCompiler\Exception\RecoverException;
  *
  * @package    ZendDiCompiler
  */
-class ZendDiCompiler
+class ZendDiCompiler implements AbstractFactoryInterface
 {
     // Class names of generated PHP files
     const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
@@ -79,7 +81,7 @@ class ZendDiCompiler
      * Add shared instances to be used by ZendDiCompiler.
      *
      * Typical things you want to add are e.g. a db adapter, the config, a session. These instances are
-     * then constructor-injected by ZendDiCompiler. Call this the onBootstrap() method of your module class.
+     * then constructor-injected by ZendDiCompiler. Call this e.g. in the onBootstrap() method of your module class.
      *
      * @param array $sharedInstances ('MyModule\MyClass' => $instance)
      *
@@ -87,10 +89,9 @@ class ZendDiCompiler
      */
     public function addSharedInstances(array $sharedInstances)
     {
+        // Instances added after initialization (e.g. in onBootstrap() calls) have to be passed to the service locator
         if ($this->isInitialized) {
-            throw new RuntimeException(
-                'Shared instances must be added before the onBootstrap() method of the ZendDiCompiler module is executed.
-                Make sure your module is added *before* the ZendDiCompiler module.');
+            $this->setSharedInstances($this->generatedServiceLocator, $sharedInstances);
         }
 
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
@@ -191,10 +192,42 @@ class ZendDiCompiler
             require_once $fileName;
             $serviceLocatorClass           = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
             $this->generatedServiceLocator = new $serviceLocatorClass;
-            $this->setSharedInstances($this->generatedServiceLocator);
+            $this->setSharedInstances($this->generatedServiceLocator, $this->sharedInstances);
         } else {
             $this->generatedServiceLocator = $this->reset(false);
         }
+    }
+
+    /**
+     * Determine if we can create a service with name.
+     *
+     * This function is called by the ServiceManager.
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string                  $name
+     * @param string                  $requestedName
+     *
+     * @return bool
+     */
+    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
+        return true; // Yes, we can!
+    }
+
+    /**
+     * Create service with name.
+     *
+     * This function is called by the ServiceManager.
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string                  $name
+     * @param string                  $requestedName
+     *
+     * @return mixed
+     */
+    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
+        return $this->get($requestedName);
     }
 
     /**
@@ -294,8 +327,9 @@ class ZendDiCompiler
 
     /**
      * @param InstanceManager|GeneratedServiceLocator|TempServiceLocator $object
+     * @param array                                                      $sharedInstances
      */
-    protected function setSharedInstances($object)
+    protected function setSharedInstances($object, array $sharedInstances)
     {
         /** @noinspection PhpUndefinedClassInspection */
         assert(
@@ -305,11 +339,11 @@ class ZendDiCompiler
         );
 
         if ($object instanceof InstanceManager) {
-            foreach ($this->sharedInstances as $classOrAlias => $instance) {
+            foreach ($sharedInstances as $classOrAlias => $instance) {
                 $object->addSharedInstance($instance, $classOrAlias);
             }
         } else {
-            foreach ($this->sharedInstances as $classOrAlias => $instance) {
+            foreach ($sharedInstances as $classOrAlias => $instance) {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $object->set($classOrAlias, $instance);
             }
@@ -335,7 +369,7 @@ class ZendDiCompiler
         $this->writeComponentDependencyInfo($definitionList);
         $di->setDefinitionList($definitionList);
 
-        $this->setSharedInstances($di->instanceManager());
+        $this->setSharedInstances($di->instanceManager(), $this->sharedInstances);
 
         $generator = new Generator($di, $this->config);
 
@@ -481,7 +515,7 @@ class ZendDiCompiler
     protected function reset($recoverFromOutdatedDefinitions)
     {
         $generatedServiceLocator = $this->generateServiceLocator($recoverFromOutdatedDefinitions);
-        $this->setSharedInstances($generatedServiceLocator);
+        $this->setSharedInstances($generatedServiceLocator, $this->sharedInstances);
 
         $this->hasBeenReset = true;
 
