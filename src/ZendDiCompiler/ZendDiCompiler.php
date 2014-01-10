@@ -87,6 +87,12 @@ class ZendDiCompiler
      */
     public function addSharedInstances(array $sharedInstances)
     {
+        if ($this->isInitialized) {
+            throw new RuntimeException(
+                'Shared instances must be added before the onBootstrap() method of the ZendDiCompiler module is executed.
+                Make sure your module is added *before* the ZendDiCompiler module.');
+        }
+
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
     }
 
@@ -171,9 +177,9 @@ class ZendDiCompiler
      */
     public function init()
     {
-        $this->isInitialized = true;
-
         $this->addDefaultSharedInstances();
+
+        $this->isInitialized = true;
 
         $fileName = realpath(
             sprintf(
