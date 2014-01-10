@@ -21,8 +21,6 @@ use Zend\Code\Scanner\DirectoryScanner;
 use Zend\Config\Config;
 use Zend\Di\Config as DiConfig;
 use Zend\Mvc\MvcEvent;
-use Zend\ServiceManager\AbstractFactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\EventManager\GlobalEventManager;
 use DateTime;
 use ZendDiCompiler\Exception\RuntimeException;
@@ -33,7 +31,7 @@ use ZendDiCompiler\Exception\RecoverException;
  *
  * @package    ZendDiCompiler
  */
-class ZendDiCompiler implements AbstractFactoryInterface
+class ZendDiCompiler
 {
     // Class names of generated PHP files
     const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
@@ -176,9 +174,11 @@ class ZendDiCompiler implements AbstractFactoryInterface
      *
      * Is called by the ZendDiCompiler module itself.
      */
-    public function init(MvcEvent $mvcEvent)
+    public function init(MvcEvent $mvcEvent = null)
     {
-        $this->setDefaultSharedInstances($mvcEvent);
+        if ($mvcEvent) {
+            $this->setDefaultSharedInstances($mvcEvent);
+        }
 
         $this->isInitialized = true;
 
@@ -196,38 +196,6 @@ class ZendDiCompiler implements AbstractFactoryInterface
         } else {
             $this->generatedServiceLocator = $this->reset(false);
         }
-    }
-
-    /**
-     * Determine if we can create a service with name.
-     *
-     * This function is called by the ServiceManager.
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string                  $name
-     * @param string                  $requestedName
-     *
-     * @return bool
-     */
-    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
-    {
-        return true; // Yes, we can!
-    }
-
-    /**
-     * Create service with name.
-     *
-     * This function is called by the ServiceManager.
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string                  $name
-     * @param string                  $requestedName
-     *
-     * @return mixed
-     */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
-    {
-        return $this->get($requestedName);
     }
 
     /**
