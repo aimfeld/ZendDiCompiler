@@ -15,7 +15,8 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zend-config": "2.*",
-        "zendframework/zend-di": "2.*"
+        "zendframework/zend-di": "2.*",
+        "zendframework/zend-servicemanager": "2.*"
     },
     "replace": {
         "aimfeld/di-wrapper": "*"

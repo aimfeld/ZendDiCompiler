@@ -13,6 +13,9 @@ namespace ZendDiCompiler;
 
 use Zend\Mvc\MvcEvent;
 use Zend\Config\Config;
+use Zend\EventManager\EventInterface as Event;
+use Zend\ModuleManager\ModuleManager;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * @package    ZendDiCompiler
@@ -59,12 +62,37 @@ class Module
     }
 
     /**
+     * @param ModuleManager $moduleManager
+     */
+    public function init(ModuleManager $moduleManager)
+    {
+        // Remember to keep the init() method as lightweight as possible
+        $events = $moduleManager->getEventManager();
+        $events->attach('loadModules.post', array($this, 'modulesLoaded'));
+    }
+
+    /**
+     * This method is called once all modules are loaded.
+     *
+     * @param Event $e
+     */
+    public function modulesLoaded(Event $e)
+    {
+        // This method is called once all modules are loaded.
+        /** @var ServiceManager $serviceManager */
+        $serviceManager = $e->getParam('ServiceManager');
+        $config = $serviceManager->get('config');
+        $this->zendDiCompiler->setConfig(new Config($config));
+        $this->zendDiCompiler->init();
+    }
+
+    /**
+     * If Zend\Mvc is used, this function will be called and mvc-related shared instances will be provided
+     *
      * @param MvcEvent $mvcEvent
      */
     public function onBootstrap(MvcEvent $mvcEvent)
     {
-        $config = $mvcEvent->getApplication()->getServiceManager()->get('config');
-        $this->zendDiCompiler->setConfig(new Config($config));
-        $this->zendDiCompiler->init($mvcEvent);
+        $this->zendDiCompiler->addMvcSharedInstances($mvcEvent);
     }
 }
