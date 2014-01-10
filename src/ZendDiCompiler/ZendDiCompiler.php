@@ -21,9 +21,9 @@ use Zend\Code\Scanner\DirectoryScanner;
 use Zend\Config\Config;
 use Zend\Di\Config as DiConfig;
 use Zend\Mvc\MvcEvent;
+use Zend\EventManager\GlobalEventManager;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\EventManager\GlobalEventManager;
 use DateTime;
 use ZendDiCompiler\Exception\RuntimeException;
 use ZendDiCompiler\Exception\RecoverException;
@@ -81,7 +81,7 @@ class ZendDiCompiler implements AbstractFactoryInterface
      * Add shared instances to be used by ZendDiCompiler.
      *
      * Typical things you want to add are e.g. a db adapter, the config, a session. These instances are
-     * then constructor-injected by ZendDiCompiler. Call this the onBootstrap() method of your module class.
+     * then constructor-injected by ZendDiCompiler. Call this e.g. in the onBootstrap() method of your module class.
      *
      * @param array $sharedInstances ('MyModule\MyClass' => $instance)
      *
@@ -89,10 +89,9 @@ class ZendDiCompiler implements AbstractFactoryInterface
      */
     public function addSharedInstances(array $sharedInstances)
     {
+        // Instances added after initialization (e.g. in onBootstrap() calls) have to be passed to the service locator
         if ($this->isInitialized) {
-            throw new RuntimeException(
-                'Shared instances must be added before the onBootstrap() method of the ZendDiCompiler module is executed.
-                Make sure your module is added *before* the ZendDiCompiler module.');
+            $this->setSharedInstances($this->generatedServiceLocator, $sharedInstances);
         }
 
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
@@ -171,14 +170,15 @@ class ZendDiCompiler implements AbstractFactoryInterface
         $this->typePreferences = $typePreferences->toArray();
     }
 
+
     /**
      * Set up DI definitions and create instances.
      *
      * Is called by the ZendDiCompiler module itself.
      */
-    public function init(MvcEvent $mvcEvent)
+    public function init()
     {
-        $this->setDefaultSharedInstances($mvcEvent);
+        $this->addDefaultSharedInstances();
 
         $this->isInitialized = true;
 
@@ -192,7 +192,7 @@ class ZendDiCompiler implements AbstractFactoryInterface
             require_once $fileName;
             $serviceLocatorClass           = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
             $this->generatedServiceLocator = new $serviceLocatorClass;
-            $this->setSharedInstances($this->generatedServiceLocator);
+            $this->setSharedInstances($this->generatedServiceLocator, $this->sharedInstances);
         } else {
             $this->generatedServiceLocator = $this->reset(false);
         }
@@ -244,40 +244,39 @@ class ZendDiCompiler implements AbstractFactoryInterface
     }
 
     /**
-     * @param MvcEvent $mvcEvent
+     * Shared instances which can be injected if Zend\Mvc is used.
      *
-     * @return array
+     * @param MvcEvent $mvcEvent
      */
-    protected function getDefaultSharedInstances(MvcEvent $mvcEvent)
+    public function addMvcSharedInstances(MvcEvent $mvcEvent)
     {
         $application    = $mvcEvent->getApplication();
         $serviceManager = $application->getServiceManager();
 
-        return array(
+        $mvcSharedInstances = array(
             'Zend\Mvc\MvcEvent'                   => $mvcEvent,
             'Zend\Mvc\Application'                => $application,
             'Zend\ServiceManager\ServiceManager'  => $serviceManager,
             'Zend\EventManager\EventManager'      => GlobalEventManager::getEventCollection(),
-            'Zend\Config\Config'                  => $this->config,
             'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
             'Zend\View\Renderer\PhpRenderer'      => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
-            'ZendDiCompiler\DiFactory'            => new DiFactory($this), // Provide DiFactory
-            get_class($this)                      => $this, // Provide ZendDiCompiler itself
         );
+
+        $this->addSharedInstances($mvcSharedInstances);
     }
 
     /**
-     * @param MvcEvent $mvcEvent
-     *
-     * @return array
+     * Default shared instances which can be injected
      */
-    protected function setDefaultSharedInstances(MvcEvent $mvcEvent)
+    protected function addDefaultSharedInstances()
     {
-        foreach ($this->getDefaultSharedInstances($mvcEvent) as $class => $instance) {
-            if (!array_key_exists($class, $this->sharedInstances)) {
-                $this->sharedInstances[$class] = $instance;
-            }
-        }
+        // Provide merged config as shared instance
+        $defaultSharedInstances = array(
+            'Zend\Config\Config'       => $this->config, // The merged global configuration
+            'ZendDiCompiler\DiFactory' => new DiFactory($this), // Provide DiFactory
+            get_class($this)           => $this, // Provide ZendDiCompiler itself
+        );
+        $this->addSharedInstances($defaultSharedInstances);
     }
 
     /**
@@ -328,8 +327,9 @@ class ZendDiCompiler implements AbstractFactoryInterface
 
     /**
      * @param InstanceManager|GeneratedServiceLocator|TempServiceLocator $object
+     * @param array                                                      $sharedInstances
      */
-    protected function setSharedInstances($object)
+    protected function setSharedInstances($object, array $sharedInstances)
     {
         /** @noinspection PhpUndefinedClassInspection */
         assert(
@@ -339,11 +339,11 @@ class ZendDiCompiler implements AbstractFactoryInterface
         );
 
         if ($object instanceof InstanceManager) {
-            foreach ($this->sharedInstances as $classOrAlias => $instance) {
+            foreach ($sharedInstances as $classOrAlias => $instance) {
                 $object->addSharedInstance($instance, $classOrAlias);
             }
         } else {
-            foreach ($this->sharedInstances as $classOrAlias => $instance) {
+            foreach ($sharedInstances as $classOrAlias => $instance) {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $object->set($classOrAlias, $instance);
             }
@@ -369,7 +369,7 @@ class ZendDiCompiler implements AbstractFactoryInterface
         $this->writeComponentDependencyInfo($definitionList);
         $di->setDefinitionList($definitionList);
 
-        $this->setSharedInstances($di->instanceManager());
+        $this->setSharedInstances($di->instanceManager(), $this->sharedInstances);
 
         $generator = new Generator($di, $this->config);
 
@@ -515,7 +515,7 @@ class ZendDiCompiler implements AbstractFactoryInterface
     protected function reset($recoverFromOutdatedDefinitions)
     {
         $generatedServiceLocator = $this->generateServiceLocator($recoverFromOutdatedDefinitions);
-        $this->setSharedInstances($generatedServiceLocator);
+        $this->setSharedInstances($generatedServiceLocator, $this->sharedInstances);
 
         $this->hasBeenReset = true;
 
