@@ -46,7 +46,7 @@ experience **great performance** in production!
 # Caveats
 
 - Getter injection is not supported yet. Instances must be injected via constructor injection.
-- Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler is probably overkill and you should handle instantiation using Zend\ServiceManager.
+- Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler may be overkill and you should handle instantiation using Zend\ServiceManager callback methods.
 
 # Installation
 
