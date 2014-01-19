@@ -289,8 +289,12 @@ class ZendDiCompiler
     {
         if (!$this->introspectionStrategy) {
             $this->introspectionStrategy = new IntrospectionStrategy();
+
+            // Interface injection is not supported
             $this->introspectionStrategy->setInterfaceInjectionInclusionPatterns(array());
-            $this->introspectionStrategy->setMethodNameInclusionPatterns(array());
+
+            // Setter injection is not supported
+            //$this->introspectionStrategy->setMethodNameInclusionPatterns(array());
         }
 
         return $this->introspectionStrategy;
