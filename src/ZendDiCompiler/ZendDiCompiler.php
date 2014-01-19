@@ -22,8 +22,6 @@ use Zend\Config\Config;
 use Zend\Di\Config as DiConfig;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\GlobalEventManager;
-use Zend\ServiceManager\AbstractFactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use DateTime;
 use ZendDiCompiler\Exception\RuntimeException;
 use ZendDiCompiler\Exception\RecoverException;
@@ -33,7 +31,7 @@ use ZendDiCompiler\Exception\RecoverException;
  *
  * @package    ZendDiCompiler
  */
-class ZendDiCompiler implements AbstractFactoryInterface
+class ZendDiCompiler
 {
     // Class names of generated PHP files
     const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
@@ -152,6 +150,11 @@ class ZendDiCompiler implements AbstractFactoryInterface
             throw $e;
         }
 
+        if (! $instance) {
+            $message = sprintf("Unable to create an instance for class '%s'.", $name);
+            throw new RuntimeException($message);
+        }
+
         return $instance;
     }
 
@@ -196,38 +199,6 @@ class ZendDiCompiler implements AbstractFactoryInterface
         } else {
             $this->generatedServiceLocator = $this->reset(false);
         }
-    }
-
-    /**
-     * Determine if we can create a service with name.
-     *
-     * This function is called by the ServiceManager.
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string                  $name
-     * @param string                  $requestedName
-     *
-     * @return bool
-     */
-    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
-    {
-        return true; // Yes, we can!
-    }
-
-    /**
-     * Create service with name.
-     *
-     * This function is called by the ServiceManager.
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string                  $name
-     * @param string                  $requestedName
-     *
-     * @return mixed
-     */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
-    {
-        return $this->get($requestedName);
     }
 
     /**
