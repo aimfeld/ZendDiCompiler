@@ -2,6 +2,7 @@
 
 * [Introduction](#introduction)
 * [Features](#features)
+* [Caveats](#caveats)
 * [Installation](#installation)
 * [Usage](#usage)
     * [Dependency injection container vs. service locator](#dependency-injection-container-vs-service-locator)
@@ -41,6 +42,11 @@ experience **great performance** in production!
 - Can create new instances or reuse instances created before.
 - Can be used as a **factory for runtime objects** combining DI and passing of runtime parameters.
 - **Greater perfomance** and less memory consumption, as compared to using Zend\Di\Di with cached definitions.
+
+# Caveats
+
+- Getter injection is not supported yet. Instances must be injected via constructor injection.
+- Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler may be overkill and you should handle instantiation using Zend\ServiceManager callback methods.
 
 # Installation
 
