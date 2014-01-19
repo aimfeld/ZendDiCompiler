@@ -44,7 +44,7 @@ experience **great performance** in production!
 
 # Caveats
 
-- Getter injection is not supported yet. Instances must be injected via constructor injection.
+- Setter injection and interface injection are not supported yet. Instances must be injected via constructor injection (which I recommend over the two other methods anyway).
 - Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler may be overkill and you should handle instantiation using Zend\ServiceManager callback methods.
 
 # Installation
