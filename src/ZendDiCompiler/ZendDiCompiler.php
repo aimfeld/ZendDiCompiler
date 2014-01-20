@@ -294,7 +294,7 @@ class ZendDiCompiler
             $this->introspectionStrategy->setInterfaceInjectionInclusionPatterns(array());
 
             // Setter injection is not supported
-            //$this->introspectionStrategy->setMethodNameInclusionPatterns(array());
+            $this->introspectionStrategy->setMethodNameInclusionPatterns(array());
         }
 
         return $this->introspectionStrategy;
