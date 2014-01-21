@@ -81,9 +81,14 @@ class Module
         // This method is called once all modules are loaded and the config has been merged.
         /** @var ServiceManager $serviceManager */
         $serviceManager = $e->getParam('ServiceManager');
-        $config = $serviceManager->get('config');
-        $this->zendDiCompiler->setConfig(new Config($config));
-        $this->zendDiCompiler->init();
+        $this->config = new Config($serviceManager->get('config'));
+        $this->zendDiCompiler->setConfig($this->config);
+
+        // If Zend\Mvc is not used, the onBootstrap event won't be called and no mvc-related
+        // shared instances will be added.
+        if (!$this->config->zendDiCompiler->useZendMvc) {
+            $this->zendDiCompiler->init();
+        };
     }
 
     /**
@@ -94,5 +99,9 @@ class Module
     public function onBootstrap(MvcEvent $mvcEvent)
     {
         $this->zendDiCompiler->addMvcSharedInstances($mvcEvent);
+
+        if ($this->config->zendDiCompiler->useZendMvc) {
+            $this->zendDiCompiler->init();
+        };
     }
 }

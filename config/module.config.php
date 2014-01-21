@@ -9,6 +9,8 @@
 return array(
     // ZendDiCompiler configuration
     'zendDiCompiler' => array(
+        // Set to false, if your application does not use Zend\Mvc and the onBootstrap event is therefore not called.
+        'useZendMvc' => true,
         // Path for writing the generated service locator class. Must be writable!
         'writePath' => './data/ZendDiCompiler',
         // Directories that will be code-scanned
@@ -25,8 +27,7 @@ return array(
     // ZF2 DI definition and instance configuration used by ZendDiCompiler
     'di' => array(
         // Definitions
-        'definition' => array(
-        ),
+        'definition' => array(),
         // Instance configuration
         'instance' => array(
             // Type preferences for abstract classes and interfaces.

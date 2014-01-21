@@ -89,7 +89,9 @@ class ZendDiCompiler
     {
         // Instances added after initialization (e.g. in onBootstrap() calls) have to be passed to the service locator
         if ($this->isInitialized) {
-            $this->setSharedInstances($this->generatedServiceLocator, $sharedInstances);
+            throw new RuntimeException(
+                'Shared instances must be added before ZendDiCompiler is initialized.
+                Make sure your module is added *before* the ZendDiCompiler module.');
         }
 
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
@@ -177,10 +179,16 @@ class ZendDiCompiler
     /**
      * Set up DI definitions and create instances.
      *
+     * All shared instances must be added before this function is called!
+     *
      * Is called by the ZendDiCompiler module itself.
      */
     public function init()
     {
+        if ($this->isInitialized) {
+            throw new RuntimeException('ZendDiCompiler has been initialized already');
+        }
+
         $this->addDefaultSharedInstances();
 
         $this->isInitialized = true;
@@ -504,7 +512,7 @@ class ZendDiCompiler
     {
         if (!$this->isInitialized) {
             throw new RuntimeException(sprintf(
-                '%s:init() must be called before instances can be retrieved.', get_class($this)
+                "ZendDiCompiler must be initialized before instances can be retrieved. If you don't use Zend\\Mvc, override 'useZendMvc' in the zendDiCompiler config.", get_class($this)
             ));
         }
     }
