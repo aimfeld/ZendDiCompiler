@@ -41,6 +41,13 @@ class ZendDiCompiler
     const COMPONENT_DEPENDENCY_INFO_FILE = 'component-dependency-info.txt';
 
     /**
+     * Global instance
+     *
+     * @var ZendDiCompiler
+     */
+    protected static $zendDiCompiler = null;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -74,6 +81,17 @@ class ZendDiCompiler
      * @var IntrospectionStrategy
      */
     protected $introspectionStrategy = null;
+
+    /**
+     * @return ZendDiCompiler
+     */
+    public static function getGlobalInstance()
+    {
+        if (!self::$zendDiCompiler) {
+            throw new RuntimeException('ZendDiCompiler must be initialized before the global instance can be retrieved.');
+        }
+        return self::$zendDiCompiler;
+    }
 
     /**
      * Add shared instances to be used by ZendDiCompiler.
@@ -207,6 +225,8 @@ class ZendDiCompiler
         } else {
             $this->generatedServiceLocator = $this->reset(false);
         }
+
+        self::$zendDiCompiler = $this;
     }
 
     /**
