@@ -139,7 +139,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
      */
     protected function getGeneratorInstances(array &$classesOrAliases)
     {
-        $paramArrayNames = $this->config->zendDiCompiler->paramArrayNames;
+        $paramArrayNames = $this->config->get('zendDiCompiler')->paramArrayNames;
         $newInstanceParams = array();
         foreach ($paramArrayNames as $paramArrayName => $enabled) {
             // Allow for disabling param array names
