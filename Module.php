@@ -28,6 +28,11 @@ class Module
     protected $zendDiCompiler;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * @return array
      */
     public function getAutoloaderConfig()
