@@ -256,11 +256,11 @@ class ZendDiCompiler
 
         $mvcSharedInstances = array(
             'Zend\Mvc\MvcEvent'                           => $mvcEvent,
+            'Zend\View\Renderer\PhpRenderer'              => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
             'Zend\Mvc\ApplicationInterface'               => $application,
             'Zend\ServiceManager\ServiceLocatorInterface' => $serviceManager,
             'Zend\EventManager\EventManagerInterface'     => GlobalEventManager::getEventCollection(),
             'Zend\Mvc\Router\RouteStackInterface'         => $mvcEvent->getRouter(),
-            'Zend\View\Renderer\PhpRenderer'              => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
         );
 
         $this->addSharedInstances($mvcSharedInstances);
