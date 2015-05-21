@@ -11,12 +11,21 @@ return array(
     'zendDiCompiler' => array(
         // Set to false, if your application does not use Zend\Mvc and the onBootstrap event is therefore not called.
         'useZendMvc' => true,
+
         // Path for writing the generated service locator class. Must be writable!
         'writePath' => './data/ZendDiCompiler',
+
+        // Code scan log file
+        'scanLogFileName' => 'code-scan.log',
+
+        // Component dependency analysis file
+        'componentDependencyFileName' => 'component-dependency-info.txt',
+
         // Directories that will be code-scanned
         'scanDirectories' => array(
             // e.g. 'vendor/provider/module/src',
         ),
+
         // Names of class constructor parameters which will be passed the $params array
         // when calling ZendDiCompiler::get($class, $params)
         // disable like this: 'params' => false
@@ -28,8 +37,10 @@ return array(
     'di' => array(
         // Definitions
         'definition' => array(),
+
         // Instance configuration
         'instance' => array(
+
             // Type preferences for abstract classes and interfaces.
             'preference' => array(
                 // e.g. 'ZendDiCompiler\Example\ExampleInterface' => 'ZendDiCompiler\Example\ExampleImplementor',

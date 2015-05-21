@@ -21,6 +21,7 @@ use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 use Zend\Config\Config;
+use Zend\Log\Logger;
 use ZendDiCompiler\Exception\RuntimeException;
 use DateTime;
 
@@ -41,12 +42,19 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
     protected $config;
 
     /**
-     * @param Di $injector
-     * @param Config $config
+     * @var Logger
      */
-    public function __construct(Di $injector, Config $config)
+    protected $logger;
+
+    /**
+     * @param Di     $injector
+     * @param Config $config
+     * @param Logger $logger
+     */
+    public function __construct(Di $injector, Config $config, Logger $logger)
     {
         $this->config = $config;
+        $this->logger = $logger;
 
         parent::__construct($injector);
     }
@@ -159,12 +167,12 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             try {
                 // Support for passing a $params array for instance creation
                 $generatorInstance = $this->injector->newInstance($classOrAlias, $newInstanceParams);
+                if ($generatorInstance instanceof GeneratorInstance) {
+                    $generatorInstances[$classOrAlias] = $generatorInstance;
+                }
             } catch (\Exception $e) {
+                $this->logger->debug($e->getMessage());
                 continue;
-            }
-
-            if ($generatorInstance instanceof GeneratorInstance) {
-                $generatorInstances[$classOrAlias] = $generatorInstance;
             }
         }
 
@@ -374,7 +382,9 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             } elseif (null === $param || is_scalar($param) || is_array($param)) {
                 $string = var_export($param, 1);
                 if (strstr($string, '::__set_state(')) {
-                    throw new Exception\RuntimeException('Arguments in definitions may not contain objects');
+                    $message = sprintf('Arguments in definitions may not contain objects (classOrAlias "%s", parameter type "%s"', $classOrAlias, $string);
+                    $this->logger->err($message);
+                    throw new Exception\RuntimeException($message);
                 }
                 $params[$key] = $string;
             } elseif ($param instanceof GeneratorInstance) {
@@ -384,7 +394,8 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                 if ($im->hasSharedInstance($objectClass)) {
                     $params[$key] = sprintf("\$this->get('%s')", $objectClass);
                 } else {
-                    $message = sprintf('Unable to use object arguments when building containers. Encountered with "%s", parameter of type "%s"', $classOrAlias, get_class($param));
+                    $message = sprintf('Unable to use object arguments when building containers (classOrAlias "%s", parameter type "%s")', $classOrAlias, $objectClass);
+                    $this->logger->err($message);
                     throw new RuntimeException($message);
                 }
             }

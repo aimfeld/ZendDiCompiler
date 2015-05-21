@@ -20,6 +20,8 @@ use Zend\Di\InstanceManager;
 use Zend\Code\Scanner\DirectoryScanner;
 use Zend\Config\Config;
 use Zend\Di\Config as DiConfig;
+use Zend\Log\Logger;
+use Zend\Log\Writer\Stream as StreamWriter;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\GlobalEventManager;
 use DateTime;
@@ -36,9 +38,6 @@ class ZendDiCompiler
     // Class names of generated PHP files
     const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
     const TEMP_SERVICE_LOCATOR      = 'TempServiceLocator';
-
-    // Generated after code scanning
-    const COMPONENT_DEPENDENCY_INFO_FILE = 'component-dependency-info.txt';
 
     /**
      * Global instance
@@ -367,7 +366,17 @@ class ZendDiCompiler
 
         // Setup Di
         $di       = new Di;
-        $diConfig = new DiConfig($this->config->di);
+        $diConfig = new DiConfig($this->config->get('di'));
+
+
+        // Setup scan logging
+        $zdcConfig = $this->config->get('zendDiCompiler');
+        $logFile   = $zdcConfig->writePath . '/' . $zdcConfig->scanLogFileName;
+        $logger    = new Logger();
+        $writer    = new StreamWriter($logFile, 'w');
+        $logger->addWriter($writer);
+        $logger->info('Start generating service locator by code scanning ...');
+
         $di->configure($diConfig);
         $definitionList = $this->getDefinitionList();
         $this->writeComponentDependencyInfo($definitionList);
@@ -375,7 +384,7 @@ class ZendDiCompiler
 
         $this->setSharedInstances($di->instanceManager(), $this->sharedInstances);
 
-        $generator = new Generator($di, $this->config);
+        $generator = new Generator($di, $this->config, $logger);
 
         list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
 
@@ -483,8 +492,8 @@ class ZendDiCompiler
             $info = $e->getMessage() . PHP_EOL . $e->getTraceAsString();
         }
 
-        $path     = $this->config->zendDiCompiler->writePath;
-        $fileName = $path . '/' . self::COMPONENT_DEPENDENCY_INFO_FILE;
+        $zendDiCompilerConfig = $this->config->get('zendDiCompiler');
+        $fileName             = $zendDiCompilerConfig->writePath . '/' . $zendDiCompilerConfig->componentDependencyFileName;
         file_put_contents($fileName, $info);
     }
 
