@@ -52,6 +52,11 @@ class ZendDiCompiler
     protected $config;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var object[]
      */
     protected $sharedInstances = array();
@@ -370,12 +375,10 @@ class ZendDiCompiler
 
 
         // Setup scan logging
-        $zdcConfig = $this->config->get('zendDiCompiler');
-        $logFile   = $zdcConfig->writePath . '/' . $zdcConfig->scanLogFileName;
-        $logger    = new Logger();
-        $writer    = new StreamWriter($logFile, 'w');
-        $logger->addWriter($writer);
-        $logger->info('Start generating service locator by code scanning ...');
+        $zdcConfig    = $this->config->get('zendDiCompiler');
+        $logFile      = $zdcConfig->writePath . '/' . $zdcConfig->scanLogFileName;
+        $this->logger = new Logger;
+        $this->logger->addWriter(new StreamWriter($logFile, 'w'));
 
         $di->configure($diConfig);
         $definitionList = $this->getDefinitionList();
@@ -384,7 +387,7 @@ class ZendDiCompiler
 
         $this->setSharedInstances($di->instanceManager(), $this->sharedInstances);
 
-        $generator = new Generator($di, $this->config, $logger);
+        $generator = new Generator($di, $this->config, $this->logger);
 
         list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
 
@@ -419,11 +422,17 @@ class ZendDiCompiler
     {
         $generator->setNamespace(__NAMESPACE__);
         $generator->setContainerClass($className);
+
+        $this->logger->info('Start generating service locator by code scanning.');
         $file     = $generator->getCodeGenerator();
+        $this->logger->info('Code scanning finished.');
+
         $path     = $this->config->zendDiCompiler->writePath;
         $fileName = $path . "/$className.php";
         $file->setFilename($fileName);
+        $this->logger->info(sprintf('Writing generated service locator to %s.', $fileName));
         $file->write();
+        $this->logger->info(sprintf('Finished writing generated service locator to %s.', $fileName));
 
         return array($fileName, __NAMESPACE__ . '\\' . $className);
     }
