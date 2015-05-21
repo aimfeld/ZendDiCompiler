@@ -12,15 +12,6 @@ return array(
         // Set to false, if your application does not use Zend\Mvc and the onBootstrap event is therefore not called.
         'useZendMvc' => true,
 
-        // Path for writing the generated service locator class. Must be writable!
-        'writePath' => './data/ZendDiCompiler',
-
-        // Code scan log file
-        'scanLogFileName' => 'code-scan.log',
-
-        // Component dependency analysis file
-        'componentDependencyFileName' => 'component-dependency-info.txt',
-
         // Directories that will be code-scanned
         'scanDirectories' => array(
             // e.g. 'vendor/provider/module/src',
@@ -32,6 +23,22 @@ return array(
         'paramArrayNames' => array(
             'zdcParams' => true,
         ),
+
+        // Path for writing the generated service locator class. Must be writable!
+        'writePath' => './data/ZendDiCompiler',
+
+        // Code scan log file
+        'scanLogFileName' => 'code-scan.log',
+
+        // Component dependency analysis file
+        'componentDependencyFileName' => 'component-dependency-info.txt',
+
+        // Class name of the generated service locator
+        'serviceLocatorClass' => 'GeneratedServiceLocator',
+
+        // Class name of the generated temporary service locator in case of detected runtime error.
+        'tempServiceLocatorClass' => 'TempServiceLocator',
+
     ),
     // ZF2 DI definition and instance configuration used by ZendDiCompiler
     'di' => array(

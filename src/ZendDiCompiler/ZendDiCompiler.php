@@ -35,9 +35,7 @@ use ZendDiCompiler\Exception\RecoverException;
  */
 class ZendDiCompiler
 {
-    // Class names of generated PHP files
-    const GENERATED_SERVICE_LOCATOR = 'GeneratedServiceLocator';
-    const TEMP_SERVICE_LOCATOR      = 'TempServiceLocator';
+    const TEMP_SERVICE_LOCATOR = 'TempServiceLocator';
 
     /**
      * Global instance
@@ -153,12 +151,14 @@ class ZendDiCompiler
             set_error_handler(array($this, 'exceptionErrorHandler'));
 
             // Outdated definition may cause exceptions (e.g. constructor changes) or a null instance (e.g. new class added).
+            /** @noinspection PhpUndefinedMethodInspection */
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
 
             // Handle null instance
             if (!$instance && !$this->hasBeenReset) {
                 $this->generatedServiceLocator = $this->reset(true);
-                $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
+                /** @noinspection PhpUndefinedMethodInspection */
+                $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
             restore_error_handler();
         } catch (RecoverException $e) {
@@ -167,7 +167,8 @@ class ZendDiCompiler
             // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
             if (!$this->hasBeenReset) {
                 $this->generatedServiceLocator = $this->reset(true);
-                $instance                      = $this->generatedServiceLocator->get($name, $params, $newInstance);
+                /** @noinspection PhpUndefinedMethodInspection */
+                $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
 
         } catch (\Exception $e) {
@@ -194,7 +195,7 @@ class ZendDiCompiler
 
         // Provide easy access to type preferences
         /** @var Config $typePreferences */
-        $typePreferences       = $this->config->di->instance->preference;
+        $typePreferences       = $this->config->get('di')->instance->preference;
         $this->typePreferences = $typePreferences->toArray();
     }
 
@@ -216,15 +217,11 @@ class ZendDiCompiler
 
         $this->isInitialized = true;
 
-        $fileName = realpath(
-            sprintf(
-                '%s/%s.php',
-                $this->config->zendDiCompiler->writePath, self::GENERATED_SERVICE_LOCATOR
-            )
-        );
+        $zdcConfig = $this->config->get('zendDiCompiler');
+        $fileName  = realpath(sprintf('%s/%s.php', $zdcConfig->writePath, $zdcConfig->serviceLocatorClass));
         if (file_exists($fileName)) {
             require_once $fileName;
-            $serviceLocatorClass           = __NAMESPACE__ . '\\' . self::GENERATED_SERVICE_LOCATOR;
+            $serviceLocatorClass           = __NAMESPACE__ . '\\' . $zdcConfig->serviceLocatorClass;
             $this->generatedServiceLocator = new $serviceLocatorClass;
             $this->setSharedInstances($this->generatedServiceLocator, $this->sharedInstances);
         } else {
@@ -293,7 +290,7 @@ class ZendDiCompiler
 
         // Set up the directory scanner.
         $directoryScanner = new DirectoryScanner;
-        foreach ($this->config->zendDiCompiler->scanDirectories as $directory) {
+        foreach ($this->config->get('zendDiCompiler')->scanDirectories as $directory) {
             $directoryScanner->addDirectory($directory);
         }
 
@@ -389,19 +386,20 @@ class ZendDiCompiler
 
         $generator = new Generator($di, $this->config, $this->logger);
 
-        list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::GENERATED_SERVICE_LOCATOR);
+        list($fileName, $generatedClass) = $this->writeServiceLocator($generator, $zdcConfig->serviceLocatorClass);
 
         if ($recoverFromOutdatedDefinitions) {
             // Within a php request, a class can only be loaded once. Therefore, we need a
             // temporary service locator class with updated definitions. The class
             // is used to create the service locator and then immediately deleted afterwards.
             // The next request uses the updated service locator class.
-            list($fileName, $generatedClass) = $this->writeServiceLocator($generator, self::TEMP_SERVICE_LOCATOR);
+            list($fileName, $generatedClass) = $this->writeServiceLocator($generator, $zdcConfig->tempServiceLocatorClass);
             require_once $fileName;
             /** @var TempServiceLocator $serviceLocator */
             $serviceLocator = new $generatedClass;
 
             // Reuse previous shared instances.
+            /** @noinspection PhpUndefinedFieldInspection */
             $serviceLocator->services = $this->generatedServiceLocator->services;
             unlink($fileName);
         } else {
@@ -424,10 +422,10 @@ class ZendDiCompiler
         $generator->setContainerClass($className);
 
         $this->logger->info('Start generating service locator by code scanning.');
-        $file     = $generator->getCodeGenerator();
+        $file = $generator->getCodeGenerator();
         $this->logger->info('Code scanning finished.');
 
-        $path     = $this->config->zendDiCompiler->writePath;
+        $path     = $this->config->get('zendDiCompiler')->writePath;
         $fileName = $path . "/$className.php";
         $file->setFilename($fileName);
         $this->logger->info(sprintf('Writing generated service locator to %s.', $fileName));
@@ -587,7 +585,7 @@ class ZendDiCompiler
      */
     protected function prepareWritePath()
     {
-        $path = $this->config->zendDiCompiler->writePath;
+        $path = $this->config->get('zendDiCompiler')->writePath;
         if (!file_exists($path) && !is_dir($path) && !mkdir($path)) {
             throw new RuntimeException(sprintf('The directory %s could not be created, check write permissions.', $path));
         } elseif (!is_writable($path)) {
