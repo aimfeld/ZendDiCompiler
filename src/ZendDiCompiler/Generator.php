@@ -24,6 +24,7 @@ use Zend\Config\Config;
 use Zend\Log\Logger;
 use ZendDiCompiler\Exception\RuntimeException;
 use DateTime;
+use ReflectionClass;
 
 /**
  * @package    ZendDiCompiler
@@ -156,20 +157,25 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             }
         }
 
+        $instanceManager = $this->injector->instanceManager();
         $generatorInstances = array();
         foreach ($classesOrAliases as $classOrAlias) {
-            // Filter out abstract classes and interfaces
-            $class = new \ReflectionClass($classOrAlias);
-            if ($class->isAbstract() || $class->isInterface()) {
-                continue;
-            }
-
             try {
-                // Support for passing a $params array for instance creation
-                $generatorInstance = $this->injector->newInstance($classOrAlias, $newInstanceParams);
+                $generatorInstance = null;
+
+                $class = new ReflectionClass($classOrAlias);
+
+                if ($instanceManager->hasSharedInstance($classOrAlias)) {
+                    $generatorInstance = $this->injector->get($classOrAlias);
+                } elseif (!$class->isAbstract() && !$class->isInterface()) {
+                    // Support for passing a $params array for instance creation
+                    $generatorInstance = $this->injector->newInstance($classOrAlias, $newInstanceParams);
+                }
+
                 if ($generatorInstance instanceof GeneratorInstance) {
                     $generatorInstances[$classOrAlias] = $generatorInstance;
                 }
+
             } catch (\Exception $e) {
                 $this->logger->debug($classOrAlias . ': '. $e->getMessage());
                 continue;
@@ -304,13 +310,16 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                 if (null === $param || is_scalar($param) || is_array($param)) {
                     $string = var_export($param, 1);
                     if (strstr($string, '::__set_state(')) {
-                        throw new Exception\RuntimeException('Arguments in definitions may not contain objects');
+                        $message = sprintf('%s: Arguments in definitions may not contain objects', $classOrAlias);
+                        $this->logger->err($message);
+                        throw new Exception\RuntimeException($message);
                     }
                     $methodParams[$key] = $string;
                 } elseif ($param instanceof GeneratorInstance) {
                     $methodParams[$key] = sprintf("\$this->%s(\$params)", $this->normalizeAlias($param->getName()));
                 } else {
-                    $message = sprintf('Unable to use object arguments when generating method calls. Encountered with class "%s", method "%s", parameter of type "%s"', $classOrAlias, $methodName, get_class($param));
+                    $message = sprintf('%s: Unable to use object arguments when generating method calls (method "%s", parameter of type "%s")', $classOrAlias, $methodName, get_class($param));
+                    $this->logger->err($message);
                     throw new Exception\RuntimeException($message);
                 }
             }
@@ -390,11 +399,9 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             } elseif ($param instanceof GeneratorInstance) {
                 $params[$key] = sprintf("\$this->%s()", $this->normalizeAlias($param->getName()));
             } elseif (is_object($param)) {
-                $objectClass = get_class($param);
-                if ($im->hasSharedInstance($objectClass)) {
-                    $params[$key] = sprintf("\$this->get('%s')", $objectClass);
-                } else {
-                    $message = sprintf('%s: Unable to use object arguments when building containers (parameter type "%s")', $classOrAlias, $objectClass);
+                $objectClassName = get_class($param);
+                if (!$params[$key] = $this->getGetterMethodFromClass($im, $objectClassName)) {
+                    $message = sprintf('%s: No shared instance for parameter "%s" class or its supertypes (abstract classes and interfaces).', $classOrAlias, $objectClassName);
                     $this->logger->err($message);
                     throw new RuntimeException($message);
                 }
@@ -412,5 +419,38 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         }
 
         return $params;
+    }
+
+    /**
+     * @param InstanceManager $im
+     * @param string          $className
+     *
+     * @return null|string
+     */
+    protected function getGetterMethodFromClass(InstanceManager $im, $className)
+    {
+        if ($im->hasSharedInstance($className)) {
+            return sprintf("\$this->get('%s')", $className);
+        } else {
+            $reflection = new ReflectionClass($className);
+
+            // See if there are shared instances for interfaces implemented by the class and its parents
+            foreach ($reflection->getInterfaceNames() as $interfaceName) {
+                if ($im->hasSharedInstance($interfaceName)) {
+                    return sprintf("\$this->get('%s')", $interfaceName);
+                }
+            }
+
+            // See if there are shared instances for parent classes
+            while ($parent = $reflection->getParentClass()) {
+                $parentClass = $parent->getName();
+                if ($im->hasSharedInstance($parentClass)) {
+                    return sprintf("\$this->get('%s')", $parentClass);
+                }
+                $reflection = $parent;
+            };
+        }
+
+        return null;
     }
 }
