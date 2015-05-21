@@ -137,12 +137,13 @@ The following _default shared instances_ can be constructor-injected without exp
 - `ZendDiCompiler\ZendDiCompiler`
 - `ZendDiCompiler\DiFactory`
 - `Zend\Mvc\MvcEvent`
-- `Zend\Mvc\Application`
-- `Zend\ServiceManager\ServiceManager`
-- `Zend\EventManager\EventManager`
 - `Zend\Config\Config`
-- `Zend\Mvc\Router\Http\TreeRouteStack`
 - `Zend\View\Renderer\PhpRenderer`
+- `Zend\Mvc\ApplicationInterface`
+- `Zend\ServiceManager\ServiceLocatorInterface`
+- `Zend\EventManager\EventManagerInterface`
+- `Zend\Mvc\Router\RouteStackInterface`
+
 
 ## Type preferences
 
