@@ -109,7 +109,8 @@ class ZendDiCompiler
         if ($this->isInitialized) {
             throw new RuntimeException(
                 'Shared instances must be added before ZendDiCompiler is initialized.
-                Make sure your module is added *before* the ZendDiCompiler module.');
+                Make sure your module is added *before* the ZendDiCompiler module.'
+            );
         }
 
         $this->sharedInstances = array_merge($this->sharedInstances, $sharedInstances);
@@ -170,7 +171,7 @@ class ZendDiCompiler
             throw $e;
         }
 
-        if (! $instance) {
+        if (!$instance) {
             $message = sprintf("Unable to create an instance for class '%s'.", $name);
             throw new RuntimeException($message);
         }
@@ -253,12 +254,12 @@ class ZendDiCompiler
         $serviceManager = $application->getServiceManager();
 
         $mvcSharedInstances = array(
-            'Zend\Mvc\MvcEvent'                   => $mvcEvent,
-            'Zend\Mvc\Application'                => $application,
-            'Zend\ServiceManager\ServiceManager'  => $serviceManager,
-            'Zend\EventManager\EventManager'      => GlobalEventManager::getEventCollection(),
-            'Zend\Mvc\Router\Http\TreeRouteStack' => $mvcEvent->getRouter(),
-            'Zend\View\Renderer\PhpRenderer'      => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
+            'Zend\Mvc\MvcEvent'                           => $mvcEvent,
+            'Zend\Mvc\ApplicationInterface'               => $application,
+            'Zend\ServiceManager\ServiceLocatorInterface' => $serviceManager,
+            'Zend\EventManager\EventManagerInterface'     => GlobalEventManager::getEventCollection(),
+            'Zend\Mvc\Router\RouteStackInterface'         => $mvcEvent->getRouter(),
+            'Zend\View\Renderer\PhpRenderer'              => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
         );
 
         $this->addSharedInstances($mvcSharedInstances);
@@ -531,9 +532,11 @@ class ZendDiCompiler
     protected function checkInit()
     {
         if (!$this->isInitialized) {
-            throw new RuntimeException(sprintf(
-                "ZendDiCompiler must be initialized before instances can be retrieved. If you don't use Zend\\Mvc, override 'useZendMvc' in the zendDiCompiler config.", get_class($this)
-            ));
+            throw new RuntimeException(
+                sprintf(
+                    "ZendDiCompiler must be initialized before instances can be retrieved. If you don't use Zend\\Mvc, override 'useZendMvc' in the zendDiCompiler config.", get_class($this)
+                )
+            );
         }
     }
 
