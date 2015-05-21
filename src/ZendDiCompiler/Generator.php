@@ -171,7 +171,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                     $generatorInstances[$classOrAlias] = $generatorInstance;
                 }
             } catch (\Exception $e) {
-                $this->logger->debug($e->getMessage());
+                $this->logger->debug($classOrAlias . ': '. $e->getMessage());
                 continue;
             }
         }
@@ -382,7 +382,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             } elseif (null === $param || is_scalar($param) || is_array($param)) {
                 $string = var_export($param, 1);
                 if (strstr($string, '::__set_state(')) {
-                    $message = sprintf('Arguments in definitions may not contain objects (classOrAlias "%s", parameter type "%s"', $classOrAlias, $string);
+                    $message = sprintf('%s: Arguments in definitions may not contain objects (parameter type "%s")', $classOrAlias, $string);
                     $this->logger->err($message);
                     throw new Exception\RuntimeException($message);
                 }
@@ -394,7 +394,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                 if ($im->hasSharedInstance($objectClass)) {
                     $params[$key] = sprintf("\$this->get('%s')", $objectClass);
                 } else {
-                    $message = sprintf('Unable to use object arguments when building containers (classOrAlias "%s", parameter type "%s")', $classOrAlias, $objectClass);
+                    $message = sprintf('%s: Unable to use object arguments when building containers (parameter type "%s")', $classOrAlias, $objectClass);
                     $this->logger->err($message);
                     throw new RuntimeException($message);
                 }
