@@ -34,18 +34,18 @@ experience **great performance** in production!
 
 # Features
 
-- **Code scanning** for creating DI definitions and **automatic factory code generation**
-- Can deal with **shared instances** and **type preferences**
-- Allows for **custom code introspection strategies** (by default, only constructors are scanned)
-- Can be used as a **complement to Zend\ServiceManager**
-- Detection of outdated generated factory code and **automatic rescanning** (great for development)
+- **Code scanning** for creating DI definitions and **automatic factory code generation**.
+- Can deal with **shared instances** and **type preferences**.
+- Allows for **custom code introspection strategies** (by default, only constructors are scanned).
+- Can be used as a **complement to Zend\ServiceManager**.
+- Detection of outdated generated factory code and **automatic rescanning** (great for development).
 - Can create new instances or reuse instances created before.
 - Can be used as a **factory for runtime objects** combining DI and passing of runtime parameters.
 - **Greater perfomance** and less memory consumption, as compared to using Zend\Di\Di with cached definitions.
 
 # Caveats
 
-- Setter injection and interface injection are not supported yet. Instances must be injected via constructor injection (which I recommend over the two other methods anyway).
+- [Setter injection and interface injection](http://framework.zend.com/manual/current/en/tutorials/quickstart.di.html) are not supported yet. Instances must be injected via constructor injection (which I recommend over the two other methods anyway).
 - Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler may be overkill and you should handle instantiation using Zend\ServiceManager callback methods.
 
 # Installation
