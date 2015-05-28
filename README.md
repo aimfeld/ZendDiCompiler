@@ -16,6 +16,7 @@
         * [Passing custom runtime parameters](#passing-custom-runtime-parameters)
 * [Generated code and info](#generated-code-and-info)
     * [Factory code](#factory-code)
+    * [Code scan log](#code-scan-log)
     * [Component dependency info](#component-dependency-info)
 
 # Introduction
