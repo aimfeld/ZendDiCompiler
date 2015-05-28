@@ -451,7 +451,7 @@ class ServiceE
 
 ## Factory code
 
-ZendDiCompiler will automatically generate a service locator in the `data` directory and update it if constructors are changed
+ZendDiCompiler will automatically generate a service locator in the `data/ZendDiCompiler` directory and update it if constructors are changed
 during development. Services can be created/retrieved using `ZendDiCompiler::get()`. If you need a new dependency in one of your
 classes, you can just put it in the constructor and ZendDiCompiler will inject it for you.
 
@@ -728,6 +728,30 @@ class GeneratedServiceLocator extends ServiceLocator
     }
 }
 ```
+
+## Code scan log
+
+ZendDiCompiler logs problems found during code scanning in `data/ZendDiCompiler/code-scan.log`. If you can't retrieve an object from ZendDiCompiler, you will probably find the reason in this log. The most common problem is that you have untyped scalar parameters instead of a [parameter array](#passing-all-runtime-parameters-in-a-single-array) in your constructors without providing values in your [Zend\Di configuration](http://framework.zend.com/manual/current/en/modules/zend.di.configuration.html). Here's an example of the code scan log showing some problems:
+```
+INFO (6): Start generating service locator by code scanning.
+DEBUG (7): Survey\Cache\Zf1CacheAdapter: Class Zend\Cache\Storage\StorageInterface could not be located in provided definitions.
+DEBUG (7): Survey\DataAggregator\Aggregate: Missing instance/object for parameter data for Survey\DataAggregator\Aggregate::__construct
+DEBUG (7): Survey\Db\Table\Rowset: Missing instance/object for parameter config for Survey\Db\Table\Rowset::__construct
+DEBUG (7): Survey\DbValidate\ValidationResult: Missing instance/object for parameter errorCount for Survey\DbValidate\ValidationResult::__construct
+DEBUG (7): Survey\Form\MessageContainer: Missing instance/object for parameter intro for Survey\Form\MessageContainer::__construct
+DEBUG (7): Survey\Input\ValidationResult: Missing instance/object for parameter level for Survey\Input\ValidationResult::__construct
+DEBUG (7): Survey\Mail\Mailer\MailerResult: Missing instance/object for parameter success for Survey\Mail\Mailer\MailerResult::__construct
+DEBUG (7): Survey\Paginator\Adapter\DbSelect: Class Zend_Db_Select could not be located in provided definitions.
+DEBUG (7): Survey\Pdf\Prince: Missing instance/object for parameter exePath for Survey\Pdf\Prince::__construct
+DEBUG (7): Survey\SkipLogic\ConditionResult: Missing instance/object for parameter isTrue for Survey\SkipLogic\ConditionResult::__construct
+DEBUG (7): Survey\System\SystemInfo: Missing instance/object for parameter lastEventFlowUpdate for Survey\System\SystemInfo::__construct
+DEBUG (7): Survey\TokenLinker\ActionResult: Missing instance/object for parameter action for Survey\TokenLinker\ActionResult::__construct
+DEBUG (7): Survey\UserSurveyManager\UpdateStatusesResult: Missing instance/object for parameter updatesCount for Survey\UserSurveyManager\UpdateStatusesResult::__construct
+INFO (6): Code scanning finished.
+INFO (6): Writing generated service locator to ./data/ZendDiCompiler/GeneratedServiceLocator.php.
+INFO (6): Finished writing generated service locator to ./data/ZendDiCompiler/GeneratedServiceLocator.php.
+```
+In case of simple [value objects](http://martinfowler.com/bliki/ValueObject.html) without any service dependencies, I do not use dependency injection but create then with `new`, e.g. `ConditionResult::__construct($isTrue, $isCacheable, $allowFlip = true)`. These objects are not meant to be created with the [DiFactory](#using-the-difactory-to-create-runtime-objects-with-dependencies) and therefore, the `DEBUG` notice can be ignored.
 
 ## Component dependency info
 
