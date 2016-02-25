@@ -39,9 +39,9 @@ class ZendDiCompiler
     /**
      * Global instance
      *
-     * @var ZendDiCompiler
+     * @var ZendDiCompiler|null
      */
-    protected static $zendDiCompiler = null;
+    protected static $zendDiCompiler;
 
     /**
      * @var Config
@@ -54,7 +54,7 @@ class ZendDiCompiler
     protected $logger;
 
     /**
-     * @var object[]
+     * @var array[]
      */
     protected $sharedInstances = array();
 
@@ -74,14 +74,14 @@ class ZendDiCompiler
     protected $hasBeenReset = false;
 
     /**
-     * @var GeneratedServiceLocator|TempServiceLocator
+     * @var GeneratedServiceLocator|TempServiceLocator|null
      */
-    protected $generatedServiceLocator = null;
+    protected $generatedServiceLocator;
 
     /**
-     * @var IntrospectionStrategy
+     * @var IntrospectionStrategy|null
      */
-    protected $introspectionStrategy = null;
+    protected $introspectionStrategy;
 
     /**
      * @return ZendDiCompiler
@@ -135,7 +135,7 @@ class ZendDiCompiler
      * @param bool   $newInstance If true, create a new instance every time (use as factory)
      *
      * @throws \Exception
-     * @return null|object
+     * @return null|mixed
      */
     public function get($name, array $params = array(), $newInstance = false)
     {
@@ -548,9 +548,7 @@ class ZendDiCompiler
     {
         if (!$this->isInitialized) {
             throw new RuntimeException(
-                sprintf(
-                    "ZendDiCompiler must be initialized before instances can be retrieved. If you don't use Zend\\Mvc, override 'useZendMvc' in the zendDiCompiler config.", get_class($this)
-                )
+                "ZendDiCompiler must be initialized before instances can be retrieved. If you don't use Zend\\Mvc, override 'useZendMvc' in the zendDiCompiler config."
             );
         }
     }
@@ -576,7 +574,6 @@ class ZendDiCompiler
         if ($errno == E_RECOVERABLE_ERROR) {
             throw new RecoverException($errstr, 0, $errno, $errfile, $errline);
         }
-        return;
     }
 
     /**

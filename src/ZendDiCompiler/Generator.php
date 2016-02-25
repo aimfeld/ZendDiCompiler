@@ -309,7 +309,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             foreach ($methodParams as $key => $param) {
                 if (null === $param || is_scalar($param) || is_array($param)) {
                     $string = var_export($param, 1);
-                    if (strstr($string, '::__set_state(')) {
+                    if (false !== strpos($string, '::__set_state(')) {
                         $message = sprintf('%s: Arguments in definitions may not contain objects', $classOrAlias);
                         $this->logger->err($message);
                         throw new Exception\RuntimeException($message);
@@ -354,7 +354,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
         if ('__construct' != $constructor) {
             // Constructor callback
             $callback = var_export($constructor, 1);
-            if (strstr($callback, '::__set_state(')) {
+            if (false !== strpos($callback, '::__set_state(')) {
                 throw new RuntimeException('Unable to build containers that use callbacks requiring object instances');
             }
             if (count($params)) {
@@ -390,7 +390,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                 $params[$key] = "\$params";
             } elseif (null === $param || is_scalar($param) || is_array($param)) {
                 $string = var_export($param, 1);
-                if (strstr($string, '::__set_state(')) {
+                if (false !== strpos($string, '::__set_state(')) {
                     $message = sprintf('%s: Arguments in definitions may not contain objects (parameter type "%s")', $classOrAlias, $string);
                     $this->logger->err($message);
                     throw new Exception\RuntimeException($message);
@@ -448,7 +448,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
                     return sprintf("\$this->get('%s')", $parentClass);
                 }
                 $reflection = $parent;
-            };
+            }
         }
 
         return null;
