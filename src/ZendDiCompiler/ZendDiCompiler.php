@@ -23,7 +23,6 @@ use Zend\Di\Config as DiConfig;
 use Zend\Log\Logger;
 use Zend\Log\Writer\Stream as StreamWriter;
 use Zend\Mvc\MvcEvent;
-use Zend\EventManager\GlobalEventManager;
 use DateTime;
 use ZendDiCompiler\Exception\RuntimeException;
 use ZendDiCompiler\Exception\RecoverException;
@@ -259,7 +258,7 @@ class ZendDiCompiler
             'Zend\View\Renderer\PhpRenderer'              => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
             'Zend\Mvc\ApplicationInterface'               => $application,
             'Zend\ServiceManager\ServiceLocatorInterface' => $serviceManager,
-            'Zend\EventManager\EventManagerInterface'     => GlobalEventManager::getEventCollection(),
+            'Zend\EventManager\EventManagerInterface'     => $application->getEventManager(),
             'Zend\Mvc\Router\RouteStackInterface'         => $mvcEvent->getRouter(),
         );
 
