@@ -61,6 +61,8 @@ In your project's `composer.json` use:
 }
 ```
 
+For PHP 7, install version 2.x, for PHP 5.4-5.6, use version 1.x.
+
 Make sure you have a _writable_ `data` folder in your application root directory, see
 [ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication). Put a `.gitignore` file in it with
 the following content:
