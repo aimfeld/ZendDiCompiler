@@ -72,7 +72,7 @@ the following content:
 !.gitignore
 ```
 
-Add `'ZendDiCompiler'` to the modules array in your `application.config.php`. ZendDiCompiler must be the loaded _after_ the
+Add `'ZendDiCompiler'` to the modules array in your `application.config.php`. ZendDiCompiler must be loaded _after_ the
 modules where it is used:
 
 ```php
