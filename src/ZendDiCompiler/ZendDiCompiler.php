@@ -11,6 +11,7 @@
 
 namespace ZendDiCompiler;
 
+use TypeError;
 use Zend\Di\Di;
 use Zend\Di\Definition\ArrayDefinition;
 use Zend\Di\Definition\CompilerDefinition;
@@ -134,8 +135,8 @@ class ZendDiCompiler
      * @param array  $params      A parameter array passed to the class constructor, if it has a array $params argument
      * @param bool   $newInstance If true, create a new instance every time (use as factory)
      *
-     * @throws \Exception
-     * @return null|mixed
+     * @return mixed|null
+     * @throws \Throwable
      */
     public function get($name, array $params = array(), $newInstance = false)
     {
@@ -160,19 +161,20 @@ class ZendDiCompiler
                 $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
             restore_error_handler();
-        } catch (RecoverException $e) {
+        } catch (\Throwable $e) {
             restore_error_handler();
 
-            // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
-            if (!$this->hasBeenReset) {
-                $this->generatedServiceLocator = $this->reset(true);
-                /** @noinspection PhpUndefinedMethodInspection */
-                $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+            // Throwable and TypeError are PHP >= 7.0
+            if ($e instanceof RecoverException || $e instanceof TypeError) {
+                // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
+                if (!$this->hasBeenReset) {
+                    $this->generatedServiceLocator = $this->reset(true);
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
+                }
+            } else {
+                throw $e;
             }
-
-        } catch (\Exception $e) {
-            restore_error_handler();
-            throw $e;
         }
 
         if (!$instance) {
