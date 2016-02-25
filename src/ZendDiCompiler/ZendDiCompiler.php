@@ -26,7 +26,6 @@ use Zend\Log\Writer\Stream as StreamWriter;
 use Zend\Mvc\MvcEvent;
 use DateTime;
 use ZendDiCompiler\Exception\RuntimeException;
-use ZendDiCompiler\Exception\RecoverException;
 
 /**
  * ZendDiCompiler
@@ -136,7 +135,6 @@ class ZendDiCompiler
      * @param bool   $newInstance If true, create a new instance every time (use as factory)
      *
      * @return mixed|null
-     * @throws \Throwable
      */
     public function get($name, array $params = array(), $newInstance = false)
     {
@@ -147,9 +145,6 @@ class ZendDiCompiler
         $instance = null;
 
         try {
-            // Convert PHP errors to exception to catch errors due to changed constructors, etc.
-            set_error_handler(array($this, 'exceptionErrorHandler'));
-
             // Outdated definition may cause exceptions (e.g. constructor changes) or a null instance (e.g. new class added).
             /** @noinspection PhpUndefinedMethodInspection */
             $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
@@ -160,20 +155,12 @@ class ZendDiCompiler
                 /** @noinspection PhpUndefinedMethodInspection */
                 $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
-            restore_error_handler();
-        } catch (\Throwable $e) {
-            restore_error_handler();
-
-            // Throwable and TypeError are PHP >= 7.0
-            if ($e instanceof RecoverException || $e instanceof TypeError) {
-                // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
-                if (!$this->hasBeenReset) {
-                    $this->generatedServiceLocator = $this->reset(true);
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
-                }
-            } else {
-                throw $e;
+        } catch (TypeError $e) {
+            // Oops, maybe the class constructor has changed during development? Try with rescanned DI definitions.
+            if (!$this->hasBeenReset) {
+                $this->generatedServiceLocator = $this->reset(true);
+                /** @noinspection PhpUndefinedMethodInspection */
+                $instance = $this->generatedServiceLocator->get($name, $params, $newInstance);
             }
         }
 
@@ -552,29 +539,6 @@ class ZendDiCompiler
             throw new RuntimeException(
                 "ZendDiCompiler must be initialized before instances can be retrieved. If you don't use Zend\\Mvc, override 'useZendMvc' in the zendDiCompiler config."
             );
-        }
-    }
-
-    /**
-     * Convert PHP errors to exceptions.
-     *
-     * Instantiating classes with wrong constructor arguments results in an
-     * E_RECOVERABLE_ERROR which is converted in a RecoverException.
-     *
-     * @see http://php.net/manual/en/class.errorexception.php
-     *
-     * @param $errno
-     * @param $errstr
-     * @param $errfile
-     * @param $errline
-     *
-     * @return bool
-     * @throws RecoverException
-     */
-    public function exceptionErrorHandler($errno, $errstr, $errfile, $errline)
-    {
-        if ($errno == E_RECOVERABLE_ERROR) {
-            throw new RecoverException($errstr, 0, $errno, $errfile, $errline);
         }
     }
 
