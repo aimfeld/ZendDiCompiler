@@ -175,7 +175,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
 
                 if ($instanceManager->hasSharedInstance($classOrAlias)) {
                     $generatorInstance = $this->injector->get($classOrAlias);
-                } elseif (!$class->isAbstract() && !$class->isInterface()) {
+                } elseif ($class->isInstantiable()) {
                     // Support for passing a $params array for instance creation
                     $generatorInstance = $this->injector->newInstance($classOrAlias, $newInstanceParams);
                 }
