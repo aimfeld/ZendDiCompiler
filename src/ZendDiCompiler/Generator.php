@@ -12,8 +12,10 @@
 namespace ZendDiCompiler;
 
 use Zend\Code\Generator\DocBlockGenerator;
+use Zend\Code\Generator\ValueGenerator;
 use Zend\Di\Di;
 use Zend\Di\InstanceManager;
+use Zend\Di\ServiceLocator;
 use Zend\Di\ServiceLocator\GeneratorInstance;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
@@ -48,14 +50,20 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
     protected $logger;
 
     /**
+     * @var ValueGenerator
+     */
+    protected $emptyArrayGenerator;
+
+    /**
      * @param Di     $injector
      * @param Config $config
      * @param Logger $logger
      */
     public function __construct(Di $injector, Config $config, Logger $logger)
     {
-        $this->config = $config;
-        $this->logger = $logger;
+        $this->config              = $config;
+        $this->logger              = $logger;
+        $this->emptyArrayGenerator = new ValueGenerator([], ValueGenerator::TYPE_ARRAY_SHORT);
 
         parent::__construct($injector);
     }
@@ -99,7 +107,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
 
         // Create PHP file code generation object
         $classFile = new FileGenerator();
-        $classFile->setUse('Zend\Di\ServiceLocator')->setClass($container);
+        $classFile->setUse(ServiceLocator::class)->setClass($container);
 
         if (null !== $this->namespace) {
             $classFile->setNamespace($this->namespace);
@@ -131,7 +139,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
 
         // Build get() method
         $nameParam        = new ParameterGenerator('name');
-        $paramsParam      = new ParameterGenerator('params', 'array', []);
+        $paramsParam      = new ParameterGenerator('params', 'array', $this->emptyArrayGenerator);
         $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
 
         $get = new MethodGenerator();
@@ -231,7 +239,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             $getterDef = new MethodGenerator();
             $getterDef->setName($this->normalizeAlias($classOrAlias));
 
-            $paramParam       = new ParameterGenerator('params', 'array', []);
+            $paramParam       = new ParameterGenerator('params', 'array', $this->emptyArrayGenerator);
             $newInstanceParam = new ParameterGenerator('newInstance', 'bool', false);
             $getterDef->setParameters([$paramParam, $newInstanceParam]);
             $getterDef->setBody($getterBody);
