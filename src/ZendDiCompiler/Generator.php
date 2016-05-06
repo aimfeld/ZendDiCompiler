@@ -216,14 +216,14 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             // Generate caching statement
             $storage = '';
             $storage .= "if (!\$newInstance) {\n";
-            $storage .= sprintf("%s\$this->services['%s'] = \$object;\n}\n\n", self::INDENT, $classOrAlias);
+            $storage .= sprintf("%s\$this->services[\\%s::class] = \$object;\n}\n\n", self::INDENT, $classOrAlias);
 
             // Start creating getter
             $getterBody = '';
 
             // Create fetch of stored service
-            $getterBody .= sprintf("if (!\$newInstance && isset(\$this->services['%s'])) {\n", $classOrAlias);
-            $getterBody .= sprintf("%sreturn \$this->services['%s'];\n}\n\n", self::INDENT, $classOrAlias);
+            $getterBody .= sprintf("if (!\$newInstance && isset(\$this->services[\\%s::class])) {\n", $classOrAlias);
+            $getterBody .= sprintf("%sreturn \$this->services[\\%s::class];\n}\n\n", self::INDENT, $classOrAlias);
 
 
             // Creation and method calls
@@ -285,7 +285,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             $getter = $this->normalizeAlias($classOrAlias);
             $statement = '';
             foreach ($cases as $value) {
-                $statement .= sprintf("%scase '%s':\n", self::INDENT, $value);
+                $statement .= sprintf("%scase \\%s::class:\n", self::INDENT, $value);
             }
             $statement .= sprintf("%sreturn \$this->%s(\$params, \$newInstance);\n", str_repeat(self::INDENT, 2), $getter);
 
@@ -438,14 +438,14 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
     protected function getGetterMethodFromClass(InstanceManager $im, $className)
     {
         if ($im->hasSharedInstance($className)) {
-            return sprintf("\$this->get('%s')", $className);
+            return sprintf("\$this->get(\\%s::class)", $className);
         } else {
             $reflection = new ReflectionClass($className);
 
             // See if there are shared instances for interfaces implemented by the class and its parents
             foreach ($reflection->getInterfaceNames() as $interfaceName) {
                 if ($im->hasSharedInstance($interfaceName)) {
-                    return sprintf("\$this->get('%s')", $interfaceName);
+                    return sprintf("\$this->get(\\%s::class)", $interfaceName);
                 }
             }
 
@@ -453,7 +453,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
             while ($parent = $reflection->getParentClass()) {
                 $parentClass = $parent->getName();
                 if ($im->hasSharedInstance($parentClass)) {
-                    return sprintf("\$this->get('%s')", $parentClass);
+                    return sprintf("\$this->get(\\%s::class)", $parentClass);
                 }
                 $reflection = $parent;
             }
