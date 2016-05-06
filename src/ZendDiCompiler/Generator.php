@@ -274,6 +274,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
     {
         $caseStatements = [];
 
+        /** @noinspection ForeachOnArrayComponentsInspection */
         foreach (array_keys($generatorInstances) as $classOrAlias) {
             // Get cases for case statements
             $cases = [$classOrAlias];
