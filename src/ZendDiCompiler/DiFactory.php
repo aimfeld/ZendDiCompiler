@@ -42,10 +42,11 @@ class DiFactory
     /**
      * @param string $className
      * @param array $params
+     *
      * @throws RuntimeException
-     * @return object
+     * @return mixed
      */
-    public function create($className, array $params = array())
+    public function create($className, array $params = [])
     {
         $instance = $this->zendDiCompiler->get($className, $params, true);
 

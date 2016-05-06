@@ -34,7 +34,7 @@ class ServiceD
      */
     public function serviceMethod()
     {
-        $runtimeA1 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', array('hello', 'world'));
-        $runtimeA2 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', array('goodbye', 'world'));
+        $runtimeA1 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', ['hello', 'world']);
+        $runtimeA2 = $this->diFactory->create('ZendDiCompiler\Example\RuntimeA', ['goodbye', 'world']);
     }
 }

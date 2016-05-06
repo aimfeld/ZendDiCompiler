@@ -31,14 +31,14 @@ class Module
      */
     public function getControllerConfig()
     {
-        return array(
-            'factories' => array(
+        return [
+            'factories' => [
                 // Suppose one of our routes specifies a controller named 'ExampleController'
                 'ExampleController' => function() {
                     return $this->zendDiCompiler->get('ZendDiCompiler\Example\ExampleController');
                 },
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -56,8 +56,10 @@ class Module
         $serviceC->init($mvcEvent);
 
         // Provide shared instance
-        $this->zendDiCompiler->addSharedInstances(array(
+        $this->zendDiCompiler->addSharedInstances(
+            [
             'ZendDiCompiler\Example\ServiceC' => $serviceC,
-        ));
+            ]
+        );
     }
 }

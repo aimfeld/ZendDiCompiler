@@ -37,9 +37,13 @@ class Module
      */
     public function getAutoloaderConfig()
     {
-        return array('Zend\Loader\StandardAutoloader' => array('namespaces' => array(
+        return [
+            'Zend\Loader\StandardAutoloader' => [
+                'namespaces' => [
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-        )));
+                ]
+            ]
+        ];
     }
 
     /**
@@ -58,12 +62,12 @@ class Module
         // Instance must be created here already but is set up later.
         $this->zendDiCompiler = new ZendDiCompiler;
 
-        return array(
+        return [
             // Provide ZendDiCompiler as a Zend\ServiceManager service.
-            'services' => array(
+            'services' => [
                 'ZendDiCompiler' => $this->zendDiCompiler,
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -73,7 +77,7 @@ class Module
     {
         // Remember to keep the init() method as lightweight as possible
         $events = $moduleManager->getEventManager();
-        $events->attach('loadModules.post', array($this, 'modulesLoaded'));
+        $events->attach('loadModules.post', [$this, 'modulesLoaded']);
     }
 
     /**
@@ -91,9 +95,9 @@ class Module
 
         // If Zend\Mvc is not used, the onBootstrap event won't be called and no mvc-related
         // shared instances will be added.
-        if (!$this->config->zendDiCompiler->useZendMvc) {
+        if (!$this->config->get('zendDiCompiler')->useZendMvc) {
             $this->zendDiCompiler->init();
-        };
+        }
     }
 
     /**
@@ -107,6 +111,6 @@ class Module
 
         if ($this->config->zendDiCompiler->useZendMvc) {
             $this->zendDiCompiler->init();
-        };
+        }
     }
 }

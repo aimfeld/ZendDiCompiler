@@ -56,12 +56,12 @@ class ZendDiCompiler
     /**
      * @var array[]
      */
-    protected $sharedInstances = array();
+    protected $sharedInstances = [];
 
     /**
      * @var string[]
      */
-    protected $typePreferences = array();
+    protected $typePreferences = [];
 
     /**
      * @var bool
@@ -136,7 +136,7 @@ class ZendDiCompiler
      *
      * @return mixed|null
      */
-    public function get($name, array $params = array(), $newInstance = false)
+    public function get($name, array $params = [], $newInstance = false)
     {
         $this->checkInit();
 
@@ -242,14 +242,14 @@ class ZendDiCompiler
         $application    = $mvcEvent->getApplication();
         $serviceManager = $application->getServiceManager();
 
-        $mvcSharedInstances = array(
+        $mvcSharedInstances = [
             'Zend\Mvc\MvcEvent'                           => $mvcEvent,
             'Zend\View\Renderer\PhpRenderer'              => $serviceManager->get('Zend\View\Renderer\PhpRenderer'),
             'Zend\Mvc\ApplicationInterface'               => $application,
             'Zend\ServiceManager\ServiceLocatorInterface' => $serviceManager,
             'Zend\EventManager\EventManagerInterface'     => $application->getEventManager(),
             'Zend\Mvc\Router\RouteStackInterface'         => $mvcEvent->getRouter(),
-        );
+        ];
 
         $this->addSharedInstances($mvcSharedInstances);
     }
@@ -260,11 +260,11 @@ class ZendDiCompiler
     protected function addDefaultSharedInstances()
     {
         // Provide merged config as shared instance
-        $defaultSharedInstances = array(
+        $defaultSharedInstances = [
             'Zend\Config\Config'       => $this->config, // The merged global configuration
             'ZendDiCompiler\DiFactory' => new DiFactory($this), // Provide DiFactory
             get_class($this)           => $this, // Provide ZendDiCompiler itself
-        );
+        ];
         $this->addSharedInstances($defaultSharedInstances);
     }
 
@@ -291,7 +291,7 @@ class ZendDiCompiler
         $definitionArray = $compilerDefinition->toArrayDefinition()->toArray();
 
         // Set up the DIC with compiled definitions.
-        $definitionList     = new DefinitionList(array());
+        $definitionList     = new DefinitionList([]);
         $compiledDefinition = new ArrayDefinition($definitionArray);
         $definitionList->addDefinition($compiledDefinition);
 
@@ -309,10 +309,10 @@ class ZendDiCompiler
             $this->introspectionStrategy = new IntrospectionStrategy();
 
             // Interface injection is not supported
-            $this->introspectionStrategy->setInterfaceInjectionInclusionPatterns(array());
+            $this->introspectionStrategy->setInterfaceInjectionInclusionPatterns([]);
 
             // Setter injection is not supported
-            $this->introspectionStrategy->setMethodNameInclusionPatterns(array());
+            $this->introspectionStrategy->setMethodNameInclusionPatterns([]);
         }
 
         return $this->introspectionStrategy;
@@ -420,7 +420,7 @@ class ZendDiCompiler
         $file->write();
         $this->logger->info(sprintf('Finished writing generated service locator to %s.', $fileName));
 
-        return array($fileName, __NAMESPACE__ . '\\' . $className);
+        return [$fileName, __NAMESPACE__ . '\\' . $className];
     }
 
     /**
@@ -439,8 +439,9 @@ class ZendDiCompiler
             $classes = $definitions->getClasses();
 
             // Group classes into components
-            $components = array();
+            $components = [];
             foreach ($classes as $className) {
+                /** @var string $componentName */
                 $componentName = $this->getComponentName($className);
                 if ($componentName === false) {
                     continue;
@@ -448,7 +449,7 @@ class ZendDiCompiler
                 $constructorParams = $definitions->getMethodParameters($className, '__construct');
                 foreach ($constructorParams as $constructorParam) {
                     // Key 1 contains the full class name for typed parameters.
-                    $paramClassName = isset($constructorParam[1]) ? $constructorParam[1] : null;
+                    $paramClassName = $constructorParam[1] ?? null;
                     if (isset($paramClassName) && // array params excluded
                         (!array_key_exists($componentName, $components) ||
                             !in_array($paramClassName, $components[$componentName]))

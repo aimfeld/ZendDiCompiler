@@ -26,7 +26,8 @@ class RuntimeA
      * @param array $zdcParams
      */
     public function __construct(Config $config, ServiceA $serviceA,
-                                array $zdcParams = array())
+        array $zdcParams = []
+    )
     {
         $this->config = $config;
         $this->serviceA = $serviceA;
