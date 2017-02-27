@@ -248,7 +248,7 @@ class ZendDiCompiler
             'Zend\Mvc\ApplicationInterface'               => $application,
             'Zend\ServiceManager\ServiceLocatorInterface' => $serviceManager,
             'Zend\EventManager\EventManagerInterface'     => $application->getEventManager(),
-            'Zend\Mvc\Router\RouteStackInterface'         => $mvcEvent->getRouter(),
+            'Zend\Router\RouteStackInterface'             => $mvcEvent->getRouter(),
         ];
 
         $this->addSharedInstances($mvcSharedInstances);

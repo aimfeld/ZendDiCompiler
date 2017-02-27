@@ -8,15 +8,15 @@
     "authors": [
         {
             "name": "Adrian Imfeld",
-            "email": "adrian.imfeld@cloud-solutions.net",
-            "homepage": "http://www.cloud-solutions.net"
+            "email": "adrian.imfeld@brightanswer.ch",
+            "homepage": "https://brightanswer.ch"
         }
     ],
     "require": {
         "php": ">=7.0",
-        "zendframework/zend-config": "2.*",
-        "zendframework/zend-di": "2.*",
-        "zendframework/zend-servicemanager": "2.*"
+        "zendframework/zend-config": ">=2.6",
+        "zendframework/zend-di": ">=2.6",
+        "zendframework/zend-servicemanager": "^3.0"
     },
     "replace": {
         "aimfeld/di-wrapper": "*"
