@@ -32,7 +32,7 @@ class ExampleDiFactory extends DiFactory
      */
     public function createRuntimeB($runtimeParam1, $runtimeParam2)
     {
-        $config = $this->zendDiCompiler->get('Zend\Config\Config');
+        $config = $this->zendDiCompiler->get('Laminas\Config\Config');
         $serviceA = $this->zendDiCompiler->get('ZendDiCompiler\Example\ServiceA');
         return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
     }

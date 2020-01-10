@@ -4,7 +4,7 @@
     "keywords": ["dependency injection", "dependency injection container", "DIC", "zend framework", "service manager", "zf2"],
     "homepage": "https://github.com/aimfeld/ZendDiCompiler",
     "type": "library",
-    "license": "New BSD License",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Adrian Imfeld",
@@ -14,9 +14,9 @@
     ],
     "require": {
         "php": ">=7.0",
-        "zendframework/zend-config": ">=2.6",
-        "zendframework/zend-di": ">=2.6",
-        "zendframework/zend-servicemanager": "^3.0"
+        "laminas/laminas-config": ">=2.6",
+        "laminas/laminas-di": ">=2.6",
+        "laminas/laminas-servicemanager": "^3.0"
     },
     "replace": {
         "aimfeld/di-wrapper": "*"

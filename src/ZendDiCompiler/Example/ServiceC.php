@@ -12,7 +12,7 @@
 
 namespace ZendDiCompiler\Example;
 
-use Zend\Mvc\MvcEvent;
+use Laminas\Mvc\MvcEvent;
 
 /**
  * @package    ZendDiCompiler
