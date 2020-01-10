@@ -4,7 +4,7 @@
     "keywords": ["dependency injection", "dependency injection container", "DIC", "zend framework", "service manager", "zf2"],
     "homepage": "https://github.com/aimfeld/ZendDiCompiler",
     "type": "library",
-    "license": "New BSD License",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Adrian Imfeld",
