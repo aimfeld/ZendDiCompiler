@@ -11,19 +11,19 @@
 
 namespace ZendDiCompiler;
 
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\ValueGenerator;
-use Zend\Di\Di;
-use Zend\Di\InstanceManager;
-use Zend\Di\ServiceLocator;
-use Zend\Di\ServiceLocator\GeneratorInstance;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\FileGenerator;
-use Zend\Code\Generator\PropertyGenerator;
-use Zend\Config\Config;
-use Zend\Log\Logger;
+use Laminas\Code\Generator\DocBlockGenerator;
+use Laminas\Code\Generator\ValueGenerator;
+use Laminas\Di\Di;
+use Laminas\Di\InstanceManager;
+use Laminas\Di\ServiceLocator;
+use Laminas\Di\ServiceLocator\GeneratorInstance;
+use Laminas\Code\Generator\MethodGenerator;
+use Laminas\Code\Generator\ParameterGenerator;
+use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\FileGenerator;
+use Laminas\Code\Generator\PropertyGenerator;
+use Laminas\Config\Config;
+use Laminas\Log\Logger;
 use ZendDiCompiler\Exception\RuntimeException;
 use DateTime;
 use ReflectionClass;
@@ -31,7 +31,7 @@ use ReflectionClass;
 /**
  * @package    ZendDiCompiler
  */
-class Generator extends \Zend\Di\ServiceLocator\Generator
+class Generator extends \Laminas\Di\ServiceLocator\Generator
 {
     /**
      * Support for passing a $params array for instance creation
@@ -71,7 +71,7 @@ class Generator extends \Zend\Di\ServiceLocator\Generator
     /**
      * Construct, configure, and return a PHP class file code generation object
      *
-     * Creates a Zend\Code\Generator\FileGenerator object that has
+     * Creates a Laminas\Code\Generator\FileGenerator object that has
      * created the specified class and service locator methods.
      *
      * @param  null|string                         $filename

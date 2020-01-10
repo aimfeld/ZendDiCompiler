@@ -12,9 +12,9 @@
 
 namespace ZendDiCompiler\Example;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\Mvc\Controller\AbstractActionController;
 use ZendDiCompiler\ZendDiCompiler;
-use Zend\Config\Config;
+use Laminas\Config\Config;
 
 /**
  * @package    ZendDiCompiler

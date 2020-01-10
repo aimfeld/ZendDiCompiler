@@ -4,7 +4,7 @@
  * Override the DI configuration in your project config.
  *
  * For info on the structure of the 'instance' and the 'preference' array,
- * see Zend\Di documentation.
+ * see Laminas\Di documentation.
  */
 return [
     // ZendDiCompiler configuration

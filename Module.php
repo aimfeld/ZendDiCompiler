@@ -11,11 +11,11 @@
 
 namespace ZendDiCompiler;
 
-use Zend\Mvc\MvcEvent;
-use Zend\Config\Config;
-use Zend\EventManager\EventInterface as Event;
-use Zend\ModuleManager\ModuleManager;
-use Zend\ServiceManager\ServiceManager;
+use Laminas\Mvc\MvcEvent;
+use Laminas\Config\Config;
+use Laminas\EventManager\EventInterface as Event;
+use Laminas\ModuleManager\ModuleManager;
+use Laminas\ServiceManager\ServiceManager;
 
 /**
  * @package    ZendDiCompiler
@@ -38,7 +38,7 @@ class Module
     public function getAutoloaderConfig()
     {
         return [
-            'Zend\Loader\StandardAutoloader' => [
+            'Laminas\Loader\StandardAutoloader' => [
                 'namespaces' => [
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ]
@@ -63,7 +63,7 @@ class Module
         $this->zendDiCompiler = new ZendDiCompiler;
 
         return [
-            // Provide ZendDiCompiler as a Zend\ServiceManager service.
+            // Provide ZendDiCompiler as a Laminas\ServiceManager service.
             'services' => [
                 'ZendDiCompiler' => $this->zendDiCompiler,
             ]
@@ -93,7 +93,7 @@ class Module
         $this->config = new Config($serviceManager->get('config'));
         $this->zendDiCompiler->setConfig($this->config);
 
-        // If Zend\Mvc is not used, the onBootstrap event won't be called and no mvc-related
+        // If Laminas\Mvc is not used, the onBootstrap event won't be called and no mvc-related
         // shared instances will be added.
         if (!$this->config->get('zendDiCompiler')->useZendMvc) {
             $this->zendDiCompiler->init();
@@ -101,7 +101,7 @@ class Module
     }
 
     /**
-     * If Zend\Mvc is used, this function will be called and mvc-related shared instances will be provided
+     * If Laminas\Mvc is used, this function will be called and mvc-related shared instances will be provided
      *
      * @param MvcEvent $mvcEvent
      */

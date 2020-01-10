@@ -12,7 +12,7 @@
 
 namespace ZendDiCompiler\Example;
 
-use Zend\Config\Config;
+use Laminas\Config\Config;
 
 /**
  * @package    ZendDiCompiler

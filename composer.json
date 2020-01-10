@@ -14,9 +14,9 @@
     ],
     "require": {
         "php": ">=7.0",
-        "zendframework/zend-config": ">=2.6",
-        "zendframework/zend-di": ">=2.6",
-        "zendframework/zend-servicemanager": "^3.0"
+        "laminas/laminas-config": ">=2.6",
+        "laminas/laminas-di": ">=2.6",
+        "laminas/laminas-servicemanager": "^3.0"
     },
     "replace": {
         "aimfeld/di-wrapper": "*"

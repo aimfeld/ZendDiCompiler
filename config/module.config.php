@@ -4,12 +4,12 @@
  * Override the DI configuration in your project config.
  *
  * For an example config, see example.config.php. For info on the structure of
- * the 'instance' and the 'preference' array, see Zend\Di documentation.
+ * the 'instance' and the 'preference' array, see Laminas\Di documentation.
  */
 return [
     // ZendDiCompiler configuration
     'zendDiCompiler' => [
-        // Set to false, if your application does not use Zend\Mvc and the onBootstrap event is therefore not called.
+        // Set to false, if your application does not use Laminas\Mvc and the onBootstrap event is therefore not called.
         'useZendMvc'                  => true,
 
         // Directories that will be code-scanned

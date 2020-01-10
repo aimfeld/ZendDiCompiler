@@ -21,14 +21,14 @@
 
 # Introduction
 
-Are you tired of writing tons of factory code (closures) for the Zend\ServiceManager in your Zend Framework 2 application?
+Are you tired of writing tons of factory code (closures) for the Laminas\ServiceManager in your Zend Framework 2 application?
 Are outdated factory methods causing bugs? This can all be avoided by using ZendDiCompiler!
 
 **ZendDiCompiler** is a Zend Framework 2 module that uses auto-generated factory code for dependency-injection.
 It saves you a lot of work, since there's **no need anymore for writing
-Zend\ServiceManager factory closures** and keeping them up-to-date manually.
+Laminas\ServiceManager factory closures** and keeping them up-to-date manually.
 
-ZendDiCompiler scans your code using **Zend\Di** and creates factory methods automatically. If the factory methods are outdated, ZendDiCompiler
+ZendDiCompiler scans your code using **Laminas\Di** and creates factory methods automatically. If the factory methods are outdated, ZendDiCompiler
 updates them in the background. Therefore, you **develop faster**, **avoid bugs** due to outdated factory methods, and
 experience **great performance** in production!
 
@@ -37,16 +37,16 @@ experience **great performance** in production!
 - **Code scanning** for creating DI definitions and **automatic factory code generation**.
 - Can deal with **shared instances** and **type preferences**.
 - Allows for **custom code introspection strategies** (by default, only constructors are scanned).
-- Can be used as a **complement to Zend\ServiceManager**.
+- Can be used as a **complement to Laminas\ServiceManager**.
 - Detection of outdated generated factory code and **automatic rescanning** (great for development).
 - Can create new instances or reuse instances created before.
 - Can be used as a **factory for runtime objects** combining DI and passing of runtime parameters.
-- **Greater perfomance** and less memory consumption, as compared to using Zend\Di\Di with cached definitions.
+- **Greater perfomance** and less memory consumption, as compared to using Laminas\Di\Di with cached definitions.
 
 # Caveats
 
 - [Setter injection and interface injection](http://framework.zend.com/manual/current/en/tutorials/quickstart.di.html) are not supported yet. Instances must be injected via constructor injection (which I recommend over the two other methods anyway).
-- Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler may be overkill and you should handle instantiation using Zend\ServiceManager callback methods.
+- Using ZendDiCompiler makes sense if you develop a large application or a framework. For smaller applications, ZendDiCompiler may be overkill and you should handle instantiation using Laminas\ServiceManager callback methods.
 
 # Installation
 
@@ -98,7 +98,7 @@ As soon as you inject the ZendDiCompiler itself into your controllers and other 
 The ZF2 MVC architecture is based on controller classes with action methods. Given this architecture, controller dependencies become
 numerous very quickly. In order to avoid bloated controller constructors, it makes sense to inject ZendDiCompiler as a
 single dependency into ZF2 controller classes and use it to pull the other dependencies from inside the controllers.
-This means using it as a _service locator_, just like `Zend\ServiceManager` is typically used.
+This means using it as a _service locator_, just like `Laminas\ServiceManager` is typically used.
 
 ZendDiCompiler is also used as a _service locator_ inside of the provided `ZendDiCompiler\DiFactory` which is very useful for
 [creating runtime objects with dependencies](#using-the-difactory-to-create-runtime-objects-with-dependencies). This
@@ -110,7 +110,7 @@ DiFactory or your extended version of it with [custom creation methods](#passing
 
 ## Configuration
 
-ZendDiCompiler uses standard [Zend\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
+ZendDiCompiler uses standard [Laminas\Di configuration](http://framework.zend.com/manual/2.1/en/modules/zend.di.configuration.html)
 (which is not well documented yet). To make things easier, see [example.config.php](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php) for
 examples of how to specify:
 
@@ -139,13 +139,13 @@ The following _default shared instances_ can be constructor-injected without exp
 
 - `ZendDiCompiler\ZendDiCompiler`
 - `ZendDiCompiler\DiFactory`
-- `Zend\Mvc\MvcEvent`
-- `Zend\Config\Config`
-- `Zend\View\Renderer\PhpRenderer`
-- `Zend\Mvc\ApplicationInterface`
-- `Zend\ServiceManager\ServiceLocatorInterface`
-- `Zend\EventManager\EventManagerInterface`
-- `Zend\Mvc\Router\RouteStackInterface`
+- `Laminas\Mvc\MvcEvent`
+- `Laminas\Config\Config`
+- `Laminas\View\Renderer\PhpRenderer`
+- `Laminas\Mvc\ApplicationInterface`
+- `Laminas\ServiceManager\ServiceLocatorInterface`
+- `Laminas\EventManager\EventManagerInterface`
+- `Laminas\Mvc\Router\RouteStackInterface`
 
 
 ## Type preferences
@@ -214,9 +214,9 @@ In our example, we have the following classes:
 ExampleController
 
 ```php
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\Mvc\Controller\AbstractActionController;
 use ZendDiCompiler\ZendDiCompiler;
-use Zend\Config\Config;
+use Laminas\Config\Config;
 
 class ExampleController extends AbstractActionController
 {
@@ -346,7 +346,7 @@ class Module
 ## Using the DiFactory to create runtime objects with dependencies
 
 It is useful to distinguish two types of objects: _services_ and _runtime objects_. For _services_, all parameters should
-be specified in the configuration (e.g. a config array wrapped in a `Zend\Config\Config` object). If class constructors
+be specified in the configuration (e.g. a config array wrapped in a `Laminas\Config\Config` object). If class constructors
 e.g. in third party code require some custom parameters, they can be specified in the
 [instance configuration](https://github.com/aimfeld/ZendDiCompiler/blob/master/config/example.config.php)).
 
@@ -424,7 +424,7 @@ class ExampleDiFactory extends DiFactory
      */
     public function createRuntimeB($runtimeParam1, $runtimeParam2)
     {
-        $config = $this->zendDiCompiler->get('Zend\Config\Config');
+        $config = $this->zendDiCompiler->get('Laminas\Config\Config');
         $serviceA = $this->zendDiCompiler->get('ZendDiCompiler\Example\ServiceA');
         return new RuntimeB($config, $serviceA, $runtimeParam1, $runtimeParam2);
     }
@@ -463,7 +463,7 @@ Just for illustration, this is the generated service locator created by ZendDiCo
 ```php
 namespace ZendDiCompiler;
 
-use Zend\Di\ServiceLocator;
+use Laminas\Di\ServiceLocator;
 
 /**
  * Generated by ZendDiCompiler\Generator (2013-03-07 21:11:39)
@@ -532,7 +532,7 @@ class GeneratedServiceLocator extends ServiceLocator
             return $this->services['ZendDiCompiler\Example\ExampleController'];
         }
 
-        $object = new \ZendDiCompiler\Example\ExampleController($this->get('ZendDiCompiler\ZendDiCompiler'), $this->getZendDiCompilerExampleServiceA(), $this->getZendDiCompilerExampleServiceC(), $this->get('Zend\Config\Config'));
+        $object = new \ZendDiCompiler\Example\ExampleController($this->get('ZendDiCompiler\ZendDiCompiler'), $this->getZendDiCompilerExampleServiceA(), $this->getZendDiCompilerExampleServiceC(), $this->get('Laminas\Config\Config'));
         if (!$newInstance) {
             $this->services['ZendDiCompiler\Example\ExampleController'] = $object;
         }
@@ -608,7 +608,7 @@ class GeneratedServiceLocator extends ServiceLocator
             return $this->services['ZendDiCompiler\Example\RuntimeA'];
         }
 
-        $object = new \ZendDiCompiler\Example\RuntimeA($this->get('Zend\Config\Config'), $this->getZendDiCompilerExampleServiceA(), $params);
+        $object = new \ZendDiCompiler\Example\RuntimeA($this->get('Laminas\Config\Config'), $this->getZendDiCompilerExampleServiceA(), $params);
         if (!$newInstance) {
             $this->services['ZendDiCompiler\Example\RuntimeA'] = $object;
         }
@@ -734,10 +734,10 @@ class GeneratedServiceLocator extends ServiceLocator
 
 ## Code scan log
 
-ZendDiCompiler logs problems found during code scanning in `data/ZendDiCompiler/code-scan.log`. If you can't retrieve an object from ZendDiCompiler, you will probably find the reason in this log. The most common problem is that you have untyped scalar parameters instead of a [parameter array](#passing-all-runtime-parameters-in-a-single-array) in your constructors without providing values in your [Zend\Di configuration](http://framework.zend.com/manual/current/en/modules/zend.di.configuration.html). Here's an example of the code scan log showing some problems:
+ZendDiCompiler logs problems found during code scanning in `data/ZendDiCompiler/code-scan.log`. If you can't retrieve an object from ZendDiCompiler, you will probably find the reason in this log. The most common problem is that you have untyped scalar parameters instead of a [parameter array](#passing-all-runtime-parameters-in-a-single-array) in your constructors without providing values in your [Laminas\Di configuration](http://framework.zend.com/manual/current/en/modules/zend.di.configuration.html). Here's an example of the code scan log showing some problems:
 ```
 INFO (6): Start generating service locator by code scanning.
-DEBUG (7): Survey\Cache\Zf1CacheAdapter: Class Zend\Cache\Storage\StorageInterface could not be located in provided definitions.
+DEBUG (7): Survey\Cache\Zf1CacheAdapter: Class Laminas\Cache\Storage\StorageInterface could not be located in provided definitions.
 DEBUG (7): Survey\DataAggregator\Aggregate: Missing instance/object for parameter data for Survey\DataAggregator\Aggregate::__construct
 DEBUG (7): Survey\Db\Table\Rowset: Missing instance/object for parameter config for Survey\Db\Table\Rowset::__construct
 DEBUG (7): Survey\DbValidate\ValidationResult: Missing instance/object for parameter errorCount for Survey\DbValidate\ValidationResult::__construct
@@ -761,7 +761,7 @@ In case of simple [value objects](http://martinfowler.com/bliki/ValueObject.html
 As a bonus, ZendDiCompiler will write a `component-dependency-info.txt` file containing information about
 which of the scanned components depend on which classes.
 
-Scanned classes are grouped into components (e.g. the Zend\Mvc\MvcEvent class belongs to the Zend\Mvc component).
+Scanned classes are grouped into components (e.g. the Laminas\Mvc\MvcEvent class belongs to the Laminas\Mvc component).
 For every component, all constructor-injected classes are listed. This helps you analyze which components
 depend on which classes of other components. Consider organizing your components into layers.
 Each layer should depend on classes of the same or lower layers only.
@@ -773,7 +773,7 @@ Here's an example of what you might see:
 MyLibrary\Mail classes inject:
 - MyLibrary\Mail\Transport
 - MyLibrary\TextEngine\TextEngine
-- Zend\Config\Config
+- Laminas\Config\Config
 
 MyLibrary\Validator classes inject:
 - MyLibrary\Db\Tables
