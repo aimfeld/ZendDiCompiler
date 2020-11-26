@@ -1,3 +1,5 @@
+**NB: This repo is no longer actively maintained. Since [laminas-di](https://docs.laminas.dev/laminas-di/) has changed a lot as of version 3 and now has better support for ahead-of-time (aot) factory code generation, I suggest using laminas-di directly.**
+
 # Table of Contents
 
 * [Introduction](#introduction)
